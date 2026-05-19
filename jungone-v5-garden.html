@@ -72,9 +72,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 .plant svg{display:block;overflow:visible;}
 .plant img{
   display:block;
-  filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);
+  filter:sepia(.35) saturate(var(--p-saturate,1.55)) brightness(var(--p-brightness,1.08)) contrast(1.05) blur(var(--p-blur,0));
   mix-blend-mode:screen;
-  opacity:.92;
+  opacity:var(--p-opacity,.92);
   -webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
   mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
 }
@@ -272,7 +272,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
   <div class="head">
     <div class="head-title">JUNG ONE</div>
     <div class="head-count">
-      5 traces<br>
+      <span id="traceCount">0</span> traces<br>
       <span style="color:#3a3024;">growing since may</span>
     </div>
   </div>
@@ -332,7 +332,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 </div>
 
 <script>
-// Mock trace data — 5 plants in the garden, rendered from q01-q12.png
+// Mock trace data — plants in the garden, rendered from q01-q12.png
+// Position, size, depth decided at runtime for organic distribution
 const QIMG_BASE = "https://jj1lize-crypto.github.io/jungone/";
 const traces = [
   {
@@ -343,7 +344,6 @@ const traces = [
     content:"The corner sofa by the window every morning. The light comes in slow.",
     qimg:"q01.png",
     color:"#9aab9e",
-    pos:{x:12, y:62, w:108, h:152, z:5},
     date:"may 12"
   },
   {
@@ -351,81 +351,168 @@ const traces = [
     name:"Jiwon",
     type:"audio",
     qtext:"Was there a moment your body felt most uncomfortable?",
-    content:null,
     duration:"0:18",
     qimg:"q04.png",
     color:"#c4845a",
-    pos:{x:30, y:56, w:130, h:182, z:8},
     date:"may 14"
   },
   {
     id:3,
+    name:"Hyun",
+    type:"text",
+    qtext:"Is there anything that should never be moved or thrown away?",
+    content:"The chipped ceramic bowl. It was your grandmother's.",
+    qimg:"q03.png",
+    color:"#a89878",
+    date:"may 13"
+  },
+  {
+    id:4,
     name:"Mother",
     type:"text",
     qtext:"A food or drink you've been enjoying most lately?",
     content:"Barley tea before bed. It helps me sleep.",
     qimg:"q07.png",
     color:"#7a8a4e",
-    pos:{x:50, y:64, w:118, h:165, z:6},
     date:"may 16"
   },
   {
-    id:4,
+    id:5,
     name:"Brother",
     type:"audio",
     qtext:"Something on your mind you haven't said out loud?",
-    content:null,
     duration:"0:24",
     qimg:"q10.png",
     color:"#6a5e7a",
-    pos:{x:68, y:58, w:122, h:172, z:7},
     date:"may 17"
   },
   {
-    id:5,
+    id:6,
+    name:"Father",
+    type:"audio",
+    qtext:"When does your body feel most at ease during the day?",
+    duration:"0:15",
+    qimg:"q06.png",
+    color:"#7a8a6e",
+    date:"may 18"
+  },
+  {
+    id:7,
     name:"Father",
     type:"text",
     qtext:"When I visit, what change would you want me to notice first?",
     content:"The garden. I moved the pots closer to the door.",
     qimg:"q12.png",
     color:"#b87878",
-    pos:{x:84, y:61, w:100, h:142, z:4},
     date:"may 18"
   }
 ];
+
+// Organic layout — random but rule-driven so plants spread, vary in size by depth, and overlap front-to-back
+function layoutTraces(N){
+  const positions = [];
+  const minXDist = 11;     // min horizontal % between plants in the same depth band
+  const sameBandY = 7;     // depth band size (in bottom%) — plants closer than this in y are "same depth"
+  const TRIES = 60;
+
+  for(let i = 0; i < N; i++){
+    let placed = null;
+
+    for(let t = 0; t < TRIES; t++){
+      const candidate = {
+        x: 5 + Math.random() * 88,        // 5–93% horizontal
+        bottom: 4 + Math.random() * 24    // 4–28% from bottom (within ground area)
+      };
+
+      // Avoid placing too close to another plant in the same depth band
+      let conflict = false;
+      for(const p of positions){
+        const dx = Math.abs(candidate.x - p.x);
+        const dy = Math.abs(candidate.bottom - p.bottom);
+        if(dy < sameBandY && dx < minXDist){ conflict = true; break; }
+      }
+
+      if(!conflict){ placed = candidate; break; }
+    }
+
+    // Fallback if no good spot was found
+    if(!placed){
+      placed = {
+        x: 5 + (88 / N) * (i + 0.5) + (Math.random() - .5) * 5,
+        bottom: 4 + Math.random() * 24
+      };
+    }
+
+    // Depth: lower bottom% (closer to ground) = front, higher bottom% (closer to horizon) = back
+    placed.depth = placed.bottom / 28;          // 0(front, big) ~ 1(back, small)
+    const front = 1 - placed.depth;             // 1(front) ~ 0(back)
+
+    // Size by depth
+    const baseW = 78 + front * 88;              // 78–166px
+    placed.w = Math.max(70, Math.round(baseW + (Math.random() - .5) * 18));
+    placed.h = Math.round(placed.w * (1.35 + Math.random() * 0.22));
+
+    // Z-index by depth (front plants overlap back plants)
+    placed.z = Math.round(front * 20);
+    placed.front = front;
+
+    positions.push(placed);
+  }
+
+  return positions;
+}
 
 // Render plants
 function renderGarden(){
   const plantsContainer = document.getElementById('plants');
   const floatsContainer = document.getElementById('traceFloats');
+  const layouts = layoutTraces(traces.length);
+
+  // Set dynamic trace count
+  const countEl = document.getElementById('traceCount');
+  if(countEl) countEl.textContent = traces.length;
 
   traces.forEach((t, i) => {
-    // Plant element — image-based, sized per trace
+    const L = layouts[i];
+
+    // Plant element — image-based, sized + depth-styled per layout
     const plant = document.createElement('div');
     plant.className = 'plant';
-    plant.style.left = t.pos.x + '%';
-    plant.style.bottom = (100 - t.pos.y - 5) + '%';
-    plant.style.zIndex = t.pos.z;
-    plant.innerHTML = `<img src="${QIMG_BASE}${t.qimg}" style="width:${t.pos.w}px;height:${t.pos.h}px;" alt="" />`;
+    plant.style.left = L.x + '%';
+    plant.style.bottom = L.bottom + '%';
+    plant.style.zIndex = L.z;
+
+    // Depth-based filters (atmospheric perspective)
+    const opacity = (0.62 + L.front * 0.33).toFixed(3);
+    const brightness = (0.85 + L.front * 0.28).toFixed(3);
+    const saturate = (1.15 + L.front * 0.45).toFixed(3);
+    const blur = ((1 - L.front) * 0.7).toFixed(2);
+    plant.style.setProperty('--p-opacity', opacity);
+    plant.style.setProperty('--p-brightness', brightness);
+    plant.style.setProperty('--p-saturate', saturate);
+    plant.style.setProperty('--p-blur', blur + 'px');
+
+    plant.innerHTML = `<img src="${QIMG_BASE}${t.qimg}" style="width:${L.w}px;height:${L.h}px;" alt="" />`;
     plant.onclick = () => openDetail(t);
     plantsContainer.appendChild(plant);
 
     // Drift in animation (staggered)
     plant.style.opacity = '0';
     plant.style.transition = 'opacity 1.4s ease, transform .35s cubic-bezier(.4,0,.2,1)';
-    setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 200);
+    setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 180);
 
     // Trace float (text/audio bubble drifting near plant) — for some plants only
-    if(i % 2 === 0 || i === 3) {
+    // Prefer front-ish plants so floats don't overlap distant dim plants
+    if(L.front > 0.35 && (i % 2 === 0 || i === 3 || i === 5)){
       const float = document.createElement('div');
       float.className = 'trace-float' + (t.type === 'audio' ? ' audio' : '');
 
-      // Position float above and slightly offset from plant
       const offsetX = (i % 2 === 0) ? -60 : 50;
-      float.style.left = `calc(${t.pos.x}% + ${offsetX}px)`;
-      float.style.bottom = `calc(${100 - t.pos.y - 5}% + ${t.pos.h * 0.72}px)`;
+      float.style.left = `calc(${L.x}% + ${offsetX}px)`;
+      float.style.bottom = `calc(${L.bottom}% + ${L.h * 0.72}px)`;
+      float.style.zIndex = 25 + L.z;  // floats above their plant
 
-      if(t.type === 'audio') {
+      if(t.type === 'audio'){
         float.innerHTML = `
           <div class="bubble">
             <span class="wave"><span></span><span></span><span></span><span></span></span>
@@ -440,7 +527,6 @@ function renderGarden(){
       }
       floatsContainer.appendChild(float);
 
-      // Fade in float with delay
       setTimeout(() => float.classList.add('visible'), 1200 + i * 280);
     }
   });
