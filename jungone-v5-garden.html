@@ -70,6 +70,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 .plant:hover{transform:scale(1.04);}
 .plant:active{transform:scale(.97);}
 .plant svg{display:block;overflow:visible;}
+.plant img{
+  display:block;
+  filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);
+  mix-blend-mode:screen;
+  opacity:.92;
+  -webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
+  mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
+}
 
 /* Each plant gets a slight individual sway delay/duration */
 .plant:nth-child(1){animation-duration:5.5s;animation-delay:0s;}
@@ -262,9 +270,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 
   <!-- Header -->
   <div class="head">
-    <div class="head-title">JungOne · Garden</div>
+    <div class="head-title">JUNG ONE</div>
     <div class="head-count">
-      five traces<br>
+      5 traces<br>
       <span style="color:#3a3024;">growing since may</span>
     </div>
   </div>
@@ -324,7 +332,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 </div>
 
 <script>
-// Mock trace data — 7 plants in the garden
+// Mock trace data — 5 plants in the garden, rendered from q01-q12.png
+const QIMG_BASE = "https://jj1lize-crypto.github.io/jungone/";
 const traces = [
   {
     id:1,
@@ -332,10 +341,9 @@ const traces = [
     type:"text",
     qtext:"Where in the house do you feel most at ease these days?",
     content:"The corner sofa by the window every morning. The light comes in slow.",
-    plantType:"tallGrass",
+    qimg:"q01.png",
     color:"#9aab9e",
-    accent:"#c8d4be",
-    pos:{x:14, y:62, scale:1.05, z:5},
+    pos:{x:12, y:62, w:108, h:152, z:5},
     date:"may 12"
   },
   {
@@ -345,186 +353,46 @@ const traces = [
     qtext:"Was there a moment your body felt most uncomfortable?",
     content:null,
     duration:"0:18",
-    plantType:"bloomStem",
+    qimg:"q04.png",
     color:"#c4845a",
-    accent:"#e8a878",
-    pos:{x:32, y:58, scale:1.15, z:8},
+    pos:{x:30, y:56, w:130, h:182, z:8},
     date:"may 14"
   },
   {
     id:3,
-    name:"Father",
-    type:"text",
-    qtext:"Is there anything that should never be moved or thrown away?",
-    content:"The chipped ceramic bowl. It was your grandmother's.",
-    plantType:"roundBush",
-    color:"#8a7e6a",
-    accent:"#b3a589",
-    pos:{x:53, y:64, scale:1.0, z:6},
-    date:"may 15"
-  },
-  {
-    id:4,
     name:"Mother",
     type:"text",
     qtext:"A food or drink you've been enjoying most lately?",
     content:"Barley tea before bed. It helps me sleep.",
-    plantType:"fern",
+    qimg:"q07.png",
     color:"#7a8a4e",
-    accent:"#a8b878",
-    pos:{x:69, y:60, scale:1.1, z:7},
+    pos:{x:50, y:64, w:118, h:165, z:6},
     date:"may 16"
   },
   {
-    id:5,
+    id:4,
     name:"Brother",
     type:"audio",
     qtext:"Something on your mind you haven't said out loud?",
     content:null,
     duration:"0:24",
-    plantType:"bloomStem",
+    qimg:"q10.png",
     color:"#6a5e7a",
-    accent:"#9888a8",
-    pos:{x:84, y:63, scale:.95, z:5},
+    pos:{x:68, y:58, w:122, h:172, z:7},
     date:"may 17"
   },
   {
-    id:6,
-    name:"Hyun",
-    type:"text",
-    qtext:"When does your body feel most at ease during the day?",
-    content:"Right after the morning walk. Before anything else starts.",
-    plantType:"succulent",
-    color:"#a89878",
-    accent:"#d4c4a0",
-    pos:{x:42, y:71, scale:.85, z:3},
-    date:"may 18"
-  },
-  {
-    id:7,
+    id:5,
     name:"Father",
     type:"text",
     qtext:"When I visit, what change would you want me to notice first?",
     content:"The garden. I moved the pots closer to the door.",
-    plantType:"smallFlower",
+    qimg:"q12.png",
     color:"#b87878",
-    accent:"#d4a0a0",
-    pos:{x:23, y:73, scale:.78, z:2},
+    pos:{x:84, y:61, w:100, h:142, z:4},
     date:"may 18"
   }
 ];
-
-// Plant SVG library — each renders an organic plant illustration
-const plantSVG = {
-  tallGrass: (color, accent) => `
-    <svg width="90" height="160" viewBox="0 0 90 160">
-      <g fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" opacity="0.85">
-        <path d="M45 160 Q42 100 38 40 Q40 28 44 18"/>
-        <path d="M45 160 Q48 110 52 50 Q50 38 46 22"/>
-        <path d="M45 160 Q40 120 32 70 Q30 56 28 42"/>
-        <path d="M45 160 Q50 115 60 65 Q62 50 64 38"/>
-        <path d="M45 160 Q44 130 42 90 Q43 75 45 60"/>
-      </g>
-      <g fill="${accent}" opacity="0.7">
-        <ellipse cx="44" cy="18" rx="3" ry="6"/>
-        <ellipse cx="46" cy="22" rx="2.5" ry="5"/>
-        <ellipse cx="28" cy="42" rx="2.5" ry="5"/>
-        <ellipse cx="64" cy="38" rx="2.5" ry="5"/>
-        <ellipse cx="45" cy="60" rx="2" ry="4"/>
-      </g>
-    </svg>`,
-
-  bloomStem: (color, accent) => `
-    <svg width="80" height="170" viewBox="0 0 80 170">
-      <path d="M40 170 Q38 120 36 70 Q35 45 38 25" stroke="${color}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <g fill="${color}" opacity="0.75">
-        <ellipse cx="40" cy="100" rx="18" ry="6" transform="rotate(-30 40 100)"/>
-        <ellipse cx="40" cy="130" rx="20" ry="7" transform="rotate(28 40 130)"/>
-        <ellipse cx="40" cy="80" rx="14" ry="5" transform="rotate(-25 40 80)"/>
-      </g>
-      <g>
-        <circle cx="38" cy="22" r="9" fill="${accent}" opacity="0.85"/>
-        <circle cx="38" cy="22" r="9" fill="none" stroke="${color}" stroke-width="0.8" opacity="0.6"/>
-        <circle cx="38" cy="22" r="3" fill="${color}" opacity="0.6"/>
-      </g>
-    </svg>`,
-
-  roundBush: (color, accent) => `
-    <svg width="120" height="110" viewBox="0 0 120 110">
-      <g fill="${color}" opacity="0.7">
-        <ellipse cx="60" cy="85" rx="55" ry="22"/>
-        <ellipse cx="40" cy="70" rx="28" ry="18"/>
-        <ellipse cx="80" cy="65" rx="32" ry="20"/>
-        <ellipse cx="60" cy="55" rx="26" ry="16"/>
-      </g>
-      <g fill="${accent}" opacity="0.5">
-        <circle cx="35" cy="68" r="6"/>
-        <circle cx="85" cy="62" r="7"/>
-        <circle cx="58" cy="50" r="5"/>
-        <circle cx="72" cy="78" r="4"/>
-      </g>
-      <g stroke="${color}" stroke-width="1" fill="none" opacity="0.8">
-        <path d="M60 110 L60 90"/>
-      </g>
-    </svg>`,
-
-  fern: (color, accent) => `
-    <svg width="120" height="150" viewBox="0 0 120 150">
-      <g stroke="${color}" stroke-width="1.5" fill="none" opacity="0.8" stroke-linecap="round">
-        <path d="M60 150 Q60 90 50 40 Q48 28 50 20"/>
-        <path d="M55 80 Q40 75 30 65"/>
-        <path d="M52 65 Q35 58 22 45"/>
-        <path d="M50 50 Q35 42 25 30"/>
-        <path d="M58 95 Q45 92 32 88"/>
-        <path d="M62 80 Q78 73 88 62"/>
-        <path d="M60 65 Q78 56 92 42"/>
-        <path d="M58 50 Q75 40 87 28"/>
-        <path d="M64 95 Q78 92 92 86"/>
-      </g>
-      <g fill="${accent}" opacity="0.6">
-        <ellipse cx="30" cy="65" rx="4" ry="2.5" transform="rotate(-20 30 65)"/>
-        <ellipse cx="22" cy="45" rx="3.5" ry="2" transform="rotate(-30 22 45)"/>
-        <ellipse cx="88" cy="62" rx="4" ry="2.5" transform="rotate(20 88 62)"/>
-        <ellipse cx="92" cy="42" rx="3.5" ry="2" transform="rotate(30 92 42)"/>
-        <ellipse cx="50" cy="20" rx="3" ry="5"/>
-      </g>
-    </svg>`,
-
-  succulent: (color, accent) => `
-    <svg width="80" height="80" viewBox="0 0 80 80">
-      <g fill="${color}" opacity="0.85">
-        <ellipse cx="40" cy="50" rx="22" ry="14"/>
-        <ellipse cx="40" cy="42" rx="16" ry="10" transform="rotate(20 40 42)"/>
-        <ellipse cx="40" cy="42" rx="16" ry="10" transform="rotate(-20 40 42)"/>
-        <ellipse cx="40" cy="38" rx="10" ry="7"/>
-      </g>
-      <g fill="${accent}" opacity="0.5">
-        <ellipse cx="40" cy="38" rx="5" ry="3.5"/>
-      </g>
-      <g stroke="${color}" stroke-width="0.8" fill="none" opacity="0.5">
-        <ellipse cx="40" cy="50" rx="22" ry="14"/>
-      </g>
-    </svg>`,
-
-  smallFlower: (color, accent) => `
-    <svg width="60" height="100" viewBox="0 0 60 100">
-      <path d="M30 100 Q29 70 27 45 Q27 32 30 22" stroke="${color}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <g fill="${color}" opacity="0.7">
-        <ellipse cx="22" cy="60" rx="8" ry="3" transform="rotate(-20 22 60)"/>
-        <ellipse cx="38" cy="50" rx="8" ry="3" transform="rotate(25 38 50)"/>
-      </g>
-      <g transform="translate(30 20)">
-        <g fill="${accent}" opacity="0.85">
-          <ellipse cx="0" cy="-8" rx="4" ry="6"/>
-          <ellipse cx="-7.6" cy="-2.5" rx="4" ry="6" transform="rotate(-72)"/>
-          <ellipse cx="-4.7" cy="6.5" rx="4" ry="6" transform="rotate(-144)"/>
-          <ellipse cx="4.7" cy="6.5" rx="4" ry="6" transform="rotate(144)"/>
-          <ellipse cx="7.6" cy="-2.5" rx="4" ry="6" transform="rotate(72)"/>
-        </g>
-        <circle cx="0" cy="0" r="2.5" fill="${color}" opacity="0.8"/>
-      </g>
-    </svg>`
-};
 
 // Render plants
 function renderGarden(){
@@ -532,32 +400,30 @@ function renderGarden(){
   const floatsContainer = document.getElementById('traceFloats');
 
   traces.forEach((t, i) => {
-    // Plant element
+    // Plant element — image-based, sized per trace
     const plant = document.createElement('div');
     plant.className = 'plant';
     plant.style.left = t.pos.x + '%';
     plant.style.bottom = (100 - t.pos.y - 5) + '%';
-    plant.style.transform = `scale(${t.pos.scale})`;
     plant.style.zIndex = t.pos.z;
-    plant.innerHTML = plantSVG[t.plantType](t.color, t.accent);
+    plant.innerHTML = `<img src="${QIMG_BASE}${t.qimg}" style="width:${t.pos.w}px;height:${t.pos.h}px;" alt="" />`;
     plant.onclick = () => openDetail(t);
     plantsContainer.appendChild(plant);
 
     // Drift in animation (staggered)
     plant.style.opacity = '0';
     plant.style.transition = 'opacity 1.4s ease, transform .35s cubic-bezier(.4,0,.2,1)';
-    setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 180);
+    setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 200);
 
-    // Trace float (text/audio bubble drifting near plant)
-    // Only render for ~half the plants so garden doesn't feel cluttered
-    if(i % 2 === 0 || i === 1 || i === 4) {
+    // Trace float (text/audio bubble drifting near plant) — for some plants only
+    if(i % 2 === 0 || i === 3) {
       const float = document.createElement('div');
       float.className = 'trace-float' + (t.type === 'audio' ? ' audio' : '');
 
       // Position float above and slightly offset from plant
-      const offsetX = (i % 2 === 0) ? -45 : 35;
+      const offsetX = (i % 2 === 0) ? -60 : 50;
       float.style.left = `calc(${t.pos.x}% + ${offsetX}px)`;
-      float.style.bottom = `calc(${100 - t.pos.y - 5}% + ${110 * t.pos.scale}px)`;
+      float.style.bottom = `calc(${100 - t.pos.y - 5}% + ${t.pos.h * 0.72}px)`;
 
       if(t.type === 'audio') {
         float.innerHTML = `
@@ -575,7 +441,7 @@ function renderGarden(){
       floatsContainer.appendChild(float);
 
       // Fade in float with delay
-      setTimeout(() => float.classList.add('visible'), 1200 + i * 250);
+      setTimeout(() => float.classList.add('visible'), 1200 + i * 280);
     }
   });
 }
