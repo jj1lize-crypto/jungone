@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JungOne · Garden</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',serif;background:#0c0a08;}
+
+.scene{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 100%, #2a1f15 0%, transparent 70%),
+    radial-gradient(ellipse 120% 60% at 50% 0%, #1a1410 0%, transparent 60%),
+    linear-gradient(180deg, #0a0806 0%, #100c08 40%, #1a1410 75%, #2a1f15 100%);
+  overflow:hidden;
+}
+
+/* Subtle noise texture overlay */
+.scene::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.5 0 0 0 0 0.4 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.4;mix-blend-mode:overlay;pointer-events:none;
+}
+
+/* Distant horizon glow */
+.horizon{
+  position:absolute;left:0;right:0;bottom:25%;height:1px;
+  background:linear-gradient(90deg, transparent, #4a3a28 30%, #6a5238 50%, #4a3a28 70%, transparent);
+  opacity:.35;
+}
+
+/* Header — minimal */
+.head{
+  position:absolute;top:0;left:0;right:0;
+  padding:36px 24px 0;z-index:30;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.head-title{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:#8a7e6a;
+}
+.head-count{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;
+  color:#5a4e3a;text-align:right;line-height:1.6;
+}
+
+/* Garden floor */
+.ground{
+  position:absolute;left:0;right:0;bottom:0;height:34%;
+  background:
+    radial-gradient(ellipse 60% 100% at 50% 100%, #3a2818 0%, transparent 80%),
+    linear-gradient(180deg, transparent 0%, #2a1f15 35%, #3a2818 100%);
+  z-index:5;
+}
+
+/* Plants container */
+.plants{
+  position:absolute;inset:0;z-index:10;
+}
+.plant{
+  position:absolute;
+  cursor:pointer;
+  transform-origin:bottom center;
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  animation:sway 6s ease-in-out infinite;
+}
+.plant:hover{transform:scale(1.04);}
+.plant:active{transform:scale(.97);}
+.plant svg{display:block;overflow:visible;}
+
+/* Each plant gets a slight individual sway delay/duration */
+.plant:nth-child(1){animation-duration:5.5s;animation-delay:0s;}
+.plant:nth-child(2){animation-duration:7s;animation-delay:-.8s;}
+.plant:nth-child(3){animation-duration:6.2s;animation-delay:-2.1s;}
+.plant:nth-child(4){animation-duration:5.8s;animation-delay:-1.4s;}
+.plant:nth-child(5){animation-duration:7.4s;animation-delay:-3.2s;}
+.plant:nth-child(6){animation-duration:6.6s;animation-delay:-.5s;}
+.plant:nth-child(7){animation-duration:5.2s;animation-delay:-2.8s;}
+
+@keyframes sway{
+  0%,100%{transform:rotate(-1.2deg);}
+  50%{transform:rotate(1.2deg);}
+}
+
+/* Trace bubbles — drifting beside plants */
+.trace-float{
+  position:absolute;z-index:20;pointer-events:none;
+  animation:driftFloat 8s ease-in-out infinite;
+  opacity:0;
+  transition:opacity .8s;
+}
+.trace-float.visible{opacity:1;}
+.trace-float .bubble{
+  padding:8px 14px;
+  background:rgba(245,240,232,.06);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  border:.5px solid rgba(245,240,232,.18);
+  border-radius:60% 40% 55% 45% / 50% 55% 45% 50%;
+  color:#e8dfd0;
+  font-family:'Nanum Myeongjo',serif;
+  font-size:11.5px;line-height:1.55;
+  max-width:160px;
+  font-style:italic;
+  letter-spacing:.01em;
+}
+.trace-float.audio .bubble{
+  display:flex;align-items:center;gap:8px;
+  font-style:normal;
+  font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#c8bfaa;
+}
+.trace-float.audio .wave{
+  display:inline-flex;align-items:center;gap:1.5px;height:11px;
+}
+.trace-float.audio .wave span{
+  display:block;width:1.5px;background:currentColor;border-radius:1px;
+  animation:wave 1.4s ease-in-out infinite;
+}
+.trace-float.audio .wave span:nth-child(1){height:35%;animation-delay:0s;}
+.trace-float.audio .wave span:nth-child(2){height:70%;animation-delay:.18s;}
+.trace-float.audio .wave span:nth-child(3){height:50%;animation-delay:.36s;}
+.trace-float.audio .wave span:nth-child(4){height:85%;animation-delay:.54s;}
+
+@keyframes wave{0%,100%{transform:scaleY(.35);}50%{transform:scaleY(1);}}
+
+@keyframes driftFloat{
+  0%,100%{transform:translateY(0px);}
+  50%{transform:translateY(-6px);}
+}
+
+/* Author label under bubble */
+.trace-float .author{
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.16em;
+  text-transform:uppercase;color:#7a6e5a;margin-top:4px;padding-left:8px;
+}
+
+/* Detail panel — appears when plant tapped */
+.detail{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);
+  z-index:80;
+  background:rgba(20,16,12,.96);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(245,240,232,.15);
+  padding:28px 24px 22px;
+  width:min(320px,84vw);
+  border-radius:6px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .3s cubic-bezier(.4,0,.2,1);
+}
+.detail.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+.detail-q{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:#8a7e6a;margin-bottom:10px;line-height:1.6;}
+.detail-text{font-size:15px;line-height:1.75;color:#f5efe2;font-style:italic;margin-bottom:14px;}
+.detail-audio{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  background:rgba(245,240,232,.05);border:1px solid rgba(245,240,232,.1);
+  border-radius:60% 40% 55% 45% / 50% 55% 45% 50%;
+  margin-bottom:14px;
+}
+.detail-audio .play-circle{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(245,240,232,.4);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.detail-audio .play-circle svg{width:11px;height:11px;color:#f5efe2;}
+.detail-audio .audio-meta{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:#c8bfaa;
+}
+.detail-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:14px;padding-top:12px;border-top:1px solid rgba(245,240,232,.08);
+  font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:#7a6e5a;}
+.detail-close{
+  position:absolute;top:12px;right:14px;
+  background:transparent;border:none;color:#7a6e5a;
+  font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;padding:6px;
+}
+.detail-close:hover{color:#c8bfaa;}
+
+/* Backdrop when detail is open */
+.backdrop{
+  position:absolute;inset:0;z-index:70;
+  background:rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.backdrop.show{opacity:1;pointer-events:auto;}
+
+/* Bottom entry — Online / Offline */
+.entry-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:40;
+  padding:20px 24px 36px;
+  display:flex;gap:14px;
+  background:linear-gradient(180deg, transparent 0%, rgba(10,8,6,.65) 60%, rgba(10,8,6,.9) 100%);
+}
+.entry-btn{
+  flex:1;
+  padding:16px 14px;
+  background:rgba(245,240,232,.04);
+  border:1px solid rgba(245,240,232,.18);
+  color:#e8dfd0;
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  cursor:pointer;
+  border-radius:2px;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.entry-btn:hover{background:rgba(245,240,232,.08);border-color:rgba(245,240,232,.32);}
+.entry-btn:active{transform:scale(.98);}
+.entry-btn svg{width:13px;height:13px;flex-shrink:0;}
+.entry-btn.primary{background:rgba(245,240,232,.92);color:#0e0c09;border-color:transparent;}
+.entry-btn.primary:hover{background:#fff;}
+
+/* Empty hint near horizon when first plant grows */
+.welcome{
+  position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;color:#5a4e3a;font-family:'Nanum Myeongjo',serif;
+  font-size:13px;line-height:1.8;font-style:italic;letter-spacing:.02em;
+  opacity:0;animation:fadeIn 2s ease 1s forwards;
+}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* Fireflies — tiny ambient light points */
+.firefly{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:#d4c08a;box-shadow:0 0 6px #d4c08a,0 0 12px rgba(212,192,138,.5);
+  opacity:0;animation:firefly 12s ease-in-out infinite;pointer-events:none;
+  z-index:15;
+}
+@keyframes firefly{
+  0%,100%{opacity:0;transform:translate(0,0);}
+  20%{opacity:.6;}
+  50%{opacity:.9;transform:translate(20px,-30px);}
+  80%{opacity:.4;transform:translate(-10px,-60px);}
+}
+.firefly:nth-of-type(1){top:30%;left:20%;animation-delay:0s;}
+.firefly:nth-of-type(2){top:42%;left:75%;animation-delay:-4s;}
+.firefly:nth-of-type(3){top:55%;left:40%;animation-delay:-8s;}
+.firefly:nth-of-type(4){top:25%;left:60%;animation-delay:-6s;}
+
+@media(min-width:600px){
+  .head{padding:42px 36px 0;}
+  .entry-bar{padding:24px 36px 42px;}
+}
+</style>
+</head>
+<body>
+
+<div class="scene">
+
+  <!-- Header -->
+  <div class="head">
+    <div class="head-title">JungOne · Garden</div>
+    <div class="head-count">
+      five traces<br>
+      <span style="color:#3a3024;">growing since may</span>
+    </div>
+  </div>
+
+  <!-- Horizon line -->
+  <div class="horizon"></div>
+
+  <!-- Ground -->
+  <div class="ground"></div>
+
+  <!-- Ambient fireflies -->
+  <div class="firefly"></div>
+  <div class="firefly"></div>
+  <div class="firefly"></div>
+  <div class="firefly"></div>
+
+  <!-- Plants (traces) -->
+  <div class="plants" id="plants"></div>
+
+  <!-- Trace floats (text/audio bubbles drifting near plants) -->
+  <div id="traceFloats"></div>
+
+  <!-- Welcome line (subtle, fades in) -->
+  <!-- (left commented; uncomment to show) -->
+  <!-- <div class="welcome">what has grown since you last visited</div> -->
+
+  <!-- Detail panel -->
+  <div class="backdrop" id="backdrop" onclick="closeDetail()"></div>
+  <div class="detail" id="detail">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-q" id="detailQ"></div>
+    <div id="detailContent"></div>
+    <div class="detail-meta">
+      <span id="detailAuthor"></span>
+      <span id="detailDate"></span>
+    </div>
+  </div>
+
+  <!-- Entry bar -->
+  <div class="entry-bar">
+    <button class="entry-btn" onclick="alert('Offline entry — QR scan flow (next build)')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/>
+        <path d="M14 14h3v3h-3zM18 14h3M14 18v3M18 18h3v3"/>
+      </svg>
+      Offline
+    </button>
+    <button class="entry-btn primary" onclick="alert('Online entry — cards or video (next build)')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Online
+    </button>
+  </div>
+
+</div>
+
+<script>
+// Mock trace data — 7 plants in the garden
+const traces = [
+  {
+    id:1,
+    name:"Mother",
+    type:"text",
+    qtext:"Where in the house do you feel most at ease these days?",
+    content:"The corner sofa by the window every morning. The light comes in slow.",
+    plantType:"tallGrass",
+    color:"#9aab9e",
+    accent:"#c8d4be",
+    pos:{x:14, y:62, scale:1.05, z:5},
+    date:"may 12"
+  },
+  {
+    id:2,
+    name:"Jiwon",
+    type:"audio",
+    qtext:"Was there a moment your body felt most uncomfortable?",
+    content:null,
+    duration:"0:18",
+    plantType:"bloomStem",
+    color:"#c4845a",
+    accent:"#e8a878",
+    pos:{x:32, y:58, scale:1.15, z:8},
+    date:"may 14"
+  },
+  {
+    id:3,
+    name:"Father",
+    type:"text",
+    qtext:"Is there anything that should never be moved or thrown away?",
+    content:"The chipped ceramic bowl. It was your grandmother's.",
+    plantType:"roundBush",
+    color:"#8a7e6a",
+    accent:"#b3a589",
+    pos:{x:53, y:64, scale:1.0, z:6},
+    date:"may 15"
+  },
+  {
+    id:4,
+    name:"Mother",
+    type:"text",
+    qtext:"A food or drink you've been enjoying most lately?",
+    content:"Barley tea before bed. It helps me sleep.",
+    plantType:"fern",
+    color:"#7a8a4e",
+    accent:"#a8b878",
+    pos:{x:69, y:60, scale:1.1, z:7},
+    date:"may 16"
+  },
+  {
+    id:5,
+    name:"Brother",
+    type:"audio",
+    qtext:"Something on your mind you haven't said out loud?",
+    content:null,
+    duration:"0:24",
+    plantType:"bloomStem",
+    color:"#6a5e7a",
+    accent:"#9888a8",
+    pos:{x:84, y:63, scale:.95, z:5},
+    date:"may 17"
+  },
+  {
+    id:6,
+    name:"Hyun",
+    type:"text",
+    qtext:"When does your body feel most at ease during the day?",
+    content:"Right after the morning walk. Before anything else starts.",
+    plantType:"succulent",
+    color:"#a89878",
+    accent:"#d4c4a0",
+    pos:{x:42, y:71, scale:.85, z:3},
+    date:"may 18"
+  },
+  {
+    id:7,
+    name:"Father",
+    type:"text",
+    qtext:"When I visit, what change would you want me to notice first?",
+    content:"The garden. I moved the pots closer to the door.",
+    plantType:"smallFlower",
+    color:"#b87878",
+    accent:"#d4a0a0",
+    pos:{x:23, y:73, scale:.78, z:2},
+    date:"may 18"
+  }
+];
+
+// Plant SVG library — each renders an organic plant illustration
+const plantSVG = {
+  tallGrass: (color, accent) => `
+    <svg width="90" height="160" viewBox="0 0 90 160">
+      <g fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" opacity="0.85">
+        <path d="M45 160 Q42 100 38 40 Q40 28 44 18"/>
+        <path d="M45 160 Q48 110 52 50 Q50 38 46 22"/>
+        <path d="M45 160 Q40 120 32 70 Q30 56 28 42"/>
+        <path d="M45 160 Q50 115 60 65 Q62 50 64 38"/>
+        <path d="M45 160 Q44 130 42 90 Q43 75 45 60"/>
+      </g>
+      <g fill="${accent}" opacity="0.7">
+        <ellipse cx="44" cy="18" rx="3" ry="6"/>
+        <ellipse cx="46" cy="22" rx="2.5" ry="5"/>
+        <ellipse cx="28" cy="42" rx="2.5" ry="5"/>
+        <ellipse cx="64" cy="38" rx="2.5" ry="5"/>
+        <ellipse cx="45" cy="60" rx="2" ry="4"/>
+      </g>
+    </svg>`,
+
+  bloomStem: (color, accent) => `
+    <svg width="80" height="170" viewBox="0 0 80 170">
+      <path d="M40 170 Q38 120 36 70 Q35 45 38 25" stroke="${color}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <g fill="${color}" opacity="0.75">
+        <ellipse cx="40" cy="100" rx="18" ry="6" transform="rotate(-30 40 100)"/>
+        <ellipse cx="40" cy="130" rx="20" ry="7" transform="rotate(28 40 130)"/>
+        <ellipse cx="40" cy="80" rx="14" ry="5" transform="rotate(-25 40 80)"/>
+      </g>
+      <g>
+        <circle cx="38" cy="22" r="9" fill="${accent}" opacity="0.85"/>
+        <circle cx="38" cy="22" r="9" fill="none" stroke="${color}" stroke-width="0.8" opacity="0.6"/>
+        <circle cx="38" cy="22" r="3" fill="${color}" opacity="0.6"/>
+      </g>
+    </svg>`,
+
+  roundBush: (color, accent) => `
+    <svg width="120" height="110" viewBox="0 0 120 110">
+      <g fill="${color}" opacity="0.7">
+        <ellipse cx="60" cy="85" rx="55" ry="22"/>
+        <ellipse cx="40" cy="70" rx="28" ry="18"/>
+        <ellipse cx="80" cy="65" rx="32" ry="20"/>
+        <ellipse cx="60" cy="55" rx="26" ry="16"/>
+      </g>
+      <g fill="${accent}" opacity="0.5">
+        <circle cx="35" cy="68" r="6"/>
+        <circle cx="85" cy="62" r="7"/>
+        <circle cx="58" cy="50" r="5"/>
+        <circle cx="72" cy="78" r="4"/>
+      </g>
+      <g stroke="${color}" stroke-width="1" fill="none" opacity="0.8">
+        <path d="M60 110 L60 90"/>
+      </g>
+    </svg>`,
+
+  fern: (color, accent) => `
+    <svg width="120" height="150" viewBox="0 0 120 150">
+      <g stroke="${color}" stroke-width="1.5" fill="none" opacity="0.8" stroke-linecap="round">
+        <path d="M60 150 Q60 90 50 40 Q48 28 50 20"/>
+        <path d="M55 80 Q40 75 30 65"/>
+        <path d="M52 65 Q35 58 22 45"/>
+        <path d="M50 50 Q35 42 25 30"/>
+        <path d="M58 95 Q45 92 32 88"/>
+        <path d="M62 80 Q78 73 88 62"/>
+        <path d="M60 65 Q78 56 92 42"/>
+        <path d="M58 50 Q75 40 87 28"/>
+        <path d="M64 95 Q78 92 92 86"/>
+      </g>
+      <g fill="${accent}" opacity="0.6">
+        <ellipse cx="30" cy="65" rx="4" ry="2.5" transform="rotate(-20 30 65)"/>
+        <ellipse cx="22" cy="45" rx="3.5" ry="2" transform="rotate(-30 22 45)"/>
+        <ellipse cx="88" cy="62" rx="4" ry="2.5" transform="rotate(20 88 62)"/>
+        <ellipse cx="92" cy="42" rx="3.5" ry="2" transform="rotate(30 92 42)"/>
+        <ellipse cx="50" cy="20" rx="3" ry="5"/>
+      </g>
+    </svg>`,
+
+  succulent: (color, accent) => `
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <g fill="${color}" opacity="0.85">
+        <ellipse cx="40" cy="50" rx="22" ry="14"/>
+        <ellipse cx="40" cy="42" rx="16" ry="10" transform="rotate(20 40 42)"/>
+        <ellipse cx="40" cy="42" rx="16" ry="10" transform="rotate(-20 40 42)"/>
+        <ellipse cx="40" cy="38" rx="10" ry="7"/>
+      </g>
+      <g fill="${accent}" opacity="0.5">
+        <ellipse cx="40" cy="38" rx="5" ry="3.5"/>
+      </g>
+      <g stroke="${color}" stroke-width="0.8" fill="none" opacity="0.5">
+        <ellipse cx="40" cy="50" rx="22" ry="14"/>
+      </g>
+    </svg>`,
+
+  smallFlower: (color, accent) => `
+    <svg width="60" height="100" viewBox="0 0 60 100">
+      <path d="M30 100 Q29 70 27 45 Q27 32 30 22" stroke="${color}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <g fill="${color}" opacity="0.7">
+        <ellipse cx="22" cy="60" rx="8" ry="3" transform="rotate(-20 22 60)"/>
+        <ellipse cx="38" cy="50" rx="8" ry="3" transform="rotate(25 38 50)"/>
+      </g>
+      <g transform="translate(30 20)">
+        <g fill="${accent}" opacity="0.85">
+          <ellipse cx="0" cy="-8" rx="4" ry="6"/>
+          <ellipse cx="-7.6" cy="-2.5" rx="4" ry="6" transform="rotate(-72)"/>
+          <ellipse cx="-4.7" cy="6.5" rx="4" ry="6" transform="rotate(-144)"/>
+          <ellipse cx="4.7" cy="6.5" rx="4" ry="6" transform="rotate(144)"/>
+          <ellipse cx="7.6" cy="-2.5" rx="4" ry="6" transform="rotate(72)"/>
+        </g>
+        <circle cx="0" cy="0" r="2.5" fill="${color}" opacity="0.8"/>
+      </g>
+    </svg>`
+};
+
+// Render plants
+function renderGarden(){
+  const plantsContainer = document.getElementById('plants');
+  const floatsContainer = document.getElementById('traceFloats');
+
+  traces.forEach((t, i) => {
+    // Plant element
+    const plant = document.createElement('div');
+    plant.className = 'plant';
+    plant.style.left = t.pos.x + '%';
+    plant.style.bottom = (100 - t.pos.y - 5) + '%';
+    plant.style.transform = `scale(${t.pos.scale})`;
+    plant.style.zIndex = t.pos.z;
+    plant.innerHTML = plantSVG[t.plantType](t.color, t.accent);
+    plant.onclick = () => openDetail(t);
+    plantsContainer.appendChild(plant);
+
+    // Drift in animation (staggered)
+    plant.style.opacity = '0';
+    plant.style.transition = 'opacity 1.4s ease, transform .35s cubic-bezier(.4,0,.2,1)';
+    setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 180);
+
+    // Trace float (text/audio bubble drifting near plant)
+    // Only render for ~half the plants so garden doesn't feel cluttered
+    if(i % 2 === 0 || i === 1 || i === 4) {
+      const float = document.createElement('div');
+      float.className = 'trace-float' + (t.type === 'audio' ? ' audio' : '');
+
+      // Position float above and slightly offset from plant
+      const offsetX = (i % 2 === 0) ? -45 : 35;
+      float.style.left = `calc(${t.pos.x}% + ${offsetX}px)`;
+      float.style.bottom = `calc(${100 - t.pos.y - 5}% + ${110 * t.pos.scale}px)`;
+
+      if(t.type === 'audio') {
+        float.innerHTML = `
+          <div class="bubble">
+            <span class="wave"><span></span><span></span><span></span><span></span></span>
+            ${t.duration}
+          </div>
+          <div class="author">${t.name}</div>`;
+      } else {
+        const preview = t.content.length > 60 ? t.content.substring(0, 58) + '…' : t.content;
+        float.innerHTML = `
+          <div class="bubble">${preview}</div>
+          <div class="author">${t.name}</div>`;
+      }
+      floatsContainer.appendChild(float);
+
+      // Fade in float with delay
+      setTimeout(() => float.classList.add('visible'), 1200 + i * 250);
+    }
+  });
+}
+
+// Detail panel
+function openDetail(t){
+  const d = document.getElementById('detail');
+  const b = document.getElementById('backdrop');
+  document.getElementById('detailQ').textContent = '"' + t.qtext + '"';
+
+  const content = document.getElementById('detailContent');
+  if(t.type === 'audio'){
+    content.innerHTML = `
+      <div class="detail-audio">
+        <div class="play-circle">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="audio-meta">voice trace · ${t.duration}</div>
+      </div>`;
+  } else {
+    content.innerHTML = `<div class="detail-text">${t.content}</div>`;
+  }
+
+  document.getElementById('detailAuthor').textContent = t.name;
+  document.getElementById('detailDate').textContent = t.date;
+
+  d.classList.add('open');
+  b.classList.add('show');
+}
+
+function closeDetail(){
+  document.getElementById('detail').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+
+// Init
+renderGarden();
+</script>
+
+</body>
+</html>
