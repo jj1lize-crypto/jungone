@@ -12,9 +12,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 .scene{
   position:fixed;inset:0;
   background:
-    radial-gradient(ellipse 80% 40% at 50% 100%, #2a1f15 0%, transparent 70%),
-    radial-gradient(ellipse 120% 60% at 50% 0%, #1a1410 0%, transparent 60%),
-    linear-gradient(180deg, #0a0806 0%, #100c08 40%, #1a1410 75%, #2a1f15 100%);
+    radial-gradient(ellipse 75% 65% at 50% 50%, #251a14 0%, #14100c 55%, #0a0806 100%);
   overflow:hidden;
 }
 
@@ -25,12 +23,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
   opacity:.4;mix-blend-mode:overlay;pointer-events:none;
 }
 
-/* Distant horizon glow */
-.horizon{
-  position:absolute;left:0;right:0;bottom:25%;height:1px;
-  background:linear-gradient(90deg, transparent, #4a3a28 30%, #6a5238 50%, #4a3a28 70%, transparent);
-  opacity:.35;
+/* Garden stage — parent that holds all garden elements */
+.garden-stage{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  pointer-events:none;
 }
+.garden-stage .plant{pointer-events:auto;}
 
 /* Header — minimal */
 .head{
@@ -47,15 +47,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
   color:#5a4e3a;text-align:right;line-height:1.6;
 }
 
-/* Garden floor */
-.ground{
-  position:absolute;left:0;right:0;bottom:0;height:34%;
-  background:
-    radial-gradient(ellipse 60% 100% at 50% 100%, #3a2818 0%, transparent 80%),
-    linear-gradient(180deg, transparent 0%, #2a1f15 35%, #3a2818 100%);
-  z-index:5;
-}
-
 /* Plants container */
 .plants{
   position:absolute;inset:0;z-index:10;
@@ -63,12 +54,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 .plant{
   position:absolute;
   cursor:pointer;
-  transform-origin:bottom center;
+  transform:translate(-50%,-50%);
+  transform-origin:center;
   transition:transform .35s cubic-bezier(.4,0,.2,1);
   animation:sway 6s ease-in-out infinite;
 }
-.plant:hover{transform:scale(1.04);}
-.plant:active{transform:scale(.97);}
+.plant:hover{transform:translate(-50%,-50%) scale(1.04);}
+.plant:active{transform:translate(-50%,-50%) scale(.97);}
 .plant svg{display:block;overflow:visible;}
 .plant img{
   display:block;
@@ -89,18 +81,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
 .plant:nth-child(7){animation-duration:5.2s;animation-delay:-2.8s;}
 
 @keyframes sway{
-  0%,100%{transform:rotate(-1.2deg);}
-  50%{transform:rotate(1.2deg);}
+  0%,100%{transform:translate(-50%,-50%) rotate(-1.2deg);}
+  50%{transform:translate(-50%,-50%) rotate(1.2deg);}
 }
 
 /* Trace bubbles — drifting beside plants */
 .trace-float{
   position:absolute;z-index:20;pointer-events:none;
-  animation:driftFloat 8s ease-in-out infinite;
   opacity:0;
   transition:opacity .8s;
 }
 .trace-float.visible{opacity:1;}
+.trace-inner{
+  animation:driftFloat 8s ease-in-out infinite;
+}
 .trace-float .bubble{
   padding:8px 14px;
   background:rgba(245,240,232,.06);
@@ -277,23 +271,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',se
     </div>
   </div>
 
-  <!-- Horizon line -->
-  <div class="horizon"></div>
+  <!-- Garden stage — wraps the living garden -->
+  <div class="garden-stage" id="gardenStage">
+    <!-- Ambient fireflies -->
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
 
-  <!-- Ground -->
-  <div class="ground"></div>
+    <!-- Plants (traces) -->
+    <div class="plants" id="plants"></div>
 
-  <!-- Ambient fireflies -->
-  <div class="firefly"></div>
-  <div class="firefly"></div>
-  <div class="firefly"></div>
-  <div class="firefly"></div>
-
-  <!-- Plants (traces) -->
-  <div class="plants" id="plants"></div>
-
-  <!-- Trace floats (text/audio bubbles drifting near plants) -->
-  <div id="traceFloats"></div>
+    <!-- Trace floats (text/audio bubbles drifting near plants) -->
+    <div id="traceFloats"></div>
+  </div>
 
   <!-- Welcome line (subtle, fades in) -->
   <!-- (left commented; uncomment to show) -->
@@ -408,53 +399,76 @@ const traces = [
   }
 ];
 
-// Organic layout — random but rule-driven so plants spread, vary in size by depth, and overlap front-to-back
+// Radial layout — plants grow outward from screen center toward edges.
+// Center has the largest, most vivid plants; edges have smaller, dimmer ones.
 function layoutTraces(N){
   const positions = [];
-  const minXDist = 11;     // min horizontal % between plants in the same depth band
-  const sameBandY = 7;     // depth band size (in bottom%) — plants closer than this in y are "same depth"
-  const TRIES = 60;
+  const minDist = 13;     // min distance between any two plants (in % units, mixed axes)
+  const TRIES = 80;
+
+  // Center of the garden — slightly above middle so the layout sits visually balanced
+  // (since header is at top and entry-bar at bottom, true center is fine)
+  const CX = 50, CY = 50;
+
+  // Radial range — how far from center plants can grow
+  const minR = 6, maxR = 38;
+
+  // Safe zone — avoid placing plants over header or entry bar
+  const safeMinY = 14, safeMaxY = 82;
+  const safeMinX = 6, safeMaxX = 94;
 
   for(let i = 0; i < N; i++){
     let placed = null;
 
     for(let t = 0; t < TRIES; t++){
-      const candidate = {
-        x: 5 + Math.random() * 88,        // 5–93% horizontal
-        bottom: 4 + Math.random() * 24    // 4–28% from bottom (within ground area)
-      };
+      // Random angle in full circle
+      const angle = Math.random() * 2 * Math.PI;
+      // Random radius — uniform in radial distance (not area)
+      // so plants are slightly more evenly spread along radius
+      const r = minR + Math.random() * (maxR - minR);
 
-      // Avoid placing too close to another plant in the same depth band
+      const x = CX + r * Math.cos(angle);
+      const y = CY + r * Math.sin(angle);
+
+      // Stay in safe zone
+      if(x < safeMinX || x > safeMaxX || y < safeMinY || y > safeMaxY) continue;
+
+      const candidate = { x, y, r, angle };
+
+      // Avoid placing too close to other plants
       let conflict = false;
       for(const p of positions){
-        const dx = Math.abs(candidate.x - p.x);
-        const dy = Math.abs(candidate.bottom - p.bottom);
-        if(dy < sameBandY && dx < minXDist){ conflict = true; break; }
+        const dx = candidate.x - p.x;
+        const dy = candidate.y - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < minDist){ conflict = true; break; }
       }
 
       if(!conflict){ placed = candidate; break; }
     }
 
-    // Fallback if no good spot was found
+    // Fallback: distribute evenly on a ring
     if(!placed){
+      const angle = (2 * Math.PI / N) * i + Math.random() * 0.3;
+      const r = 22 + Math.random() * 8;
       placed = {
-        x: 5 + (88 / N) * (i + 0.5) + (Math.random() - .5) * 5,
-        bottom: 4 + Math.random() * 24
+        x: Math.max(safeMinX, Math.min(safeMaxX, CX + r * Math.cos(angle))),
+        y: Math.max(safeMinY, Math.min(safeMaxY, CY + r * Math.sin(angle))),
+        r, angle
       };
     }
 
-    // Depth: lower bottom% (closer to ground) = front, higher bottom% (closer to horizon) = back
-    placed.depth = placed.bottom / 28;          // 0(front, big) ~ 1(back, small)
-    const front = 1 - placed.depth;             // 1(front) ~ 0(back)
+    // Proximity: 1 at center, 0 at edge
+    const proximity = 1 - (placed.r - minR) / (maxR - minR);
 
-    // Size by depth
-    const baseW = 78 + front * 88;              // 78–166px
+    // Size by proximity — center plants are largest
+    const baseW = 78 + proximity * 90;     // 78–168px
     placed.w = Math.max(70, Math.round(baseW + (Math.random() - .5) * 18));
     placed.h = Math.round(placed.w * (1.35 + Math.random() * 0.22));
 
-    // Z-index by depth (front plants overlap back plants)
-    placed.z = Math.round(front * 20);
-    placed.front = front;
+    // Z-index — center plants on top, edge plants behind (also a bit of randomness)
+    placed.z = Math.round(proximity * 18 + Math.random() * 4);
+    placed.proximity = proximity;
 
     positions.push(placed);
   }
@@ -475,18 +489,18 @@ function renderGarden(){
   traces.forEach((t, i) => {
     const L = layouts[i];
 
-    // Plant element — image-based, sized + depth-styled per layout
+    // Plant — positioned by its CENTER at (L.x%, L.y%) via translate(-50%,-50%) in CSS
     const plant = document.createElement('div');
     plant.className = 'plant';
     plant.style.left = L.x + '%';
-    plant.style.bottom = L.bottom + '%';
+    plant.style.top = L.y + '%';
     plant.style.zIndex = L.z;
 
-    // Depth-based filters (atmospheric perspective)
-    const opacity = (0.62 + L.front * 0.33).toFixed(3);
-    const brightness = (0.85 + L.front * 0.28).toFixed(3);
-    const saturate = (1.15 + L.front * 0.45).toFixed(3);
-    const blur = ((1 - L.front) * 0.7).toFixed(2);
+    // Proximity-based filters: center plants vivid, edge plants soft
+    const opacity = (0.62 + L.proximity * 0.33).toFixed(3);
+    const brightness = (0.85 + L.proximity * 0.28).toFixed(3);
+    const saturate = (1.15 + L.proximity * 0.45).toFixed(3);
+    const blur = ((1 - L.proximity) * 0.7).toFixed(2);
     plant.style.setProperty('--p-opacity', opacity);
     plant.style.setProperty('--p-brightness', brightness);
     plant.style.setProperty('--p-saturate', saturate);
@@ -501,19 +515,23 @@ function renderGarden(){
     plant.style.transition = 'opacity 1.4s ease, transform .35s cubic-bezier(.4,0,.2,1)';
     setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 180);
 
-    // Trace float (text/audio bubble drifting near plant) — for some plants only
-    // Prefer front-ish plants so floats don't overlap distant dim plants
-    if(L.front > 0.35 && (i % 2 === 0 || i === 3 || i === 5)){
+    // Trace float — only for plants closer to center (proximity > 0.35)
+    if(L.proximity > 0.35 && (i % 2 === 0 || i === 3 || i === 5)){
       const float = document.createElement('div');
       float.className = 'trace-float' + (t.type === 'audio' ? ' audio' : '');
 
+      // Position float above the plant: place wrapper at plant center, then shift it up & sideways
+      // The wrapper itself carries the positioning transform; .trace-inner inside handles driftFloat
       const offsetX = (i % 2 === 0) ? -60 : 50;
-      float.style.left = `calc(${L.x}% + ${offsetX}px)`;
-      float.style.bottom = `calc(${L.bottom}% + ${L.h * 0.72}px)`;
-      float.style.zIndex = 25 + L.z;  // floats above their plant
+      const offsetY = -(L.h * 0.55 + 28); // above the plant's top edge
+      float.style.left = L.x + '%';
+      float.style.top = L.y + '%';
+      float.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+      float.style.zIndex = 25 + L.z;
 
+      let bubbleHTML;
       if(t.type === 'audio'){
-        float.innerHTML = `
+        bubbleHTML = `
           <div class="bubble">
             <span class="wave"><span></span><span></span><span></span><span></span></span>
             ${t.duration}
@@ -521,10 +539,11 @@ function renderGarden(){
           <div class="author">${t.name}</div>`;
       } else {
         const preview = t.content.length > 60 ? t.content.substring(0, 58) + '…' : t.content;
-        float.innerHTML = `
+        bubbleHTML = `
           <div class="bubble">${preview}</div>
           <div class="author">${t.name}</div>`;
       }
+      float.innerHTML = `<div class="trace-inner">${bubbleHTML}</div>`;
       floatsContainer.appendChild(float);
 
       setTimeout(() => float.classList.add('visible'), 1200 + i * 280);
