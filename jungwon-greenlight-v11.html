@@ -43,19 +43,19 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 .q-detail-follow{font-family:'DM Mono',monospace;font-size:10px;color:#6a5e54;line-height:1.7;padding-top:10px;border-top:1px solid #e0d8cc;}
 
 /* Final card */
-.final-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 12px;gap:10px;}
-.card-box{width:min(200px,54vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
+.final-stage{flex:1;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:8px 12px;gap:10px;}
+.card-box{width:min(150px,42vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
 .card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
 .card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .img-t{z-index:1;}
 .img-q{z-index:2;opacity:0.7;}
 .img-a{z-index:3;opacity:0.85;}
-.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:14px 14px;}
-.back-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
-.back-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
-.back-q{font-size:clamp(11px,2.8vw,14px);color:#0e0c09;line-height:1.55;flex:1;display:flex;align-items:center;}
-.back-ex{font-family:'DM Mono',monospace;font-size:8px;color:#8a7e74;font-style:italic;margin-top:4px;line-height:1.45;}
-.back-follow{font-family:'DM Mono',monospace;font-size:9px;color:#6a5e54;line-height:1.55;padding-top:8px;border-top:1.5px solid #e0d8cc;margin-top:8px;}
+.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:10px 10px;}
+.back-badges{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px;}
+.back-badge{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.06em;text-transform:uppercase;padding:2px 4px;border:1.2px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
+.back-q{font-size:clamp(10px,2.4vw,13px);color:#0e0c09;line-height:1.5;flex:1;display:flex;align-items:center;}
+.back-ex{font-family:'DM Mono',monospace;font-size:7px;color:#8a7e74;font-style:italic;margin-top:3px;line-height:1.4;}
+.back-follow{font-family:'DM Mono',monospace;font-size:8px;color:#6a5e54;line-height:1.45;padding-top:5px;border-top:1.2px solid #e0d8cc;margin-top:5px;}
 
 /* Answer page */
 .answer-wrap{flex:1;padding:16px 24px;display:flex;flex-direction:column;gap:14px;}
@@ -111,6 +111,10 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 .sel-card.q-text .chk{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:#0e0c09;color:#fff;display:none;align-items:center;justify-content:center;font-size:12px;z-index:5;}
 .sel-card.q-text.on{outline:2.5px solid #0e0c09;outline-offset:-2.5px;}
 .sel-card.q-text.on .chk{display:flex;}
+
+/* Question grid — 3 columns, 3 rows */
+#qGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
+#qGrid .sel-card.q-text{aspect-ratio:5/7;}
 
 /* Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(14,12,9,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;}
@@ -330,27 +334,24 @@ const TSRCS = {
 // 12 question images — recycled across topics
 const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
 
-// 5 Actions (Korean)
+// 4 Actions (Korean)
 const ANAMES = {
   a01: "그냥 알고 있기",
   a02: "나중에 다시 물어보기",
-  a03: "같이 확인해보기",
-  a04: "작은 다음 단계 정하기",
-  a05: "오늘은 여기까지만"
+  a03: "작은 다음 단계 정하기",
+  a04: "오늘은 여기까지만"
 };
 const ADESC = {
   a01: "지금은 이걸 아는 것만으로 충분해.",
   a02: "한 번 더 들어주면 좋겠어. 다음에 다시.",
-  a03: "혼자 말고 같이 살펴보자.",
-  a04: "이번엔 한 발만 움직여 보자.",
-  a05: "오늘은 여기까지. 더 깊이는 다음에."
+  a03: "이번엔 한 발만 움직여 보자.",
+  a04: "오늘은 여기까지. 더 깊이는 다음에."
 };
 const ASRCS = {
   a01: BASE + "a01.png",
   a02: BASE + "a02.png",
   a03: BASE + "a03.png",
-  a04: BASE + "a04.png",
-  a05: BASE + "q05.png"  // 임시: 새 a05.png 추가 전까지 q이미지 빌려 씀
+  a04: BASE + "a04.png"
 };
 
 // 4 topics × 9 questions = 36 Korean prompts (per new spec)
