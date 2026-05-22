@@ -545,10 +545,7 @@ function afterAction(){
 
   setTimeout(() => {
     document.getElementById("cardFlash").classList.remove("show");
-    const col = TCOLORS[S.topic] || '#9aab9e';
-    entries.push({name:"나", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col});
-    goTo("p55");
-    setTimeout(() => goTo("p6"), 2400);
+    askAnswerConfirm();
   }, 2000);
 }
 
