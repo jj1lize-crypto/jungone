@@ -43,19 +43,22 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 .q-detail-follow{font-family:'DM Mono',monospace;font-size:10px;color:#6a5e54;line-height:1.7;padding-top:10px;border-top:1px solid #e0d8cc;}
 
 /* Final card */
-.final-stage{flex:1;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:8px 6px;gap:8px;}
-.card-box{width:min(46vw,220px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
+.final-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:14px;}
+.p4-intro-big{font-family:'Nanum Myeongjo',serif;font-size:clamp(16px,4.4vw,19px);line-height:1.55;color:#0e0c09;text-align:center;letter-spacing:-.01em;}
+.card-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;}
+.card-box{width:min(50vw,280px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
 .card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
 .card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .img-t{z-index:1;}
 .img-q{z-index:2;opacity:0.7;}
 .img-a{z-index:3;opacity:0.85;}
-.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:14px 12px;}
+.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;}
 .back-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
 .back-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
-.back-q{font-size:clamp(12px,3.2vw,15px);color:#0e0c09;line-height:1.55;flex:1;display:flex;align-items:center;}
-.back-ex{font-family:'DM Mono',monospace;font-size:8px;color:#8a7e74;font-style:italic;margin-top:4px;line-height:1.45;}
-.back-follow{font-family:'DM Mono',monospace;font-size:9px;color:#6a5e54;line-height:1.55;padding-top:7px;border-top:1.2px solid #e0d8cc;margin-top:7px;}
+.back-q{font-size:clamp(15px,4.2vw,19px);color:#0e0c09;line-height:1.55;font-weight:400;}
+.back-sub{font-size:clamp(12px,3.4vw,15px);color:#6a5e54;line-height:1.6;margin-top:12px;}
+.back-follow{font-family:'DM Mono',monospace;font-size:10px;color:#6a5e54;line-height:1.6;padding-top:9px;border-top:1.2px solid #e0d8cc;margin-top:9px;}
+.back-follow .action-label{font-weight:700;color:#0e0c09;text-transform:none;display:block;margin-bottom:4px;font-size:13px;font-family:'Nanum Myeongjo',serif;letter-spacing:0;line-height:1.4;}
 
 /* Answer page */
 .answer-wrap{flex:1;padding:16px 24px;display:flex;flex-direction:column;gap:14px;}
@@ -78,13 +81,11 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 .garden-body{flex:1;position:relative;overflow:hidden;}
 .seeds-container{position:absolute;inset:0;}
 
-/* Seed bubbles */
+/* Seed plants — natural look (no card box) */
 .seed{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all .3s;}
-.seed-img{width:72px;aspect-ratio:5/7;border-radius:4px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.4);}
-.seed-img img{width:100%;height:100%;object-fit:cover;display:block;}
-.seed-img img.sq{position:absolute;inset:0;opacity:.65;}
-.seed-img img.sa{position:absolute;inset:0;opacity:.85;}
-.seed-name{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:#4a4038;text-align:center;margin-top:4px;}
+.seed-img{width:90px;aspect-ratio:5/7;position:relative;overflow:visible;}
+.seed-img img{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);mix-blend-mode:screen;opacity:.92;-webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);}
+.seed-name{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#7a6e54;text-align:center;margin-top:6px;opacity:.7;}
 
 /* Answer bubble */
 .answer-bubble{position:absolute;z-index:50;pointer-events:none;opacity:0;transition:opacity .5s;max-width:220px;}
@@ -116,6 +117,9 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 #qGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
 #qGrid .sel-card.q-text{aspect-ratio:5/7;}
 
+/* Action grid — 3 columns, 2 rows */
+#aGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
+
 /* Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(14,12,9,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;}
 .modal-backdrop.show{display:flex;}
@@ -146,7 +150,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
   <div class="ph">
     <div class="step">JungOne · 1 / 3</div>
     <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
-    <div class="title">주제를<br>골라줘</div>
+    <div class="title">주제를 골라주세요</div>
   </div>
   <div class="pb"><div class="grid2" id="tGrid"></div></div>
   <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>다음 →</button></div>
@@ -157,8 +161,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
   <div class="ph">
     <div class="step">JungOne · 2 / 3</div>
     <div class="prog"><div class="prog-fill" style="width:66%"></div></div>
-    <div class="title">질문을<br>골라줘</div>
-    <div class="sub" id="p2Sub" style="font-family:'DM Mono',monospace;font-size:10px;color:#8a7e74;margin-top:6px;letter-spacing:.04em;"></div>
+    <div class="title">질문을 골라주세요</div>
   </div>
   <div class="pb">
     <div class="grid2" id="qGrid"></div>
@@ -172,10 +175,10 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 <!-- P3: Action (optional, entered from P4) -->
 <div class="page" id="p3">
   <div class="ph">
-    <div class="step">JungOne · 액션</div>
+    <div class="step" style="display:none;">JungOne · 액션</div>
     <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title">어떤 마음을<br>전할까</div>
-    <div class="sub" style="font-family:'DM Mono',monospace;font-size:10px;color:#8a7e74;margin-top:6px;line-height:1.7;">질문이 대화의 문을 연다면<br>액션은 그 대화의 결을 정해.</div>
+    <div class="title">이렇게 들어주세요</div>
+    <div class="sub" style="font-family:'Nanum Myeongjo',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">가족이 어떤 방식으로 들어주면 좋을지 골라주세요.</div>
   </div>
   <div class="pb"><div class="grid2" id="aGrid"></div></div>
   <div class="pf">
@@ -186,34 +189,41 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 
 <!-- P4: Final card -->
 <div class="page" id="p4">
-  <div class="ph" style="padding-bottom:10px;">
-    <div class="step">JungOne · 오늘의 카드</div>
+  <div class="ph" style="padding-bottom:8px;">
+    <div class="step" id="p4Step" style="display:none;">JungOne · 질문 중간 확인</div>
     <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title">오늘의<br>카드</div>
+    <div class="title" id="p4Title">질문 중간 확인</div>
   </div>
   <div class="final-stage">
-    <div class="card-box">
-      <div class="card-front" id="cFront">
-        <img class="img-t" id="imgT" src="" alt=""/>
-        <img class="img-q" id="imgQ" src="" alt=""/>
-        <img class="img-a" id="imgA" src="" alt="" style="display:none;"/>
-      </div>
+    <div id="p4Intro" class="p4-intro-big">
+      1분 동안 답을 생각해보세요.<br>
+      그리고 가족에게 원하는 반응을 골라주세요.
     </div>
-    <div class="card-box">
-      <div class="card-back" id="cBack">
-        <div>
-          <div class="back-badges" id="bBadges"></div>
-          <div class="back-q" id="bQ"></div>
+    <div class="card-pair">
+      <div class="card-box">
+        <div class="card-front" id="cFront">
+          <img class="img-t" id="imgT" src="" alt=""/>
+          <img class="img-q" id="imgQ" src="" alt=""/>
+          <img class="img-a" id="imgA" src="" alt="" style="display:none;"/>
         </div>
-        <div>
-          <div class="back-follow" id="bF" style="display:none;"></div>
+      </div>
+      <div class="card-box">
+        <div class="card-back" id="cBack">
+          <div>
+            <div class="back-badges" id="bBadges"></div>
+            <div class="back-q" id="bQ"></div>
+            <div class="back-sub" id="bSub"></div>
+          </div>
+          <div>
+            <div class="back-follow" id="bF" style="display:none;"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
   <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnAction" onclick="goTo('p3')">액션카드 선택 →</button>
-    <button class="btn btn-secondary" id="btnSave" onclick="askAnswerConfirm()">정원으로 저장 →</button>
+    <button class="btn" id="btnAction" onclick="goTo('p3')">반응 카드 선택 →</button>
+    <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">정원에 심기 →</button>
     <button class="btn-back" onclick="goBack('p2')">← 뒤로</button>
   </div>
 </div>
@@ -221,17 +231,17 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 <!-- P5: Answer -->
 <div class="page" id="p5">
   <div class="ph">
-    <div class="step">JungOne · 답변</div>
+    <div class="step" style="display:none;">JungOne · 답변</div>
     <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title">답변을<br>남겨줘</div>
+    <div class="title">오늘은 어땠나요?</div>
   </div>
   <div class="answer-wrap">
     <div class="answer-card-mini" id="miniCard">
       <img class="mini-img" id="miniImg" src="" alt=""/>
       <div class="mini-q"><span id="miniLabel"></span><span id="miniQ"></span></div>
     </div>
-    <textarea class="answer-textarea" id="answerText" placeholder="먼저 나에게 답해본 다음, 물어봐." maxlength="120" oninput="updateCount()"></textarea>
-    <div class="char-count"><span id="charCount">0</span> / 120</div>
+    <textarea class="answer-textarea" id="answerText" placeholder="오늘 인상 깊었던 답변이나 후기를 남겨주세요." maxlength="200" oninput="updateCount()"></textarea>
+    <div class="char-count"><span id="charCount">0</span> / 200</div>
   </div>
   <div class="pf">
     <button class="btn" id="btn5" onclick="submitAnswer()" disabled>정원에 심기 →</button>
@@ -293,7 +303,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 <!-- Modal: Ask if user wants to leave an answer -->
 <div class="modal-backdrop" id="answerModal" onclick="closeAnswerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-title">답변을 남기시겠습니까?</div>
+    <div class="modal-title">흔적을 같이 남기시겠어요?</div>
     <div class="modal-sub">답변 없이 카드만 정원에 심을 수도 있어요.</div>
     <div class="modal-buttons">
       <button class="btn" onclick="answerYes()">예, 남길게요</button>
@@ -305,18 +315,18 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 <script>
 const BASE = "https://jj1lize-crypto.github.io/jungone/";
 
-// 4 Topics
+// 4 Topics — new names
 const TNAMES = {
-  space:  "공간 & 상황",
-  body:   "몸 & 변화",
-  taste:  "맛 & 취향",
-  safety: "안전 & 지원"
+  space:  "공간 & 일상",
+  body:   "몸",
+  taste:  "취향 & 감정",
+  safety: "관계 & 마음"
 };
 const TDESC = {
-  space:  "집·물건<br>지내는 자리",
+  space:  "집·일상<br>지내는 자리",
   body:   "건강·습관<br>몸의 변화",
-  taste:  "음식·취향<br>좋아하는 것",
-  safety: "도움·결정<br>혼자 짊어진 일"
+  taste:  "취향·감정<br>좋아하는 것",
+  safety: "관계·마음<br>나누고 싶은 것"
 };
 const TCOLORS = {
   space:  '#5c6b3a',
@@ -334,82 +344,88 @@ const TSRCS = {
 // 12 question images — recycled across topics
 const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
 
-// 4 Actions (Korean)
+// 6 Actions — "이렇게 들어주세요" (how to listen)
 const ANAMES = {
-  a01: "그냥 알고 있기",
-  a02: "나중에 다시 물어보기",
-  a03: "작은 다음 단계 정하기",
-  a04: "오늘은 여기까지만"
+  a01: "들어주고 공감해주세요",
+  a02: "한 번에 한 가지만 물어봐주세요",
+  a03: "비슷한 경험이 있다면 짧게 나눠주세요",
+  a04: "조언은 잠깐 멈춰주세요",
+  a05: "비교하거나 평가하지 말아주세요",
+  a06: "요구보다 걱정의 이유를 알려주세요"
 };
 const ADESC = {
-  a01: "지금은 이걸 아는 것만으로 충분해.",
-  a02: "한 번 더 들어주면 좋겠어. 다음에 다시.",
-  a03: "이번엔 한 발만 움직여 보자.",
-  a04: "오늘은 여기까지. 더 깊이는 다음에."
+  a01: "지금은 해결책보다, 먼저 듣고 마음을 알아주면 좋겠어요.",
+  a02: "더 듣고 싶다는 마음은 고맙지만, 질문이 쌓이면 부담이 돼요. 가장 궁금한 한 가지만 골라 물어주세요.",
+  a03: "공감을 위해서요. 단, 비교나 조언은 아니에요.",
+  a04: "스스로 해보고 필요할 때 물어볼게요.",
+  a05: "어렵게 꺼낸 마음을 먼저 판단하지 않고 들어주세요.",
+  a06: "\"이렇게 해\" 대신, 왜 걱정되는지 / 어떤 작은 행동이면 안심되는지 알려주세요."
 };
 const ASRCS = {
   a01: BASE + "a01.png",
   a02: BASE + "a02.png",
   a03: BASE + "a03.png",
-  a04: BASE + "a04.png"
+  a04: BASE + "a04.png",
+  a05: BASE + "q05.png",  // 임시: 새 a05.png 추가 전까지 q이미지 빌려 씀
+  a06: BASE + "q06.png"   // 임시: 새 a06.png 추가 전까지 q이미지 빌려 씀
 };
 
-// 4 topics × 9 questions = 36 Korean prompts (per new spec)
+// 4 topics × 9 questions = 36, each with main q + sub q (follow-up)
 const QDATA = {
   space: [
-    "요즘 제일 편하게 머무는 자리는 어디야?",
-    "요즘 밤이나 피곤할 때 더 신경 쓰게 되는 게 있어?",
-    "요즘 집에서 전보다 덜 쓰게 된 공간이나 물건이 있어?",
-    "익숙해서 그냥 두고 있지만, 사실은 조금 불편한 게 있어?",
-    "치우고 싶은데 쉽게 손이 안 가는 것이 있어?",
-    "최근에 새삼 좋다고 느낀 자리나 물건이 있어?",
-    "요즘 집에서 계속 유지됐으면 하는 작은 습관이나 방식이 있어?",
-    "요즘 집에서 하다가 \"예전보다 좀 힘드네\" 싶었던 일이 있어?",
-    "언젠가 집이나 생활공간이 바뀐다면, 그래도 남았으면 하는 느낌은 뭐야?"
+    {q:"요즘 제일 편하게 머무는 자리는 어디인가요?", f:"그 자리에 있을 때 몸은 어떤 자세가 되나요? (예: 누워있기, 기대앉기, 꼿꼿이 앉기)"},
+    {q:"요즘따라 더 눈에 들어오거나 신경 쓰이는 것이 있나요?", f:"공간, 물건, 사람, 고민 중 어디에 가까운가요?"},
+    {q:"최근 집에서 전보다 덜 쓰게 된 공간이나 물건이 있나요?", f:"마지막으로 손이 갔던 때가 기억나나요?"},
+    {q:"익숙해서 그냥 두고 있지만, 사실은 조금 불편한 것이 있나요?", f:"언제 그 불편함이 더 느껴지나요?"},
+    {q:"최근 새삼 좋다고 느낀 자리나 물건이 있나요?", f:"그게 왜 좋게 느껴졌나요?"},
+    {q:"요즘 일상에서 \"예전보다 조금 힘드네\" 싶었던 순간이 있나요?", f:"몸 때문인가요, 마음 때문인가요, 상황 때문인가요?"},
+    {q:"최근에 피식 웃음이 났던 일이 있나요?", f:"같이 웃고 싶은 장면이었나요?"},
+    {q:"요즘 근황을 한 단어나 한 문장으로 말하면 무엇인가요?", f:"그 말에 가까운 이유가 있나요?"},
+    {q:"요즘 하루 중 가장 좋아하는 순간은 언제인가요?", f:"그 순간이 가장 좋은 이유는 무엇인가요?"}
   ],
   body: [
-    "요즘 건강에 관해서 가족이 알고 있으면 좋은 게 있어?",
-    "요즘 건강과 관련해서 새로 신경 쓰게 된 일이 있어?",
-    "하루 중 몸이 제일 편한 때는 언제야?",
-    "예전보다 회복이 느려졌다고 느끼는 순간이 있어?",
-    "전보다 더 조심하게 된 몸의 습관이나 행동이 있어?",
-    "괜찮다고 말하지만 사실 조금 신경 쓰이는 몸의 신호가 있어?",
-    "몸이 달라졌다고 느낄 때, 가장 먼저 손이 가는 건 뭐야?",
-    "최근에 누가 몸 상태를 물어봤을 때, 답하기 편했던 순간이 있었어?",
-    "요즘 건강 이야기를 꺼내기 편한 때나 방식이 있어?"
+    {q:"요즘 몸 상태는 전반적으로 어떤가요?", f:"사소한 변화라도 알려주실 수 있나요?"},
+    {q:"최근 건강과 관련해 새로 신경 쓰이기 시작한 일이 있나요?", f:"주변 사람들의 건강 소식을 들었을 때 내 마음에 스친 생각은 무엇인가요?"},
+    {q:"하루 중 몸이 가장 편한 시간대는 언제인가요?", f:"그때 몸의 느낌은 어떤가요?"},
+    {q:"요즘 새로 챙기게 된 약이나 건강 루틴이 있나요?", f:"언제, 어떻게 챙기고 있나요?"},
+    {q:"요즘 식욕이나 입맛은 어떤가요?", f:"평소와 달라진 점이 있나요?"},
+    {q:"요즘 속이 편하거나 불편한 때가 자주 있나요?", f:"어떤 음식이나 시간대와 관련이 있나요?"},
+    {q:"요즘 잠은 어떻게 자고 있나요?", f:"아침에 일어났을 때 몸은 어떤가요?"},
+    {q:"요즘 몸의 움직임이나 감각에서 달라진 점이 있나요?", f:"손, 무릎, 허리, 눈, 귀 중 신경 쓰이는 곳이 있나요?"},
+    {q:"새로 시작했거나 더 챙기게 된 생활 습관이 있나요?", f:"그걸 하고 나면 몸이나 마음이 조금 달라지나요?"}
   ],
   taste: [
-    "요즘 제일 입에 맞는 음식이나 음료가 있어?",
-    "요즘 사소한 행복이 되는 습관이나 취미가 있어?",
-    "요즘 집에서 자주 하는 루틴이 있어?",
-    "예전부터 바뀌지 않고 계속 좋아하는 취향이 있어?",
-    "예전엔 더 좋아했는데 요즘은 조금 달라진 취향이 있어?",
-    "요즘 하루 중 가장 기다려지는 시간이 있어?",
-    "최근에 \"이건 나다운 방식이지\" 싶었던 게 있어?",
-    "언젠가 같이 다시 해보고 싶은 일이 있어?",
-    "요즘 \"아 좀 살 것 같다\" 싶은 순간은 언제야?"
+    {q:"요즘 자주 찾는 음식, 음료, 노래, 영상, 글이 있나요?", f:"혼자 즐기나요, 누군가와 나누고 싶나요?"},
+    {q:"요즘 사소한 행복을 주는 습관이나 취미가 있나요?", f:"조금 더 자주 하고 싶은가요?"},
+    {q:"요즘 자주 반복하는 나만의 루틴이 있나요?", f:"하고 나면 상태가 어떻게 달라지나요?"},
+    {q:"남들은 잘 몰라도 내가 은근히 고집하는 방식이 있나요?", f:"가족이 그 방식을 알아주면 좋겠나요?"},
+    {q:"최근 시간 가는 줄 모르고 몰입해서 하는 일이 있나요?", f:"그 일을 할 때 어떤 에너지를 얻나요?"},
+    {q:"요즘 하루 중 가장 기다려지는 시간은 언제인가요?", f:"그 시간이 오기 전 마음은 어떤가요?"},
+    {q:"최근 일상 속에서 새롭게 발견한 것이 있나요?", f:"누군가에게 말해주고 싶었나요?"},
+    {q:"내가 은근히 꾸준히 하고 있는 작은 행동이 있나요?", f:"계속하게 되는 이유가 있나요?"},
+    {q:"요즘 \"아, 좀 살 것 같다\" 싶은 순간은 언제인가요?", f:"그 순간을 조금 더 자주 만들 수 있을까요?"}
   ],
   safety: [
-    "요즘 마음에 걸리는데 말 안 하고 넘긴 게 있어?",
-    "최근에 혼자 처리해야 하나 싶었던 일이 있었어?",
-    "지금 나한테서 가장 부담 없는 도움은 뭐야?",
-    "최근에 \"조금 더 일찍 말해도 괜찮았겠다\" 싶었던 일이 있어?",
-    "최근에 누가 도와줬을 때 \"이건 진짜 도움이다\" 싶었던 게 있어?",
-    "예전엔 말하기 쉬웠는데 요즘은 더 조심하게 되는 주제가 있어?",
-    "요즘 가족이 뭘 안 물어봐줘서 오히려 편했던 게 있어?",
-    "혼자 결정하기엔 조금 무겁게 느껴지는 일이 있어?",
-    "요즘 내가 어떤 방식으로 곁에 있으면 부담이 덜할 것 같아?"
+    {q:"마음에 걸리지만 말하지 않고 넘긴 일이 있나요?", f:"말하지 못한 이유가 걱정, 미안함, 타이밍 중 어디에 가까웠나요?"},
+    {q:"최근 가족에게 연락할까 말까 망설였던 순간이 있나요?", f:"그때 전하고 싶었던 건 무엇이었나요?"},
+    {q:"지금 가족 중 한 사람에게 물어보고 싶은 것이 있나요?", f:"아직 묻지 못한 이유가 있나요?"},
+    {q:"가족에게 조심스럽게 부탁하고 싶은 것이 있나요?", f:"어떤 방식으로 말하면 덜 부담스러울까요?"},
+    {q:"최근 가족에게 고마웠던 말이나 행동이 있나요?", f:"그때 바로 표현했나요, 아니면 마음에만 두었나요?"},
+    {q:"요즘 문득 떠오르는 걱정이 있나요?", f:"혼자 두고 싶은 걱정인가요, 나누고 싶은 걱정인가요?"},
+    {q:"최근 누가 챙겨줬을 때 '딱 적당하다' 싶었던 순간이 있나요?", f:"어떤 어투나 질문이 그렇게 느껴졌나요?"},
+    {q:"요즘 마음의 여유는 어느 정도인가요?", f:"0부터 10까지로 말하면 어디쯤인가요?"},
+    {q:"지금 가족에게 살짝 꺼내보고 싶은 속마음이 있나요?", f:"언제쯤 말하면 가장 편할 것 같나요?"}
   ]
 };
 
-// Demo garden entries (Korean) — with dates
+// Demo garden entries — adjusted to fit new question content
 const DEMO = [
   {name:"엄마", topic:"space",  q:"space-1",  a:"a02", answer:"창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",       date:"2026.05.18", color:TCOLORS.space},
-  {name:"아빠", topic:"body",   q:"body-7",   a:"a01", answer:"허리가 안 좋을 때는 조용히 알아만 주면 돼.",           date:"2026.05.19", color:TCOLORS.body},
+  {name:"아빠", topic:"body",   q:"body-1",   a:"a01", answer:"허리가 좀 안 좋은데, 조용히 알아만 주면 돼.",          date:"2026.05.19", color:TCOLORS.body},
   {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                       date:"2026.05.20", color:TCOLORS.safety},
   {name:"오빠", topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                       date:"2026.05.21", color:TCOLORS.taste},
   {name:"현",   topic:"taste",  q:"taste-1",  a:"a04", answer:"보리차 한 잔이면 충분해. 자기 전에.",                    date:"2026.05.21", color:TCOLORS.taste},
-  {name:"딸",   topic:"body",   q:"body-6",   a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.body}
+  {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
 ];
 
 let S={topic:null,question:null,action:null};
@@ -441,7 +457,6 @@ function buildQuestionGrid(){
   grid.innerHTML = "";
   const topic = S.topic;
   if(!topic){ return; }
-  document.getElementById("p2Sub").textContent = TNAMES[topic];
   const qs = QDATA[topic];
   qs.forEach((qText, i) => {
     const qid = `${topic}-${i+1}`;
@@ -506,37 +521,51 @@ function goBack(id){
 
 function buildFinalCard(){
   const t = S.topic, q = S.question, a = S.action;
-  const idx = parseInt(q.split('-')[1]) - 1;  // 0..8
-  const qimgIdx = idx % QSRCS.length;  // wrap if needed
+  const idx = parseInt(q.split('-')[1]) - 1;
+  const qimgIdx = idx % QSRCS.length;
   document.getElementById("imgT").src = TSRCS[t];
   document.getElementById("imgQ").src = QSRCS[qimgIdx];
 
-  // Show action layer only when chosen
   const imgA = document.getElementById("imgA");
   if(a){ imgA.src = ASRCS[a]; imgA.style.display = ""; }
   else { imgA.style.display = "none"; }
 
-  // Badges & prompt
-  const badges = ['<span class="back-badge">'+TNAMES[t]+'</span>',
-                  '<span class="back-badge">'+String(idx+1).padStart(2,'0')+' / 09</span>'];
-  if(a) badges.push('<span class="back-badge">'+ANAMES[a]+'</span>');
-  document.getElementById("bBadges").innerHTML = badges.join('');
-  document.getElementById("bQ").textContent = QDATA[t][idx];
-  const bF = document.getElementById("bF");
-  if(a){ bF.textContent = "→ " + ADESC[a]; bF.style.display = ""; }
-  else { bF.style.display = "none"; }
+  // No badges on back of card
+  document.getElementById("bBadges").innerHTML = '';
 
-  // Button visibility — action chosen ? hide Select-action button, make Save primary
+  // Main + sub question
+  const qData = QDATA[t][idx];
+  document.getElementById("bQ").textContent = qData.q;
+  const bSub = document.getElementById("bSub");
+  if(bSub) bSub.textContent = qData.f || "";
+
+  // Action area (final mode only)
+  const bF = document.getElementById("bF");
+  if(a){
+    bF.innerHTML = '<span class="action-label">' + ANAMES[a] + '</span>' + ADESC[a];
+    bF.style.display = "";
+  } else {
+    bF.style.display = "none";
+  }
+
+  // Mode-specific UI: title, intro, buttons
+  const titleEl = document.getElementById("p4Title");
+  const stepEl  = document.getElementById("p4Step");
+  const intro   = document.getElementById("p4Intro");
   const btnAction = document.getElementById("btnAction");
-  const btnSave = document.getElementById("btnSave");
-  if(btnAction && btnSave){
-    if(a){
-      btnAction.style.display = "none";
-      btnSave.classList.remove("btn-secondary");
-    } else {
-      btnAction.style.display = "";
-      btnSave.classList.add("btn-secondary");
-    }
+  const btnSave   = document.getElementById("btnSave");
+  if(a){
+    if(titleEl) titleEl.textContent = "오늘의 카드";
+    if(stepEl)  stepEl.textContent  = "JungOne · 오늘의 카드";
+    if(intro) intro.style.display = "none";
+    if(btnAction) btnAction.style.display = "none";
+    if(btnSave) btnSave.style.display = "";
+  } else {
+    if(titleEl) titleEl.textContent = "질문 중간 확인";
+    if(stepEl)  stepEl.textContent  = "JungOne · 질문 중간 확인";
+    if(intro) intro.style.display = "";
+    if(btnAction) btnAction.style.display = "";
+    if(btnSave) btnSave.style.display = "none";
   }
 }
 
@@ -578,8 +607,8 @@ function buildAnswerPage(){
   const idx = parseInt(q.split('-')[1]) - 1;
   const qimgIdx = idx % QSRCS.length;
   document.getElementById("miniImg").src = QSRCS[qimgIdx];
-  document.getElementById("miniLabel").textContent = TNAMES[t] + " · " + String(idx+1).padStart(2,'0') + " / 09";
-  document.getElementById("miniQ").textContent = QDATA[t][idx];
+  document.getElementById("miniLabel").textContent = "";
+  document.getElementById("miniQ").textContent = QDATA[t][idx].q;
   document.getElementById("answerText").value = "";
   document.getElementById("charCount").textContent = "0";
   document.getElementById("btn5").disabled = true;
@@ -631,12 +660,9 @@ function buildGarden(){
     seed.style.left=pos.x+"px";
     seed.style.top=pos.y+"px";
     seed.style.animationDelay=(i*0.12)+"s";
-    const aHtml = e.a ? `<img class="sa" src="${ASRCS[e.a]}" alt=""/>` : '';
     seed.innerHTML=`
       <div class="seed-img">
-        <img src="${TSRCS[e.topic]}" alt=""/>
-        <img class="sq" src="${QSRCS[qimgIdx]}" alt=""/>
-        ${aHtml}
+        <img src="${QSRCS[qimgIdx]}" alt=""/>
       </div>
       <div class="seed-name">${e.name}</div>`;
     seed.onclick=()=>showBubble(e,pos,W);
@@ -696,7 +722,8 @@ function showBubbleAt(e,x,y){
   let qText = "";
   if(e.q && e.q.includes('-')){
     const idx = parseInt(e.q.split('-')[1])-1;
-    qText = QDATA[e.topic] ? QDATA[e.topic][idx] : "";
+    const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
+    qText = obj ? obj.q : "";
   }
   const dateStr = e.date || "";
   let headerHtml = `
