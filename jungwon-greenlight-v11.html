@@ -117,8 +117,16 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo'
 #qGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
 #qGrid .sel-card.q-text{aspect-ratio:5/7;}
 
-/* Action grid — 3 columns, 2 rows */
+/* Action grid — 3 columns, 2 rows, with text overlay on cards */
 #aGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
+#aGrid .sel-card{aspect-ratio:5/7;position:relative;border-radius:4px;overflow:hidden;cursor:pointer;background:#0e0c09;}
+#aGrid .sel-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+#aGrid .sel-card .card-overlay{display:flex !important;position:absolute;inset:0;flex-direction:column;justify-content:flex-end;padding:9px 9px 10px;background:linear-gradient(180deg, transparent 25%, rgba(14,12,9,.7) 55%, rgba(14,12,9,.95) 100%);z-index:3;}
+#aGrid .card-name{font-family:'Nanum Myeongjo',serif;font-size:11px;line-height:1.4;color:#f5f0e8;font-weight:700;margin-bottom:4px;}
+#aGrid .card-desc{font-family:'DM Mono',monospace;font-size:7.5px;line-height:1.5;color:rgba(245,240,232,.7);letter-spacing:.02em;}
+#aGrid .sel-card .chk{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:#0e0c09;color:#fff;display:none;align-items:center;justify-content:center;font-size:12px;z-index:5;}
+#aGrid .sel-card.on{outline:2.5px solid #f5f0e8;outline-offset:-3px;}
+#aGrid .sel-card.on .chk{display:flex;}
 
 /* Modal */
 .modal-backdrop{position:fixed;inset:0;background:rgba(14,12,9,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;}
@@ -366,8 +374,8 @@ const ASRCS = {
   a02: BASE + "a02.png",
   a03: BASE + "a03.png",
   a04: BASE + "a04.png",
-  a05: BASE + "q05.png",  // 임시: 새 a05.png 추가 전까지 q이미지 빌려 씀
-  a06: BASE + "q06.png"   // 임시: 새 a06.png 추가 전까지 q이미지 빌려 씀
+  a05: BASE + "t01.png",  // 임시: 새 a05.png 추가 전까지 t이미지 빌려 씀
+  a06: BASE + "t02.png"   // 임시: 새 a06.png 추가 전까지 t이미지 빌려 씀
 };
 
 // 4 topics × 9 questions = 36, each with main q + sub q (follow-up)
