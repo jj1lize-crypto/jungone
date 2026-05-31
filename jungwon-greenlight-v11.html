@@ -45,9 +45,12 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 
 /* Final card */
 .final-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:14px;}
-.p4-intro-big{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(16px,4.4vw,19px);line-height:1.55;color:#0e0c09;text-align:center;letter-spacing:-.01em;}
-.p4-final-note{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(12px,3.2vw,14px);line-height:1.7;color:#3a3028;text-align:center;padding:0 6px;max-width:520px;margin:0 auto;}
-.p4-final-note .p4-final-example{display:block;color:#8a7e74;font-size:92%;font-style:italic;margin-top:8px;}
+.p4-intro-big{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(16px,4.4vw,19px);line-height:1.55;color:#0e0c09;text-align:left;letter-spacing:-.01em;width:100%;max-width:520px;}
+.p4-final-note{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(12px,3.2vw,14px);line-height:1.7;color:#3a3028;text-align:left;padding:0 6px;width:100%;max-width:520px;}
+.p4-final-note .p4-final-title{font-size:clamp(14px,3.6vw,16px);color:#0e0c09;margin-bottom:8px;font-weight:500;}
+.p4-final-note .p4-final-list{list-style:none;padding:0;margin:0;}
+.p4-final-note .p4-final-list li{position:relative;padding-left:14px;margin-bottom:4px;color:#3a3028;}
+.p4-final-note .p4-final-list li::before{content:'·';position:absolute;left:2px;top:-2px;color:#8a7e74;font-weight:700;}
 .card-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;}
 .card-box{width:min(50vw,280px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
 .card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
@@ -268,9 +271,9 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- P4: Final card -->
 <div class="page" id="p4">
   <div class="ph" style="padding-bottom:8px;">
-    <div class="step" id="p4Step" style="display:none;">JungOne · 질문 중간 확인</div>
+    <div class="step" id="p4Step" style="display:none;">JungOne · 대화 준비</div>
     <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title" id="p4Title">질문 중간 확인</div>
+    <div class="title" id="p4Title">대화 준비</div>
   </div>
   <div class="final-stage">
     <div id="p4Intro" class="p4-intro-big">
@@ -278,10 +281,12 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
       그리고 가족에게 원하는 반응을 골라주세요.
     </div>
     <div id="p4FinalNote" class="p4-final-note" style="display:none;">
-      가족들과 대화해 보세요. 혹시 질문지를 다 선택 못한 가족이 있다면 조금만 기다려주세요.
-      <br><br>
-      모두 준비가 됐다면, 선택한 질문을 읽어주고 가족들이 당신의 답변에 어떻게 반응해 줬으면 좋겠는지 알려주세요.
-      <span class="p4-final-example">(예: 나의 오늘의 질문은 ~야. 내 답변을 듣고 ~해줬으면 좋겠어)</span>
+      <div class="p4-final-title">이제 대화를 시작해요</div>
+      <ul class="p4-final-list">
+        <li>카드 주인이 먼저 말해요.</li>
+        <li>"다 말했어요" 전까지 다른 사람은 기다려주세요.</li>
+        <li>가족은 선택된 방식으로만 반응해요.</li>
+      </ul>
     </div>
     <div class="card-pair">
       <div class="card-box">
@@ -306,8 +311,8 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     </div>
   </div>
   <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnAction" onclick="goTo('p3')">반응 카드 선택 →</button>
-    <button class="btn btn-multiline" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">가족들과 대화를 다 마치셨나요?<br>그럼 정원에 심어볼까요? →</button>
+    <button class="btn" id="btnAction" onclick="goTo('p3')">이렇게 들어주세요 카드 고르기 →</button>
+    <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">다 말했어요</button>
     <button class="btn-back" onclick="backFromP4()">← 뒤로</button>
   </div>
 </div>
@@ -410,8 +415,8 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     <div class="modal-title">흔적을 같이 남기시겠어요?</div>
     <div class="modal-sub">답변 없이 카드만 정원에 심을 수도 있어요.</div>
     <div class="modal-buttons">
-      <button class="btn" onclick="answerYes()">예, 남길게요</button>
-      <button class="btn btn-secondary" onclick="answerNo()">아니오, 바로 저장</button>
+      <button class="btn" onclick="answerYes()">예, 흔적을 같이 남길게요</button>
+      <button class="btn btn-secondary" onclick="answerNo()">아니오, 정원에 바로 심을게요</button>
     </div>
   </div>
 </div>
@@ -682,8 +687,8 @@ function buildFinalCard(){
     if(btnAction) btnAction.style.display = "none";
     if(btnSave) btnSave.style.display = "";
   } else {
-    if(titleEl) titleEl.textContent = "질문 중간 확인";
-    if(stepEl)  stepEl.textContent  = "JungOne · 질문 중간 확인";
+    if(titleEl) titleEl.textContent = "대화 준비";
+    if(stepEl)  stepEl.textContent  = "JungOne · 대화 준비";
     if(intro) intro.style.display = "";
     if(finalNote) finalNote.style.display = "none";
     if(btnAction) btnAction.style.display = "";
