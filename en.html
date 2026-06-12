@@ -192,6 +192,32 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .intro-content .closing-note{font-style:italic;color:#3a3028;font-size:13.5px;line-height:1.75;padding-top:6px;}
 .intro-content .principle-note{font-size:13px;line-height:1.7;color:#0e0c09;padding:14px 16px;background:#faf6ee;border-left:2px solid #c8bfb0;margin-top:2px;}
 
+/* P0 simplified — tagline, 4-step overview, collapsible details */
+.opening-tagline{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;line-height:1.6;color:#3a3028;margin-top:12px;font-style:italic;letter-spacing:-.005em;}
+.steps-overview{list-style:none;padding:0;margin:8px 0 0;counter-reset:step;display:flex;flex-direction:column;gap:0;}
+.steps-overview li{counter-increment:step;display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:baseline;padding:18px 4px;border-top:1px solid #e0d8cc;}
+.steps-overview li:last-child{border-bottom:1px solid #e0d8cc;}
+.steps-overview li::before{content:counter(step,decimal-leading-zero);font-family:'Crimson Pro',serif;font-size:11px;letter-spacing:.18em;color:#8a7e74;grid-row:span 2;align-self:center;}
+.steps-overview .s-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:18px;font-weight:500;color:#0e0c09;letter-spacing:-.01em;}
+.steps-overview .s-desc{display:block;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:13px;color:#6a5e54;line-height:1.5;margin-top:3px;grid-column:2;}
+
+.what-is-this{margin-top:18px;}
+.what-is-this summary{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8a7e74;cursor:pointer;padding:14px 0;list-style:none;border-top:1px solid #e0d8cc;text-align:center;}
+.what-is-this summary::-webkit-details-marker{display:none;}
+.what-is-this summary::after{content:' +';color:#c8bfb0;}
+.what-is-this[open] summary::after{content:' −';}
+.what-is-this-body{padding:6px 4px 12px;display:flex;flex-direction:column;gap:14px;}
+.what-is-this-body p{font-size:13.5px;line-height:1.75;color:#0e0c09;letter-spacing:-.005em;margin:0;}
+.what-is-this-body .principle-note{font-size:12.5px;line-height:1.7;color:#0e0c09;padding:12px 14px;background:#faf6ee;border-left:2px solid #c8bfb0;}
+.what-is-this-body .closing-note{font-style:italic;color:#3a3028;font-size:13px;line-height:1.7;}
+
+/* Step indicator at top of each working page */
+.step-indicator{display:flex;justify-content:space-between;font-family:'Crimson Pro',serif;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#c8bfb0;margin-top:8px;padding-bottom:2px;}
+.step-indicator .si{flex:1;text-align:center;padding:6px 0;border-top:1.5px solid #e0d8cc;transition:all .3s;}
+.step-indicator .si.active{color:#0e0c09;border-top-color:#0e0c09;}
+.tone-prompt{margin-top:6px;text-align:center;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14.5px;line-height:1.65;color:#0e0c09;padding:14px 12px 12px;}
+.tone-prompt span{display:block;margin-top:10px;font-size:12px;color:#8a7e74;font-style:italic;letter-spacing:.02em;}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -201,38 +227,48 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <div class="page active" id="p0">
   <div class="ph">
     <div class="title">JUNG ONE: The Garden</div>
+    <div class="opening-tagline">A card-and-online garden for family care conversations before crisis.</div>
   </div>
   <div class="pb">
-    <div class="intro-content">
-      <p>Garden is a tool where families ask, listen, pause, and return — tending their conversations like a small garden.</p>
-      <p>Care can be attention, but sometimes intrusion. Rather than fix or convince each other, Garden helps you gently adjust the distance and the level of help you need. Not speaking is also an answer. Not leaving a trace is also a choice.</p>
-      <div class="how-to">
-        <div class="how-to-label">How to use</div>
-        <ol class="how-to-list">
-          <li>Decide who speaks first.</li>
-          <li>Open one question.</li>
-          <li>Choose how you want to be listened to.</li>
-          <li>Only one person speaks until they say "I'm done."</li>
-          <li>Family responds only in the way the card owner chose.</li>
-          <li>Once the speaker is done, the listener may also share what's on their heart and where their line lies.</li>
-          <li>Pass to the next person or close the round.</li>
-          <li>Leave only what you want to leave in the garden.</li>
-        </ol>
+    <ol class="steps-overview">
+      <li>
+        <span class="s-name">Choose</span>
+        <span class="s-desc">Pick a card by colour or image.</span>
+      </li>
+      <li>
+        <span class="s-name">Read</span>
+        <span class="s-desc">Read the question quietly.</span>
+      </li>
+      <li>
+        <span class="s-name">Listen</span>
+        <span class="s-desc">Choose how you want to be heard.</span>
+      </li>
+      <li>
+        <span class="s-name">Keep</span>
+        <span class="s-desc">Leave a trace, or let it go.</span>
+      </li>
+    </ol>
+
+    <details class="what-is-this">
+      <summary>What is this?</summary>
+      <div class="what-is-this-body">
+        <p>Garden is a tool where families ask, listen, pause, and return — tending their conversations like a small garden.</p>
+        <p>Care can be attention, but sometimes intrusion. Rather than fix or convince each other, Garden helps you gently adjust the distance and the level of help you need. Not speaking is also an answer. Not leaving a trace is also a choice.</p>
+        <p class="principle-note">Listening cards are not for one side to conform to the other — they are a way for both to tune the pace and shape of the conversation together.</p>
+        <p class="closing-note">To preserve the color and scent of each other's lives, Garden practices caring from a healthy distance.</p>
       </div>
-      <p class="principle-note">Listening cards are not for one side to conform to the other — they are a way for both to tune the pace and shape of the conversation together.</p>
-      <p class="closing-note">To preserve the color and scent of each other's lives, Garden practices caring from a healthy distance.</p>
-    </div>
+    </details>
   </div>
   <div class="pf">
-    <button class="btn" onclick="goTo('p1')">Choose a question →</button>
+    <button class="btn" onclick="goTo('p1')">Start →</button>
   </div>
 </div>
 
 <!-- P1: Topic -->
 <div class="page" id="p1">
   <div class="ph">
-    <div class="step">JUNG ONE · 1 / 3</div>
-    <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
+    <div class="step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator"><span class="si active">Choose</span><span class="si">Read</span><span class="si">Listen</span><span class="si">Keep</span></div>
     <div class="title">Choose a topic</div>
   </div>
   <div class="pb"><div class="grid2" id="tGrid"></div></div>
@@ -242,15 +278,15 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- P2: Question -->
 <div class="page" id="p2">
   <div class="ph">
-    <div class="step">JUNG ONE · 2 / 3</div>
-    <div class="prog"><div class="prog-fill" style="width:66%"></div></div>
+    <div class="step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator"><span class="si active">Choose</span><span class="si">Read</span><span class="si">Listen</span><span class="si">Keep</span></div>
     <div class="title">Choose a question</div>
   </div>
   <div class="pb">
     <div class="grid2" id="qGrid"></div>
   </div>
   <div class="pf">
-    <button class="btn" id="btn2" onclick="goTo('p4')" disabled>See your card →</button>
+    <button class="btn" id="btn2" onclick="goTo('p4')" disabled>Next →</button>
     <button class="btn-back" onclick="goBack('p1')">← Back</button>
   </div>
 </div>
@@ -258,10 +294,10 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- P3: Action (optional, entered from P4) -->
 <div class="page" id="p3">
   <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE · Action</div>
-    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title">How to listen</div>
-    <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">Choose how you'd like your family to listen.</div>
+    <div class="step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator"><span class="si">Choose</span><span class="si">Read</span><span class="si active">Listen</span><span class="si">Keep</span></div>
+    <div class="title">Listen</div>
+    <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">How do you want to be listened to?</div>
   </div>
   <div class="pb"><div class="grid2" id="aGrid"></div></div>
   <div class="pf">
@@ -273,23 +309,23 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- P4: Final card -->
 <div class="page" id="p4">
   <div class="ph" style="padding-bottom:8px;">
-    <div class="step" id="p4Step" style="display:none;">JUNG ONE · Preparing</div>
-    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title" id="p4Title">Preparing</div>
+    <div class="step" id="p4Step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator"><span class="si">Choose</span><span class="si active">Read</span><span class="si">Listen</span><span class="si">Keep</span></div>
+    <div class="title" id="p4Title">Read the question</div>
   </div>
   <div class="final-stage">
     <div id="p4Intro" class="p4-final-note">
       <ul class="p4-final-list">
         <li>Take a minute to think of your answer.</li>
-        <li>Choose how you'd like family to respond.</li>
+        <li>Choose how you'd like family to listen.</li>
       </ul>
     </div>
     <div id="p4FinalNote" class="p4-final-note" style="display:none;">
-      <div class="p4-final-title">Now let's begin the conversation</div>
+      <div class="p4-final-title">Now the conversation begins</div>
       <ul class="p4-final-list">
         <li>The card owner speaks first.</li>
-        <li>Wait until they say "I'm done"</li>
-        <li>Family responds only in the way the card owner chose.</li>
+        <li>Others wait until they say "I'm done."</li>
+        <li>Respond only in the chosen way.</li>
       </ul>
     </div>
     <div class="card-pair">
@@ -315,7 +351,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     </div>
   </div>
   <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnAction" onclick="goTo('p3')">Choose a listening card →</button>
+    <button class="btn" id="btnAction" onclick="goTo('p3')">Listen →</button>
     <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">I'm done</button>
     <button class="btn-back" onclick="backFromP4()">← Back</button>
   </div>
@@ -324,9 +360,9 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- P5: Answer -->
 <div class="page" id="p5">
   <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE · Answer</div>
-    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
-    <div class="title">How was today?</div>
+    <div class="step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator"><span class="si">Choose</span><span class="si">Read</span><span class="si">Listen</span><span class="si active">Keep</span></div>
+    <div class="title">Leave a trace</div>
   </div>
   <div class="answer-wrap">
     <div class="answer-card-mini" id="miniCard">
@@ -335,15 +371,15 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     </div>
 
     <div class="answer-section">
-      <div class="answer-section-label">Leave words</div>
-      <textarea class="answer-textarea" id="answerText" placeholder="Leave a memorable answer or reflection from today." maxlength="200" oninput="updateSubmitState()"></textarea>
+      <div class="answer-section-label">In words</div>
+      <textarea class="answer-textarea" id="answerText" placeholder="What's stayed with you from today?" maxlength="200" oninput="updateSubmitState()"></textarea>
       <div class="char-count"><span id="charCount">0</span> / 200</div>
     </div>
 
     <div class="answer-divider">or</div>
 
     <div class="answer-section">
-      <div class="answer-section-label">Leave a file</div>
+      <div class="answer-section-label">In a file</div>
       <label class="file-drop" id="fileDrop">
         <input type="file" id="fileInput" accept="image/*,video/*,audio/*" onchange="handleFileUpload(this)" style="display:none;"/>
         <div class="file-drop-empty" id="fileDropEmpty">
@@ -380,7 +416,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
       <circle cx="60" cy="32" r="10" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.5" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
       <circle cx="60" cy="32" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.65" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
     </svg>
-    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:22px;color:#f5f0e8;opacity:0.85;line-height:1.4;opacity:0;animation:fadeUp .6s ease 2s forwards;">A new trace has been<br>added to the garden.</div>
+    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:22px;color:#f5f0e8;opacity:0.85;line-height:1.4;opacity:0;animation:fadeUp .6s ease 2s forwards;">Today's question has<br>been planted in the garden.<br><span style="font-size:14px;opacity:.7;font-style:italic;">It may return later as a new question.</span></div>
     <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;opacity:0;animation:fadeUp .6s ease 2.3s forwards;">Opening garden →</div>
   </div>
 </div>
@@ -416,11 +452,11 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- Modal: Ask if user wants to leave an answer -->
 <div class="modal-backdrop" id="answerModal" onclick="closeAnswerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-title">Would you like to leave a trace too?</div>
-    <div class="modal-sub">You can plant just the card without an answer.</div>
+    <div class="modal-title">Would you like to leave a trace?</div>
+    <div class="modal-sub">You can also plant just the question.</div>
     <div class="modal-buttons">
-      <button class="btn" onclick="answerYes()">Yes, I'll leave a trace</button>
-      <button class="btn btn-secondary" onclick="answerNo()">No, plant directly</button>
+      <button class="btn" onclick="answerYes()">Leave a trace</button>
+      <button class="btn btn-secondary" onclick="answerNo()">Plant only the question</button>
     </div>
   </div>
 </div>
@@ -686,15 +722,15 @@ function buildFinalCard(){
   const btnAction = document.getElementById("btnAction");
   const btnSave   = document.getElementById("btnSave");
   if(a){
-    if(titleEl) titleEl.textContent = "Today's card";
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · Today's card";
+    if(titleEl) titleEl.textContent = "The conversation";
+    if(stepEl)  stepEl.textContent  = "JUNG ONE · Conversation";
     if(intro) intro.style.display = "none";
     if(finalNote) finalNote.style.display = "";
     if(btnAction) btnAction.style.display = "none";
     if(btnSave) btnSave.style.display = "";
   } else {
-    if(titleEl) titleEl.textContent = "Preparing";
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · Preparing";
+    if(titleEl) titleEl.textContent = "Read the question";
+    if(stepEl)  stepEl.textContent  = "JUNG ONE · Read";
     if(intro) intro.style.display = "";
     if(finalNote) finalNote.style.display = "none";
     if(btnAction) btnAction.style.display = "";
@@ -826,7 +862,7 @@ let bubbleIdx=0;
 function buildGarden(){
   const container=document.getElementById("seedsContainer");
   container.innerHTML="";
-  document.getElementById("gardenSub").textContent = entries.length + " traces growing";
+  document.getElementById("gardenSub").textContent = entries.length + " traces in the garden";
 
   const W=window.innerWidth, H=window.innerHeight-180;
   const positions=getPositions(entries.length,W,H);
