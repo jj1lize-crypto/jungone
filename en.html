@@ -12,13 +12,13 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
 .page.active{transform:translateX(0);}
 .page.exit{transform:translateX(-100%);}
-.ph{padding:36px 24px 8px;flex-shrink:0;}
+.ph{padding:28px 20px 10px;flex-shrink:0;}
 .step{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
 .prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:14px;}
 .prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
-.title{font-size:clamp(20px,5vw,28px);font-weight:700;line-height:1.18;color:#0e0c09;}
+.title{font-size:clamp(24px,6vw,30px);font-weight:700;line-height:1.2;color:#0e0c09;letter-spacing:-.015em;}
 .sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;color:#8a7e74;margin-top:6px;line-height:1.6;}
-.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 14px 8px;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px 14px;}
 .pf{padding:12px 18px 40px;border-top:2px solid #e0d8cc;flex-shrink:0;}
 .btn{width:100%;padding:16px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:17px;font-weight:700;cursor:pointer;}
 .btn-multiline{padding:14px 16px;font-size:15px;line-height:1.5;font-weight:500;}
@@ -51,6 +51,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .p4-final-note .p4-final-list{list-style:none;padding:0;margin:0;}
 .p4-final-note .p4-final-list li{position:relative;padding-left:14px;margin-bottom:4px;color:#3a3028;}
 .p4-final-note .p4-final-list li::before{content:'·';position:absolute;left:2px;top:-2px;color:#8a7e74;font-weight:700;}
+.p4-final-helper{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14px;line-height:1.6;color:#3a3028;font-style:italic;text-align:left;padding:0 6px;margin:0;}
 .card-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;}
 .card-box{width:min(50vw,280px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
 .card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
@@ -269,7 +270,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
     <div class="step-indicator"><span class="si active">Choose</span><span class="si">Read</span><span class="si">Listen</span><span class="si">Keep</span></div>
-    <div class="title">Choose a topic</div>
+    <div class="title">Choose by colour or image</div>
   </div>
   <div class="pb"><div class="grid2" id="tGrid"></div></div>
   <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>Next →</button></div>
@@ -280,7 +281,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
     <div class="step-indicator"><span class="si active">Choose</span><span class="si">Read</span><span class="si">Listen</span><span class="si">Keep</span></div>
-    <div class="title">Choose a question</div>
+    <div class="title">Choose by colour or image</div>
   </div>
   <div class="pb">
     <div class="grid2" id="qGrid"></div>
@@ -296,7 +297,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
     <div class="step-indicator"><span class="si">Choose</span><span class="si">Read</span><span class="si active">Listen</span><span class="si">Keep</span></div>
-    <div class="title">Listen</div>
+    <div class="title">How would you like to be heard?</div>
     <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">How do you want to be listened to?</div>
   </div>
   <div class="pb"><div class="grid2" id="aGrid"></div></div>
@@ -310,8 +311,8 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <div class="page" id="p4">
   <div class="ph" style="padding-bottom:8px;">
     <div class="step" id="p4Step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si">Choose</span><span class="si active">Read</span><span class="si">Listen</span><span class="si">Keep</span></div>
-    <div class="title" id="p4Title">Read the question</div>
+    <div class="step-indicator"><span class="si">Choose</span><span class="si active" id="p4SiRead">Read</span><span class="si" id="p4SiListen">Listen</span><span class="si">Keep</span></div>
+    <div class="title" id="p4Title">Read the question quietly</div>
   </div>
   <div class="final-stage">
     <div id="p4Intro" class="p4-final-note">
@@ -321,12 +322,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
       </ul>
     </div>
     <div id="p4FinalNote" class="p4-final-note" style="display:none;">
-      <div class="p4-final-title">Now the conversation begins</div>
-      <ul class="p4-final-list">
-        <li>The card owner speaks first.</li>
-        <li>Others wait until they say "I'm done."</li>
-        <li>Respond only in the chosen way.</li>
-      </ul>
+      <p class="p4-final-helper">The other person listens until you finish.</p>
     </div>
     <div class="card-pair">
       <div class="card-box">
@@ -362,7 +358,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
     <div class="step-indicator"><span class="si">Choose</span><span class="si">Read</span><span class="si">Listen</span><span class="si active">Keep</span></div>
-    <div class="title">Leave a trace</div>
+    <div class="title">What would you like to keep?</div>
   </div>
   <div class="answer-wrap">
     <div class="answer-card-mini" id="miniCard">
@@ -722,14 +718,18 @@ function buildFinalCard(){
   const btnAction = document.getElementById("btnAction");
   const btnSave   = document.getElementById("btnSave");
   if(a){
-    if(titleEl) titleEl.textContent = "The conversation";
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · Conversation";
+    if(titleEl) titleEl.textContent = "Share your answer";
+    var siR=document.getElementById("p4SiRead"),siL=document.getElementById("p4SiListen");
+    if(siR) siR.classList.remove("active"); if(siL) siL.classList.add("active");
+    if(stepEl)  stepEl.textContent  = "JUNG ONE · Listen";
     if(intro) intro.style.display = "none";
     if(finalNote) finalNote.style.display = "";
     if(btnAction) btnAction.style.display = "none";
     if(btnSave) btnSave.style.display = "";
   } else {
-    if(titleEl) titleEl.textContent = "Read the question";
+    if(titleEl) titleEl.textContent = "Read the question quietly";
+    var siR2=document.getElementById("p4SiRead"),siL2=document.getElementById("p4SiListen");
+    if(siR2) siR2.classList.add("active"); if(siL2) siL2.classList.remove("active");
     if(stepEl)  stepEl.textContent  = "JUNG ONE · Read";
     if(intro) intro.style.display = "";
     if(finalNote) finalNote.style.display = "none";
