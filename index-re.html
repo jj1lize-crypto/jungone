@@ -247,8 +247,9 @@ body{
 .qcard img{
   position:absolute;inset:0;
   width:100%;height:100%;
-  object-fit:cover;
-  opacity:.82;
+  object-fit:contain;
+  padding:10%;
+  opacity:.85;
   mix-blend-mode:screen;
   filter:sepia(0.18);
 }
@@ -458,21 +459,8 @@ body{
   padding:5px 4px;
   text-align:center;
 }
-.conv-listen-card.on{
-  outline:2px solid #111;
-  outline-offset:-2px;
-}
-.conv-listen-card.on::after{
-  content:'✓';
-  position:absolute;
-  top:4px;right:5px;z-index:3;
-  width:15px;height:15px;
-  border-radius:50%;
-  background:#111;
-  color:#fff;
-  font-size:10px;
-  display:flex;align-items:center;justify-content:center;
-}
+/* tap state */
+.conv-listen-card:active{transform:scale(.97);}
 
 /* Modal */
 .modal{
@@ -698,6 +686,60 @@ body{
   to{opacity:1;transform:translateY(0);}
 }
 
+
+/* Listen card popup — large card view */
+.listen-modal{align-items:center;justify-content:center;}
+.listen-modal-card{
+  background:#0e0c09;
+  width:84%;
+  max-width:340px;
+  aspect-ratio:5/7;
+  border-radius:4px;
+  overflow:hidden;
+  position:relative;
+  cursor:pointer;
+  box-shadow:0 14px 40px rgba(0,0,0,0.4);
+  display:flex;
+  flex-direction:column;
+}
+.lm-img-wrap{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+}
+.lm-img-wrap img{
+  position:absolute;
+  inset:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  padding:18%;
+  opacity:0.85;
+  mix-blend-mode:screen;
+  filter:sepia(0.3);
+}
+.lm-info{
+  position:relative;
+  padding:18px 22px 24px;
+  text-align:center;
+  color:#f5f0e8;
+  background:linear-gradient(180deg,rgba(14,12,9,0) 0%,rgba(14,12,9,0.7) 60%,rgba(14,12,9,0.92) 100%);
+  margin-top:-60px;
+  z-index:2;
+}
+.lm-name-big{
+  font-size:20px;
+  font-weight:500;
+  line-height:1.35;
+  margin-bottom:10px;
+  text-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
+.lm-desc-big{
+  font-size:14px;
+  line-height:1.55;
+  color:#e8dfd0;
+  text-shadow:0 1px 6px rgba(0,0,0,0.4);
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -730,8 +772,6 @@ body{
       <div class="step"><div class="bar"></div><div class="label">듣기</div></div>
       <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
     </div>
-    <div class="s-title">주제를 골라보세요</div>
-    <div class="empty-space" style="max-height:18px;"></div>
     <div class="topic-row" id="topicRow"></div>
     <div class="empty-space"></div>
     <div class="bottom">
@@ -748,8 +788,6 @@ body{
       <div class="step"><div class="bar"></div><div class="label">듣기</div></div>
       <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
     </div>
-    <div class="s-title">질문을 골라보세요</div>
-    <div class="empty-space" style="max-height:18px;"></div>
     <div class="qcard-row" id="qcardRow"></div>
     <div class="empty-space"></div>
     <div class="bottom">
@@ -828,6 +866,19 @@ body{
     </div>
   </section>
 
+</div>
+
+<!-- ===== LISTEN CARD POPUP ===== -->
+<div class="modal listen-modal" id="listenModal" onclick="closeListenModal()">
+  <div class="listen-modal-card" onclick="closeListenModal()">
+    <div class="lm-img-wrap">
+      <img id="lmImg" src="" alt=""/>
+    </div>
+    <div class="lm-info">
+      <div class="lm-name-big" id="lmName"></div>
+      <div class="lm-desc-big" id="lmDesc"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ===== PLANTING MODAL ===== -->
@@ -970,7 +1021,7 @@ const DEMO = [
 let entries = [...DEMO];
 
 // State
-let S = {topic:null, question:null, questionIdx:null, qChoices:[], actions:[], uploadedFile:null};
+let S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, actions:[], uploadedFile:null};
 
 // ===== Navigation =====
 function go(id){
@@ -1010,21 +1061,26 @@ function buildTopicGrid(){
 function buildQuestionChoices(){
   const row = document.getElementById("qcardRow");
   row.innerHTML = "";
-  S.question = null;
-  S.questionIdx = null;
-  document.getElementById("btnS3").disabled = true;
 
-  // Random 3 from 0..8
-  const indices = [0,1,2,3,4,5,6,7,8];
-  for(let i=indices.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [indices[i],indices[j]] = [indices[j],indices[i]];
+  // Random 3 generated once per topic per round.
+  // Going back keeps the same 3. Only "또 가꾸러 가볼까요?" reset clears them.
+  if(!S.qChoicesByTopic[S.topic]){
+    const indices = [0,1,2,3,4,5,6,7,8];
+    for(let i=indices.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [indices[i],indices[j]] = [indices[j],indices[i]];
+    }
+    S.qChoicesByTopic[S.topic] = indices.slice(0,3);
   }
-  S.qChoices = indices.slice(0,3);
+  S.qChoices = S.qChoicesByTopic[S.topic];
+
+  // If returning with a previous selection in this topic, restore it
+  const previouslySelected = S.questionIdx;
 
   S.qChoices.forEach(idx => {
     const c = document.createElement("button");
     c.className = "qcard";
+    if(previouslySelected === idx) c.classList.add("on");
     const qimgIdx = idx % QSRCS.length;
     c.innerHTML = `<img src="${QSRCS[qimgIdx]}" alt=""/>`;
     c.onclick = () => {
@@ -1036,6 +1092,15 @@ function buildQuestionChoices(){
     };
     row.appendChild(c);
   });
+
+  // Enable Next if previously selected card is in current choices
+  if(previouslySelected !== null && S.qChoices.includes(previouslySelected)){
+    document.getElementById("btnS3").disabled = false;
+  } else {
+    document.getElementById("btnS3").disabled = true;
+    S.question = null;
+    S.questionIdx = null;
+  }
 }
 
 // ===== S4 — Read =====
@@ -1113,15 +1178,20 @@ function buildConvListen(){
   ["a01","a02","a03","a04","a05","a06"].forEach(key => {
     const c = document.createElement("button");
     c.className = "conv-listen-card";
-    if(S.actions.includes(key)) c.classList.add("on");
-    c.onclick = () => {
-      if(S.actions.includes(key)) S.actions = S.actions.filter(x=>x!==key);
-      else S.actions.push(key);
-      buildConvListen();
-    };
+    c.onclick = () => openListenModal(key);
     c.innerHTML = `<img src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
     row.appendChild(c);
   });
+}
+
+function openListenModal(key){
+  document.getElementById("lmImg").src = ASRCS[key];
+  document.getElementById("lmName").textContent = ANAMES[key];
+  document.getElementById("lmDesc").textContent = ADESC[key];
+  document.getElementById("listenModal").classList.add("show");
+}
+function closeListenModal(){
+  document.getElementById("listenModal").classList.remove("show");
 }
 
 // ===== Planting flow =====
@@ -1252,7 +1322,7 @@ function hideBubble(){
 
 // ===== Reset =====
 function resetAndGo(){
-  S = {topic:null, question:null, questionIdx:null, qChoices:[], actions:[], uploadedFile:null};
+  S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, actions:[], uploadedFile:null};
   go("s1");
 }
 </script>
