@@ -1,437 +1,851 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>JUNG ONE: 정원</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>정원: The Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;700&display=swap');
-@media(min-width:600px){.grid2{grid-template-columns:repeat(4,1fr)!important;}.sel-card{max-height:30vh!important;}.ph{padding:28px 32px 8px!important;}.pb{padding:8px 32px!important;}.pf{padding:10px 32px 24px!important;}}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','Noto Serif KR',serif;overflow:hidden;}
-.page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
-.page.active{transform:translateX(0);}
-.page.exit{transform:translateX(-100%);}
-.ph{padding:28px 20px 10px;flex-shrink:0;}
-.step{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
-.prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:14px;}
-.prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
-.title{font-size:clamp(24px,6vw,30px);font-weight:700;line-height:1.2;color:#0e0c09;letter-spacing:-.015em;}
-.sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;color:#8a7e74;margin-top:6px;line-height:1.6;}
-.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px 14px;}
-.pf{padding:12px 18px 40px;border-top:2px solid #e0d8cc;flex-shrink:0;}
-.btn{width:100%;padding:16px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:17px;font-weight:700;cursor:pointer;}
-.btn-multiline{padding:14px 16px;font-size:15px;line-height:1.5;font-weight:500;}
-.btn:active{opacity:.75;}
-.btn:disabled{opacity:.2;pointer-events:none;}
-.btn-back{width:100%;padding:10px;border:none;background:transparent;color:#8a7e74;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.sel-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;max-height:36vh;}
-.sel-card:active{transform:scale(.92);}
-.sel-card.on{border-color:#0e0c09;transform:scale(.96);}
-.sel-card img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .18s;}
-.grid2.picked .sel-card:not(.on) img{filter:brightness(.4);}
-.chk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;font-size:18px;color:#fff;z-index:5;}
-.sel-card.on .chk{display:flex;}
-.card-overlay{position:absolute;bottom:0;left:0;right:0;padding:10px 10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.82));}
-.card-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
-.card-desc{display:none;}
-.q-num{position:absolute;top:8px;left:8px;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.7);background:rgba(0,0,0,.4);padding:2px 6px;border-radius:2px;}
-.q-detail{display:none;background:#fff;border:1px solid #e0d8cc;padding:16px;margin-top:10px;border-radius:4px;}
-.q-detail.show{display:block;}
-.q-detail-text{font-size:15px;color:#0e0c09;line-height:1.75;margin-bottom:6px;}
-.q-detail-ex{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;color:#8a7e74;font-style:italic;margin-bottom:10px;line-height:1.6;}
-.q-detail-follow{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;color:#6a5e54;line-height:1.7;padding-top:10px;border-top:1px solid #e0d8cc;}
+/* ========================================
+   JUNG ONE: 정원 — quiet printed ritual
+   ======================================== */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Noto Serif KR','Nanum Myeongjo','AppleMyungjo',Georgia,serif;
+  background:#E8E2D4;
+  color:#111;
+  font-size:17px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
 
-/* Final card */
-.final-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:14px;}
-.p4-intro-big{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(16px,4.4vw,19px);line-height:1.55;color:#0e0c09;text-align:left;letter-spacing:-.01em;width:100%;max-width:520px;}
-.p4-final-note{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(12px,3.2vw,14px);line-height:1.7;color:#3a3028;text-align:left;padding:0 6px;width:100%;max-width:520px;}
-.p4-final-note .p4-final-title{font-size:clamp(14px,3.6vw,16px);color:#0e0c09;margin-bottom:8px;font-weight:500;}
-.p4-final-note .p4-final-list{list-style:none;padding:0;margin:0;}
-.p4-final-note .p4-final-list li{position:relative;padding-left:14px;margin-bottom:4px;color:#3a3028;}
-.p4-final-note .p4-final-list li::before{content:'·';position:absolute;left:2px;top:-2px;color:#8a7e74;font-weight:700;}
-.p4-final-helper{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14px;line-height:1.6;color:#3a3028;font-style:italic;text-align:left;padding:0 6px;margin:0;}
-.card-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;}
-.card-box{width:min(50vw,280px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
-.card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
-.card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.img-t{z-index:1;}
-.img-q{z-index:2;opacity:0.7;}
-.img-a{z-index:3;opacity:0.85;}
-.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;}
-.back-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
-.back-badge{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
-.back-q{font-size:clamp(15px,4.2vw,19px);color:#0e0c09;line-height:1.55;font-weight:400;}
-.back-sub{font-size:clamp(12px,3.4vw,15px);color:#6a5e54;line-height:1.6;margin-top:12px;}
-.back-follow{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;color:#6a5e54;line-height:1.6;padding-top:9px;border-top:1.2px solid #e0d8cc;margin-top:9px;}
-.back-follow .action-label{font-weight:700;color:#0e0c09;text-transform:none;display:block;margin-bottom:4px;font-size:13px;font-family:'Crimson Pro','Noto Serif KR',serif;letter-spacing:0;line-height:1.4;}
+/* App container — narrow column on desktop */
+.app{
+  max-width:480px;
+  margin:0 auto;
+  min-height:100vh;
+  position:relative;
+  background:#F4EFE7;
+  overflow:hidden;
+}
+@media(min-width:520px){
+  .app{box-shadow:0 0 80px rgba(0,0,0,0.08);}
+}
 
-/* Answer page */
-.answer-wrap{flex:1;padding:16px 24px;display:flex;flex-direction:column;gap:14px;}
-.answer-card-mini{display:flex;gap:10px;align-items:center;padding:12px;background:#fff;border:1px solid #e0d8cc;border-radius:4px;flex-shrink:0;}
-.mini-img{width:44px;height:62px;object-fit:cover;border-radius:2px;flex-shrink:0;}
-.mini-q{font-size:12px;color:#0e0c09;line-height:1.6;}
-.mini-q span{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;color:#8a7e74;display:block;margin-bottom:3px;}
-.name-input{width:100%;padding:12px 14px;border:1.5px solid #e0d8cc;background:#fff;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:16px;color:#0e0c09;outline:none;border-radius:4px;}
-.name-input:focus{border-color:#0e0c09;}
-.answer-textarea{width:100%;padding:14px;border:1.5px solid #e0d8cc;background:#fff;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;color:#0e0c09;outline:none;resize:none;border-radius:4px;line-height:1.7;min-height:100px;}
-.answer-textarea:focus{border-color:#0e0c09;}
-.answer-textarea::placeholder{color:#c8bfb0;}
-.char-count{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;color:#c8bfb0;text-align:right;margin-top:4px;}
+/* Pages */
+.screen{
+  display:none;
+  flex-direction:column;
+  min-height:100vh;
+  padding:42px 28px 110px;
+  position:relative;
+}
+.screen.active{display:flex;}
+.screen.dark-bg{background:#0e0c09;color:#f5f0e8;}
 
-/* Answer sections — text + file as parallel options */
-.answer-section{display:flex;flex-direction:column;gap:6px;}
-.answer-section-label{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a7e74;margin-bottom:2px;}
-.answer-divider{display:flex;align-items:center;justify-content:center;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;color:#8a7e74;margin:4px 0;position:relative;}
-.answer-divider::before,.answer-divider::after{content:'';flex:1;height:1px;background:#e0d8cc;}
-.answer-divider::before{margin-right:14px;}
-.answer-divider::after{margin-left:14px;}
+/* Progress line — thin printed rule */
+.progress{
+  display:flex;
+  gap:6px;
+  margin-bottom:44px;
+}
+.progress .step{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+}
+.progress .bar{
+  width:100%;
+  height:1.5px;
+  background:#D9CFBE;
+}
+.progress .label{display:none;}
+.progress .step.active .bar{background:#111;height:2px;}
 
-/* File drop zone */
-.file-drop{display:block;border:1.5px dashed #c8bfb0;border-radius:4px;background:#fff;cursor:pointer;transition:border-color .2s;overflow:hidden;}
-.file-drop:hover{border-color:#0e0c09;}
-.file-drop:active{background:#faf6ee;}
-.file-drop-empty{padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.file-drop-icon{font-family:'Crimson Pro',serif;font-size:30px;line-height:1;color:#c8bfb0;margin-bottom:4px;font-weight:300;}
-.file-drop-text{font-size:13px;color:#3a3028;}
-.file-drop-sub{font-family:'Crimson Pro',serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a7e74;margin-top:2px;}
 
-/* File preview (when a file is selected) */
-.file-preview{display:none;}
-.file-preview.show{display:block;padding:8px;}
-.file-preview img{max-width:100%;max-height:200px;display:block;border-radius:3px;}
-.file-preview video{max-width:100%;max-height:200px;display:block;border-radius:3px;}
-.file-preview audio{width:100%;display:block;}
-.file-clear{align-self:flex-end;background:none;border:none;color:#8a7e74;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;cursor:pointer;padding:4px 8px;margin-top:2px;}
-.file-clear:hover{color:#0e0c09;}
+/* Typography */
+.s-title{
+  font-size:26px;
+  font-weight:700;
+  line-height:1.35;
+  color:#111;
+  letter-spacing:-.01em;
+  margin-bottom:14px;
+}
+.s-title.center{text-align:center;}
+.s-helper{
+  font-size:15px;
+  line-height:1.65;
+  color:#7A6E54;
+  margin-bottom:30px;
+}
+.s-helper.center{text-align:center;}
+.s-subtitle{
+  font-size:15px;
+  line-height:1.65;
+  color:#5A4F3D;
+  margin-bottom:8px;
+}
+.s-micro-helper{
+  font-size:13px;
+  line-height:1.55;
+  color:#9A8B73;
+  font-style:italic;
+  margin-bottom:28px;
+}
 
-/* Garden page */
-.garden-page{background:#0e0c09;}
-.garden-header{padding:40px 24px 16px;flex-shrink:0;}
-.garden-title{font-size:clamp(20px,5vw,28px);font-weight:400;color:#f5f0e8;opacity:.85;}
-.garden-sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#4a4038;margin-top:6px;}
-.garden-body{flex:1;position:relative;overflow:hidden;}
-.seeds-container{position:absolute;inset:0;}
+/* Intro — Screen 1 */
+.intro-title{
+  font-size:32px;
+  font-weight:700;
+  text-align:center;
+  margin-top:72px;
+  margin-bottom:44px;
+  letter-spacing:-.01em;
+  color:#111;
+  line-height:1.25;
+}
+.intro-prose{
+  display:flex;
+  flex-direction:column;
+  gap:24px;
+  text-align:center;
+  max-width:340px;
+  margin:0 auto;
+}
+.intro-prose p{
+  font-size:17px;
+  line-height:1.75;
+  color:#1A1A1A;
+  font-weight:400;
+}
 
-/* Seed plants — natural look (no card box) */
-.seed{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all .3s;}
-.seed-img{width:90px;aspect-ratio:5/7;position:relative;overflow:visible;}
-.seed-img img{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);mix-blend-mode:screen;opacity:.92;-webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);}
-.seed-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#7a6e54;text-align:center;margin-top:6px;opacity:.7;}
+/* Bottom button area */
+.bottom{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:0 28px 32px;
+  background:linear-gradient(180deg,rgba(244,239,231,0) 0%,rgba(244,239,231,0.95) 30%,rgba(244,239,231,1) 100%);
+}
+.screen.dark-bg .bottom{
+  background:linear-gradient(180deg,rgba(14,12,9,0) 0%,rgba(14,12,9,0.95) 30%,rgba(14,12,9,1) 100%);
+}
 
-/* Answer bubble */
-.answer-bubble{position:absolute;z-index:50;pointer-events:none;opacity:0;transition:opacity .5s;max-width:260px;}
-.answer-bubble.show{opacity:1;}
-.bubble-inner{padding:12px 14px;border-radius:50% 40% 55% 45% / 45% 55% 40% 50%;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:12px;line-height:1.65;color:#f5f0e8;border:1px solid rgba(255,255,255,.15);}
-.bubble-inner .b-question{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;line-height:1.5;color:rgba(245,240,232,.55);font-style:italic;letter-spacing:-.005em;}
-.bubble-inner .b-date{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8.5px;letter-spacing:.14em;color:rgba(245,240,232,.4);margin-top:6px;}
-.bubble-inner .b-answer{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:16px;line-height:1.55;color:#f5f0e8;margin-top:10px;padding-top:10px;border-top:1px solid rgba(245,240,232,.18);font-weight:400;letter-spacing:-.005em;}
-.bubble-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:7px;letter-spacing:.12em;text-transform:uppercase;margin-top:6px;opacity:.5;}
+/* Buttons */
+.btn{
+  width:100%;
+  height:52px;
+  background:#111;
+  color:#fff;
+  border:none;
+  font-family:inherit;
+  font-size:16px;
+  font-weight:500;
+  letter-spacing:-.005em;
+  cursor:pointer;
+  border-radius:2px;
+  transition:opacity .2s;
+}
+.btn:disabled{
+  background:#D9CFBE;
+  color:#fff;
+  cursor:not-allowed;
+}
+.btn:active:not(:disabled){opacity:.85;}
+.btn-outline{
+  background:transparent;
+  color:#111;
+  border:1.5px solid #111;
+}
+.btn-back{
+  display:block;
+  width:100%;
+  background:transparent;
+  border:none;
+  text-align:center;
+  font-family:inherit;
+  font-size:14px;
+  color:#9A8B73;
+  padding:14px 0 0;
+  cursor:pointer;
+  letter-spacing:.01em;
+}
+.btn-skip{
+  display:block;
+  width:100%;
+  background:transparent;
+  border:none;
+  text-align:center;
+  font-family:inherit;
+  font-size:13px;
+  color:#9A8B73;
+  padding:14px 0 8px;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.screen.dark-bg .btn-back{color:#A89E8C;}
+.screen.dark-bg .btn{background:#f5f0e8;color:#0e0c09;}
+.screen.dark-bg .btn:disabled{background:#3a3028;color:#9a8b73;}
 
-.garden-footer{padding:12px 18px 36px;flex-shrink:0;border-top:1px solid #1e1a14;}
-.btn-light{width:100%;padding:14px;border:1px solid #3a3028;background:transparent;color:#d4c9b0;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;font-weight:400;cursor:pointer;}
-.btn-light:active{background:#1e1a14;}
+/* Topic card row — Screen 2 */
+.topic-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:20px;
+}
+.topic-card{
+  position:relative;
+  aspect-ratio:1/1.7;
+  background:#0e0c09;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  border-radius:3px;
+  overflow:hidden;
+  transition:transform .18s, box-shadow .18s;
+}
+.topic-card img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+.topic-card.on{
+  outline:2.5px solid #111;
+  outline-offset:-2px;
+  transform:translateY(-4px);
+  box-shadow:0 8px 18px rgba(17,17,17,0.18);
+}
 
-/* v11 — secondary button, text question cards, modal */
-.btn-secondary{background:#fff !important;color:#0e0c09 !important;border:1.5px solid #0e0c09 !important;}
-.btn-secondary:active{background:#f5f0e8 !important;}
+/* Question card row — Screen 3 */
+.qcard-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:20px;
+}
+.qcard{
+  position:relative;
+  aspect-ratio:1/1.55;
+  background:#0e0c09;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  border-radius:3px;
+  overflow:hidden;
+  transition:transform .18s, box-shadow .18s;
+}
+.qcard img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:.82;
+  mix-blend-mode:screen;
+  filter:sepia(0.18);
+}
+.qcard.on{
+  outline:2.5px solid #111;
+  outline-offset:-2px;
+  transform:translateY(-4px);
+  box-shadow:0 8px 18px rgba(17,17,17,0.22);
+}
 
-/* v12 — hide text content on selection cards (image-only) */
-.sel-card .card-overlay{display:none;}
-.sel-card.q-text{aspect-ratio:5/7;background:#0e0c09;position:relative;border-radius:4px;cursor:pointer;overflow:hidden;}
-.sel-card.q-text img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-.sel-card.q-text .chk{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:#0e0c09;color:#fff;display:none;align-items:center;justify-content:center;font-size:12px;z-index:5;}
-.sel-card.q-text.on{outline:2.5px solid #0e0c09;outline-offset:-2.5px;}
-.sel-card.q-text.on .chk{display:flex;}
+/* Read question — Screen 4 (large faded card) */
+.read-card{
+  position:relative;
+  width:78%;
+  max-width:280px;
+  aspect-ratio:5/7;
+  margin:32px auto 0;
+  background:#0e0c09;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 10px 28px rgba(14,12,9,0.18);
+}
+.read-card .rc-bg{position:absolute;inset:0;}
+.read-card .rc-bg .img-t{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:0.5;
+  mix-blend-mode:screen;
+}
+.read-card .rc-bg .img-q{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  padding:18%;
+  opacity:0.82;
+  mix-blend-mode:screen;
+  filter:sepia(0.25);
+}
+.read-card .rc-text{
+  position:relative;z-index:2;
+  width:100%;height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:18px 18px 22px;
+  background:linear-gradient(180deg,rgba(14,12,9,0) 50%,rgba(14,12,9,0.78) 100%);
+  text-align:center;
+  color:#f5f0e8;
+}
+.read-card .rc-q{
+  font-size:16px;
+  line-height:1.45;
+  font-weight:500;
+  text-shadow:0 1px 6px rgba(0,0,0,0.6);
+}
+.read-card .rc-sub{
+  font-size:12px;
+  line-height:1.5;
+  margin-top:6px;
+  opacity:.8;
+  font-weight:400;
+  text-shadow:0 1px 4px rgba(0,0,0,0.5);
+}
 
-/* Question grid — 3 columns, 3 rows */
-#qGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
-#qGrid .sel-card.q-text{aspect-ratio:5/7;}
+/* Listen card grid — Screen 5 */
+.listen-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.listen-card{
+  position:relative;
+  aspect-ratio:1/1.25;
+  background:#1a1612;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  border-radius:3px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  transition:transform .15s, box-shadow .15s;
+}
+.listen-card img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:.5;
+  mix-blend-mode:screen;
+  filter:sepia(0.32);
+}
+.listen-card .lc-text{
+  position:relative;z-index:2;
+  margin-top:auto;
+  background:rgba(245,240,232,0.93);
+  color:#111;
+  padding:8px 8px 9px;
+  text-align:center;
+}
+.listen-card .lc-name{
+  font-size:13px;
+  font-weight:500;
+  line-height:1.3;
+  display:block;
+}
+.listen-card .lc-desc{
+  font-size:10.5px;
+  line-height:1.4;
+  color:#5A4F3D;
+  display:block;
+  margin-top:3px;
+}
+.listen-card.on{
+  outline:2.5px solid #111;
+  outline-offset:-2px;
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(17,17,17,0.22);
+}
+.listen-card.on::after{
+  content:'✓';
+  position:absolute;
+  top:6px;right:7px;z-index:3;
+  width:18px;height:18px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+}
 
-/* Action grid — 3 columns, 2 rows, with text overlay on cards */
-#aGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
-#aGrid .sel-card{aspect-ratio:5/7;position:relative;border-radius:4px;overflow:hidden;cursor:pointer;background:#0e0c09;}
-#aGrid .sel-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-#aGrid .sel-card .card-overlay{display:flex !important;position:absolute;inset:0;flex-direction:column;justify-content:flex-end;padding:9px 9px 10px;background:linear-gradient(180deg, transparent 25%, rgba(14,12,9,.7) 55%, rgba(14,12,9,.95) 100%);z-index:3;}
-#aGrid .card-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;line-height:1.4;color:#f5f0e8;font-weight:700;margin-bottom:4px;}
-#aGrid .card-desc{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:7.5px;line-height:1.5;color:rgba(245,240,232,.7);letter-spacing:.02em;}
-#aGrid .sel-card .chk{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:#0e0c09;color:#fff;display:none;align-items:center;justify-content:center;font-size:12px;z-index:5;}
-#aGrid .sel-card.on{outline:2.5px solid #f5f0e8;outline-offset:-3px;}
-#aGrid .sel-card.on .chk{display:flex;}
+.more-toggle{
+  background:transparent;
+  border:1px dashed #C8BFA8;
+  color:#7A6E54;
+  padding:10px;
+  font-family:inherit;
+  font-size:13px;
+  width:100%;
+  cursor:pointer;
+  border-radius:3px;
+  margin-bottom:14px;
+}
+
+/* Conversation — Screen 6 */
+.conv-card{
+  position:relative;
+  width:74%;
+  max-width:260px;
+  aspect-ratio:5/7;
+  margin:8px auto 18px;
+  background:#0e0c09;
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 8px 22px rgba(14,12,9,0.18);
+}
+.conv-card .rc-bg{position:absolute;inset:0;}
+.conv-card .rc-bg .img-t{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;mix-blend-mode:screen;}
+.conv-card .rc-bg .img-q{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:18%;opacity:0.82;mix-blend-mode:screen;filter:sepia(0.25);}
+.conv-card .rc-text{position:relative;z-index:2;width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 14px 18px;background:linear-gradient(180deg,rgba(14,12,9,0) 40%,rgba(14,12,9,0.82) 100%);text-align:center;color:#f5f0e8;gap:6px;}
+.conv-card .rc-q{font-size:14px;line-height:1.42;font-weight:500;text-shadow:0 1px 6px rgba(0,0,0,0.6);}
+.conv-card .rc-sub{font-size:11.5px;line-height:1.4;color:#e8dfd0;font-style:italic;text-shadow:0 1px 4px rgba(0,0,0,0.5);}
+.conv-card .rc-aside{font-size:10.5px;line-height:1.4;color:#a89a7c;font-style:italic;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,0.5);border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;}
+
+.conv-listen-label{
+  font-size:12px;
+  color:#7A6E54;
+  letter-spacing:.08em;
+  text-align:center;
+  margin:8px 0 10px;
+  text-transform:uppercase;
+}
+.conv-listen-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+}
+.conv-listen-card{
+  position:relative;
+  aspect-ratio:1/1.3;
+  background:#1a1612;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  border-radius:3px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.conv-listen-card img{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:.45;
+  mix-blend-mode:screen;
+  filter:sepia(0.32);
+}
+.conv-listen-card .lc-name{
+  position:relative;z-index:2;
+  margin-top:auto;
+  background:rgba(245,240,232,0.92);
+  color:#111;
+  font-size:10.5px;
+  font-weight:500;
+  line-height:1.25;
+  padding:5px 4px;
+  text-align:center;
+}
+.conv-listen-card.on{
+  outline:2px solid #111;
+  outline-offset:-2px;
+}
+.conv-listen-card.on::after{
+  content:'✓';
+  position:absolute;
+  top:4px;right:5px;z-index:3;
+  width:15px;height:15px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+}
 
 /* Modal */
-.modal-backdrop{position:fixed;inset:0;background:rgba(14,12,9,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;}
-.modal-backdrop.show{display:flex;}
-.modal-card{background:#fff;padding:28px 24px 22px;width:100%;max-width:340px;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.3);text-align:center;}
-.modal-title{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:18px;color:#0e0c09;margin-bottom:8px;line-height:1.4;}
-.modal-sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;color:#8a7e74;letter-spacing:.04em;line-height:1.6;margin-bottom:20px;}
-.modal-buttons{display:flex;flex-direction:column;gap:8px;}
-.modal-buttons .btn{padding:14px;font-size:14px;}
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(14,12,9,0.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  padding:28px;
+}
+.modal.show{display:flex;}
+.modal-box{
+  background:#F4EFE7;
+  padding:32px 24px 24px;
+  max-width:340px;
+  width:78%;
+  text-align:center;
+  border-radius:3px;
+}
+.modal-title{
+  font-size:17px;
+  font-weight:500;
+  color:#111;
+  margin-bottom:26px;
+  line-height:1.55;
+}
+.modal-buttons{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 
-/* Card flash — shown briefly after action selection before auto-save */
-.card-flash{position:fixed;inset:0;background:rgba(14,12,9,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1100;display:none;align-items:center;justify-content:center;flex-direction:column;padding:32px;gap:24px;}
-.card-flash.show{display:flex;animation:flashIn .4s ease;}
-.card-flash-card{width:min(220px,60vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;background:#0e0c09;animation:cardPop .6s cubic-bezier(.34,1.56,.64,1);}
-.card-flash-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.card-flash-card .img-q{opacity:0.7;}
-.card-flash-card .img-a{opacity:0.85;}
-.flash-label{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#8a7e74;opacity:0;animation:fadeUp .5s ease .8s forwards;}
-@keyframes flashIn{from{opacity:0;}to{opacity:1;}}
-@keyframes cardPop{0%{transform:scale(.7);opacity:0;}60%{transform:scale(1.04);opacity:1;}100%{transform:scale(1);opacity:1;}}
+/* Trace input — Screen 8 */
+.trace-textarea{
+  width:100%;
+  min-height:144px;
+  padding:16px;
+  border:1px solid #D9CFBE;
+  background:#fff;
+  border-radius:3px;
+  font-family:inherit;
+  font-size:15px;
+  line-height:1.7;
+  color:#111;
+  resize:none;
+  outline:none;
+  margin-bottom:6px;
+}
+.trace-textarea:focus{border-color:#7A6E54;}
+.trace-counter{
+  text-align:right;
+  font-size:12px;
+  color:#9A8B73;
+  margin-bottom:28px;
+}
+.divider{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:24px;
+  color:#9A8B73;
+  font-size:13px;
+}
+.divider::before,.divider::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:#D9CFBE;
+}
+.upload-box{
+  border:1.5px dashed #C8BFA8;
+  border-radius:3px;
+  padding:32px 16px;
+  text-align:center;
+  cursor:pointer;
+  background:#FAF6ED;
+  margin-bottom:6px;
+}
+.upload-box .ub-plus{
+  font-size:26px;
+  color:#9A8B73;
+  font-weight:300;
+  margin-bottom:10px;
+  line-height:1;
+}
+.upload-box .ub-label{
+  font-size:14px;
+  color:#5A4F3D;
+  line-height:1.5;
+  margin-bottom:4px;
+}
+.upload-box .ub-cta{
+  font-size:12px;
+  color:#9A8B73;
+}
+.upload-preview{
+  display:none;
+  background:#fff;
+  border:1px solid #D9CFBE;
+  border-radius:3px;
+  padding:12px 14px;
+  font-size:13px;
+  color:#111;
+  text-align:left;
+  margin-bottom:6px;
+}
+.upload-preview.show{display:block;}
+.upload-preview .file-name{font-weight:500;}
+.upload-preview .file-remove{
+  display:block;
+  margin-top:6px;
+  background:none;border:none;
+  font-family:inherit;font-size:12px;
+  color:#9A8B73;cursor:pointer;padding:0;
+}
 
-/* Opening page (P0) */
-.opening-brand{font-family:'Crimson Pro',serif;font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:#8a7e74;font-weight:500;margin-bottom:14px;}
-#p0 .title{font-size:38px;line-height:1.1;}
-.intro-content{padding:6px 2px 8px;display:flex;flex-direction:column;gap:18px;}
-.intro-content p{font-size:14px;line-height:1.85;color:#0e0c09;letter-spacing:-.005em;}
-.intro-content .how-to{margin-top:4px;padding:18px 18px 14px;background:#fff;border:1px solid #e0d8cc;border-radius:4px;}
-.intro-content .how-to-label{font-family:'Crimson Pro',serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8a7e74;margin-bottom:14px;font-weight:500;}
-.intro-content .how-to-list{padding-left:22px;margin:0;}
-.intro-content .how-to-list li{font-size:13.5px;line-height:1.75;color:#0e0c09;margin-bottom:7px;}
-.intro-content .how-to-list li::marker{font-family:'Crimson Pro',serif;color:#8a7e74;font-size:13px;}
-.intro-content .closing-note{font-style:italic;color:#3a3028;font-size:13.5px;line-height:1.75;padding-top:6px;}
-.intro-content .principle-note{font-size:13px;line-height:1.7;color:#0e0c09;padding:14px 16px;background:#faf6ee;border-left:2px solid #c8bfb0;margin-top:2px;}
+/* Garden — Screen 9 */
+.garden-header{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin-bottom:8px;
+}
+.garden-title{
+  font-size:22px;
+  font-weight:500;
+  color:#f5f0e8;
+  letter-spacing:-.01em;
+}
+.garden-sub{
+  font-size:12.5px;
+  color:#A89E8C;
+  font-style:italic;
+}
+.garden-canvas{
+  position:relative;
+  flex:1;
+  min-height:400px;
+  margin-top:14px;
+}
+.plant{
+  position:absolute;
+  width:74px;
+  height:92px;
+  cursor:pointer;
+  transition:transform .2s;
+}
+.plant:hover{transform:scale(1.08);}
+.plant .p-img{
+  width:100%;height:100%;
+  object-fit:contain;
+  opacity:0.78;
+  filter:sepia(0.3);
+  mix-blend-mode:screen;
+}
+.plant .p-name{
+  position:absolute;
+  bottom:-14px;
+  left:0;right:0;
+  text-align:center;
+  font-size:10.5px;
+  color:#A89E8C;
+  letter-spacing:.02em;
+}
 
-/* P0 simplified — tagline, 4-step overview, collapsible details */
-.opening-tagline{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;line-height:1.6;color:#3a3028;margin-top:12px;font-style:italic;letter-spacing:-.005em;}
-.steps-overview{list-style:none;padding:0;margin:8px 0 0;counter-reset:step;display:flex;flex-direction:column;gap:0;}
-.steps-overview li{counter-increment:step;display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:baseline;padding:18px 4px;border-top:1px solid #e0d8cc;}
-.steps-overview li:last-child{border-bottom:1px solid #e0d8cc;}
-.steps-overview li::before{content:counter(step,decimal-leading-zero);font-family:'Crimson Pro',serif;font-size:11px;letter-spacing:.18em;color:#8a7e74;grid-row:span 2;align-self:center;}
-.steps-overview .s-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:18px;font-weight:500;color:#0e0c09;letter-spacing:-.01em;}
-.steps-overview .s-desc{display:block;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:13px;color:#6a5e54;line-height:1.5;margin-top:3px;grid-column:2;}
+/* Trace bubble — warm brown organic oval */
+.bubble{
+  position:absolute;
+  background:rgba(102,72,52,0.88);
+  color:#f5f0e8;
+  padding:14px 17px;
+  border-radius:20px 24px 18px 22px;
+  font-size:13px;
+  line-height:1.55;
+  max-width:210px;
+  display:none;
+  z-index:10;
+  box-shadow:0 6px 18px rgba(0,0,0,0.35);
+}
+.bubble.show{display:block;}
+.bubble .b-quote{font-style:italic;}
+.bubble .b-meta{
+  display:block;
+  font-size:10.5px;
+  color:#d4c9b8;
+  font-style:normal;
+  margin-top:6px;
+  letter-spacing:.04em;
+}
 
-.what-is-this{margin-top:18px;}
-.what-is-this summary{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:12px;letter-spacing:.16em;color:#8a7e74;cursor:pointer;padding:14px 0;list-style:none;border-top:1px solid #e0d8cc;text-align:center;}
-.what-is-this summary::-webkit-details-marker{display:none;}
-.what-is-this summary::after{content:' +';color:#c8bfb0;}
-.what-is-this[open] summary::after{content:' −';}
-.what-is-this-body{padding:6px 4px 12px;display:flex;flex-direction:column;gap:14px;}
-.what-is-this-body p{font-size:13.5px;line-height:1.75;color:#0e0c09;letter-spacing:-.005em;margin:0;}
-.what-is-this-body .principle-note{font-size:12.5px;line-height:1.7;color:#0e0c09;padding:12px 14px;background:#faf6ee;border-left:2px solid #c8bfb0;}
-.what-is-this-body .closing-note{font-style:italic;color:#3a3028;font-size:13px;line-height:1.7;}
+/* P55 flash transition */
+#sFlash{
+  position:fixed;
+  inset:0;
+  background:#0e0c09;
+  color:#f5f0e8;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  z-index:200;
+  padding:32px;
+}
+#sFlash.show{display:flex;}
+#sFlash .ft{
+  font-size:20px;
+  line-height:1.5;
+  opacity:0;
+  animation:fadeUp 0.8s ease 0.3s forwards;
+}
+#sFlash .ft span{
+  display:block;
+  font-size:13px;
+  margin-top:14px;
+  opacity:.7;
+  font-style:italic;
+  font-weight:400;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
+}
 
-/* Step indicator at top of each working page */
-.step-indicator{display:flex;justify-content:space-between;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.12em;color:#c8bfb0;margin-top:8px;padding-bottom:2px;}
-.step-indicator .si{flex:1;text-align:center;padding:6px 0;border-top:1.5px solid #e0d8cc;transition:all .3s;}
-.step-indicator .si.active{color:#0e0c09;border-top-color:#0e0c09;}
-.step-indicator.hide-labels .si{font-size:0;color:transparent;padding:8px 0 0;border-top-width:2px;}
-.step-indicator.hide-labels .si.active{border-top-color:#0e0c09;}
-.tone-prompt{margin-top:6px;text-align:center;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14.5px;line-height:1.65;color:#0e0c09;padding:14px 12px 12px;}
-.tone-prompt span{display:block;margin-top:10px;font-size:12px;color:#8a7e74;font-style:italic;letter-spacing:.02em;}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* Misc */
+.empty-space{flex:1;min-height:20px;}
 </style>
 </head>
 <body>
 
-<!-- P0: Opening -->
-<div class="page active" id="p0">
-  <div class="ph" style="text-align:center;">
-    <div class="title" style="text-align:center;">정원: The Garden</div>
-  </div>
-  <div class="pb" style="text-align:center;display:flex;flex-direction:column;justify-content:center;">
-    <div class="p0-prose">
-      <p>가족의 대화를 작은 정원처럼 가꿉니다.</p>
+<div class="app" id="app">
+
+  <!-- ===== SCREEN 1 — INTRO ===== -->
+  <section class="screen active" id="s1">
+    <div class="intro-title">정원: The Garden</div>
+    <div class="intro-prose">
+      <p>가족의 대화를<br>작은 정원처럼 가꿉니다.</p>
       <p>고치거나 설득하기보다,<br>필요한 거리를 함께 맞추는 일.</p>
+      <p>묻고 싶은 것이 있다면<br>그것으로 시작하세요.</p>
+      <p>말문이 막히면<br>정원 카드를 펼쳐보세요.</p>
       <p>말하지 않는 것도 대답이고,<br>남기지 않는 것도 선택입니다.</p>
     </div>
-  </div>
-  <div class="pf">
-    <button class="btn" onclick="goTo('pStart')">시작하기 →</button>
-  </div>
-</div>
-
-<!-- pStart: branch with two image cards -->
-<div class="page" id="pStart">
-  <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-  </div>
-  <div class="pb">
-    <div class="branch-cards">
-      <button class="branch-card" onclick="startOwn()">
-        <img id="bcImg1" src="" alt=""/>
-        <div class="branch-card-overlay">
-          <span class="branch-card-label">직접 질문하기</span>
-        </div>
-      </button>
-      <button class="branch-card" onclick="startCards()">
-        <img id="bcImg2" src="" alt=""/>
-        <div class="branch-card-overlay">
-          <span class="branch-card-label">주제 고르기</span>
-        </div>
-      </button>
+    <div class="empty-space"></div>
+    <div class="bottom">
+      <button class="btn" onclick="go('s2')">시작하기 →</button>
     </div>
-  </div>
-  <div class="pf">
-    <button class="btn-back" onclick="goBack('p0')">← 뒤로</button>
-  </div>
-</div>
+  </section>
 
-<!-- pOwn: Write your own question -->
-<div class="page" id="pOwn">
-  <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-  </div>
-  <div class="pb">
-    <p class="own-helper">완벽한 문장이 아니어도 괜찮습니다. 마음에 걸리는 말, 확인하고 싶은 것, 조심스럽게 꺼내고 싶은 것 모두 괜찮습니다.</p>
-    <textarea class="answer-textarea" id="ownQuestionInput" placeholder="여기에 적어주세요..." maxlength="200" oninput="updateOwnBtn()" style="margin-top:12px;"></textarea>
-  </div>
-  <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnOwn" onclick="submitOwnQuestion()" disabled>오늘의 카드 →</button>
-    <button class="btn-back" onclick="goBack('pStart')">← 뒤로</button>
-  </div>
-</div>
+  <!-- ===== SCREEN 2 — TOPIC ===== -->
+  <section class="screen" id="s2">
+    <div class="progress">
+      <div class="step active"><div class="bar"></div><div class="label">묻기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">읽기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">듣기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
+    </div>
+    <div class="s-title">주제를 골라보세요</div>
+    <div class="empty-space" style="max-height:18px;"></div>
+    <div class="topic-row" id="topicRow"></div>
+    <div class="empty-space"></div>
+    <div class="bottom">
+      <button class="btn" id="btnS2" disabled onclick="go('s3')">다음 →</button>
+      <button class="btn-back" onclick="go('s1')">← 뒤로</button>
+    </div>
+  </section>
 
-<!-- P1: Topic -->
-<div class="page" id="p1">
-  <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-  </div>
-  <div class="pb"><div class="grid2" id="tGrid"></div></div>
-  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>다음 →</button></div>
-</div>
+  <!-- ===== SCREEN 3 — QUESTION (3 random) ===== -->
+  <section class="screen" id="s3">
+    <div class="progress">
+      <div class="step active"><div class="bar"></div><div class="label">묻기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">읽기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">듣기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
+    </div>
+    <div class="s-title">질문을 골라보세요</div>
+    <div class="empty-space" style="max-height:18px;"></div>
+    <div class="qcard-row" id="qcardRow"></div>
+    <div class="empty-space"></div>
+    <div class="bottom">
+      <button class="btn" id="btnS3" disabled onclick="go('s6')">다음 →</button>
+      <button class="btn-back" onclick="go('s2')">← 뒤로</button>
+    </div>
+  </section>
 
-<!-- P2: Question -->
-<div class="page" id="p2">
-  <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-  </div>
-  <div class="pb">
-    <div class="grid2" id="qGrid"></div>
-  </div>
-  <div class="pf">
-    <button class="btn" id="btn2" onclick="goTo('p4')" disabled>오늘의 카드 보기 →</button>
-    <button class="btn-back" onclick="goBack('p1')">← 뒤로</button>
-  </div>
-</div>
-
-<!-- P4: Final card -->
-<div class="page" id="p4">
-  <div class="ph" style="padding-bottom:8px;">
-    <div class="step" id="p4Step" style="display:none;">JUNG ONE · 읽기</div>
-    <div class="step-indicator hide-labels"><span class="si">묻기</span><span class="si active" id="p4SiRead">읽기</span><span class="si" id="p4SiListen">듣기</span><span class="si">남기기</span></div>
-    <div class="title" id="p4Title">오늘의 식물</div>
-  </div>
-  <div class="pb p4-stage">
-    <div class="p4-question-card" id="p4Card">
-      <div class="p4-qc-bg">
-        <img class="img-t" id="imgT" src="" alt=""/>
-        <img class="img-q" id="imgQ" src="" alt=""/>
+  <!-- ===== SCREEN 6 — CONVERSATION ===== -->
+  <section class="screen" id="s6">
+    <div class="progress">
+      <div class="step"><div class="bar"></div><div class="label">묻기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">읽기</div></div>
+      <div class="step active"><div class="bar"></div><div class="label">듣기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
+    </div>
+    <div class="s-title center">오늘의 카드</div>
+    <div class="conv-card" id="convCard">
+      <div class="rc-bg">
+        <img class="img-t" id="ccImgT" src="" alt=""/>
+        <img class="img-q" id="ccImgQ" src="" alt=""/>
       </div>
-      <div class="p4-qc-text">
-        <div class="p4-qc-q" id="bQ"></div>
-        <div class="p4-qc-sub" id="bSub"></div>
+      <div class="rc-text">
+        <div class="rc-q" id="ccQ"></div>
+        <div class="rc-sub" id="ccSub"></div>
+        <div class="rc-aside">가족들에게도 물어보세요.</div>
       </div>
     </div>
-    <div class="p4-listen-row" id="p4ListenRow"></div>
-    <div class="p4-hint">같은 질문을 다른 사람에게도 해보세요</div>
-  </div>
-  <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnSave" onclick="askAnswerConfirm()">정원에 심기 →</button>
-    <button class="btn-back" onclick="backFromP4()">← 뒤로</button>
-  </div>
-</div>
-
-<!-- P5: Answer -->
-<div class="page" id="p5">
-  <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator hide-labels"><span class="si">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si active">남기기</span></div>
-  </div>
-  <div class="answer-wrap">
-<div class="answer-section">
-      <div class="answer-section-label">글로</div>
-      <textarea class="answer-textarea" id="answerText" placeholder="오늘 마음에 남은 것을 적어주세요." maxlength="200" oninput="updateSubmitState()"></textarea>
-      <div class="char-count"><span id="charCount">0</span> / 200</div>
+    <div class="conv-listen-label">— 듣기 카드 —</div>
+    <div class="conv-listen-row" id="convListenRow"></div>
+    <div class="empty-space"></div>
+    <div class="bottom">
+      <button class="btn" onclick="openPlantModal()">정원에 심기</button>
+      <button class="btn-back" onclick="go('s3')">← 뒤로</button>
     </div>
+  </section>
 
-    <div class="answer-divider">또는</div>
-
-    <div class="answer-section">
-      <div class="answer-section-label">파일로</div>
-      <label class="file-drop" id="fileDrop">
-        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" onchange="handleFileUpload(this)" style="display:none;"/>
-        <div class="file-drop-empty" id="fileDropEmpty">
-          <div class="file-drop-icon">+</div>
-          <div class="file-drop-text">사진 · 영상 · 음성 파일</div>
-          <div class="file-drop-sub">눌러서 선택하기</div>
-        </div>
-        <div class="file-preview" id="filePreview"></div>
-      </label>
-      <button class="file-clear" id="fileClear" type="button" onclick="clearFile()" style="display:none;">× 파일 지우기</button>
+  <!-- ===== SCREEN 8 — TRACE INPUT ===== -->
+  <section class="screen" id="s8">
+    <div class="progress">
+      <div class="step"><div class="bar"></div><div class="label">묻기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">읽기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">듣기</div></div>
+      <div class="step active"><div class="bar"></div><div class="label">남기기</div></div>
     </div>
-  </div>
-  <div class="pf">
-    <button class="btn" id="btn5" onclick="submitAnswer()" disabled>정원에 심기 →</button>
-    <button class="btn-back" onclick="goBack('p4')">← 뒤로</button>
-  </div>
-</div>
-
-
-<!-- P55: Seed planted -->
-<div class="page" id="p55" style="background:#0e0c09;align-items:center;justify-content:center;text-align:center;">
-  <div style="padding:40px 32px;display:flex;flex-direction:column;align-items:center;gap:24px;">
-    <svg width="120" height="168" viewBox="0 0 120 168" xmlns="http://www.w3.org/2000/svg" id="seedSvg">
-      <defs><radialGradient id="sg"><stop offset="0%" stop-color="#9aab9e" stop-opacity="0.18"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient></defs>
-      <circle cx="60" cy="84" r="58" fill="url(#sg)"/>
-      <circle cx="60" cy="128" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.7" dur="0.4s" begin="0.3s" fill="freeze"/></circle>
-      <circle cx="60" cy="128" r="10" fill="none" stroke="#9aab9e" stroke-width="0.6" opacity="0"><animate attributeName="opacity" from="0" to="0.25" dur="0.4s" begin="0.3s" fill="freeze"/></circle>
-      <line x1="60" y1="128" x2="60" y2="38" stroke="#9aab9e" stroke-width="1.2" opacity="0" stroke-dasharray="90" stroke-dashoffset="90">
-        <animate attributeName="opacity" values="0;0.5" dur="0.2s" begin="0.6s" fill="freeze"/>
-        <animate attributeName="stroke-dashoffset" from="90" to="0" dur="0.8s" begin="0.6s" fill="freeze" calcMode="spline" keySplines="0.4 0 0.2 1"/>
-      </line>
-      <path d="M 60 88 Q 38 78 35 62 Q 48 72 60 76" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.3s" fill="freeze"/></path>
-      <path d="M 60 68 Q 82 58 85 42 Q 72 52 60 56" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.5s" fill="freeze"/></path>
-      <circle cx="60" cy="32" r="10" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.5" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
-      <circle cx="60" cy="32" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.65" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
-    </svg>
-    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:22px;color:#f5f0e8;opacity:0.85;line-height:1.4;opacity:0;animation:fadeUp .6s ease 2s forwards;">오늘의 질문이<br>정원에 심어졌습니다.<br><span style="font-size:14px;opacity:.7;font-style:italic;">언젠가 다시 새로운 질문으로 돌아올 수 있어요.</span></div>
-    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;opacity:0;animation:fadeUp .6s ease 2.3s forwards;">정원으로 이동 중 →</div>
-  </div>
-</div>
-
-<!-- P6: Garden -->
-<div class="page garden-page" id="p6">
-  <div class="garden-header">
-    <div class="garden-title">JUNG ONE: 정원</div>
-    <div class="garden-sub" id="gardenSub">오늘 심어진 씨앗</div>
-  </div>
-  <div class="garden-body">
-    <div class="seeds-container" id="seedsContainer"></div>
-    <div class="answer-bubble" id="answerBubble">
-      <div class="bubble-inner" id="bubbleInner"></div>
-      <div class="bubble-name" id="bubbleName"></div>
+    <textarea class="trace-textarea" id="traceText" placeholder="오늘 마음에 남은 것을 적어주세요." maxlength="200" oninput="updateCounter()"></textarea>
+    <div class="trace-counter"><span id="traceCount">0</span> / 200</div>
+    <div class="divider">또는</div>
+    <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+      <div class="ub-plus">+</div>
+      <div class="ub-label">사진 · 영상 · 음성 파일</div>
+      <div class="ub-cta">눌러서 선택하기</div>
     </div>
-  </div>
-  <div class="garden-footer">
-    <button class="btn-light" onclick="goTo('p0');resetAll()">또 심으러 가볼까요?</button>
-  </div>
+    <input type="file" id="fileInput" accept="image/*,video/*,audio/*" style="display:none;" onchange="onFilePicked(this)"/>
+    <div class="upload-preview" id="uploadPreview">
+      <span class="file-name" id="fileName"></span>
+      <button class="file-remove" onclick="clearFile()">× 파일 지우기</button>
+    </div>
+    <div class="empty-space"></div>
+    <div class="bottom">
+      <button class="btn" onclick="plantWithTrace()">정원에 심기 →</button>
+      <button class="btn-back" onclick="go('s6')">← 뒤로</button>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN 9 — GARDEN ===== -->
+  <section class="screen dark-bg" id="s9">
+    <div class="garden-header">
+      <div class="garden-title">정원: The Garden</div>
+      <div class="garden-sub" id="gardenSub">가족의 흔적이 정원에 자라고 있어요</div>
+    </div>
+    <div class="garden-canvas" id="gardenCanvas"></div>
+    <div class="bubble" id="bubble"></div>
+    <div class="bottom">
+      <button class="btn btn-outline" style="border-color:#f5f0e8;color:#f5f0e8;background:transparent;" onclick="resetAndGo()">또 가꾸러 가볼까요?</button>
+    </div>
+  </section>
+
 </div>
 
-<!-- Card flash — brief preview after action before auto-save -->
-<div class="card-flash" id="cardFlash">
-  <div class="card-flash-card">
-    <img class="img-t" id="fImgT" src="" alt=""/>
-    <img class="img-q" id="fImgQ" src="" alt=""/>
-    <img class="img-a" id="fImgA" src="" alt=""/>
-  </div>
-  <div class="flash-label">정원에 심는 중…</div>
-</div>
-
-<!-- Modal: Ask if user wants to leave an answer -->
-<div class="modal-backdrop" id="answerModal" onclick="closeAnswerModal(event)">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-title">메모 남길까요?</div>
+<!-- ===== PLANTING MODAL ===== -->
+<div class="modal" id="plantModal">
+  <div class="modal-box">
+    <div class="modal-title">흔적을 같이 남기시겠어요?</div>
     <div class="modal-buttons">
-      <button class="btn" onclick="answerYes()">메모 남기기</button>
-      <button class="btn btn-secondary" onclick="answerNo()">정원에 심기</button>
+      <button class="btn" onclick="closePlantModal();go('s8')">흔적 남기기</button>
+      <button class="btn btn-outline" onclick="closePlantModal();plantOnly()">질문만 심기</button>
     </div>
+  </div>
+</div>
+
+<!-- ===== TRANSITION FLASH ===== -->
+<div id="sFlash">
+  <div class="ft">
+    오늘의 질문이<br>정원에 심어졌습니다.
+    <span>언젠가 다시 새로운 질문으로 돌아올 수 있어요.</span>
   </div>
 </div>
 
@@ -553,472 +967,295 @@ const DEMO = [
   {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
 ];
 
-let S={topic:null,question:null,action:null,isOwn:false,ownQuestion:null};
-let entries=[];
-entries = [...DEMO];
+let entries = [...DEMO];
 
-/* ===== Build topic grid (P1) ===== */
+// State
+let S = {topic:null, question:null, questionIdx:null, qChoices:[], actions:[], uploadedFile:null};
+
+// ===== Navigation =====
+function go(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.add("active");
+  window.scrollTo(0,0);
+  if(id==="s2") buildTopicGrid();
+  if(id==="s3") buildQuestionChoices();
+  if(id==="s6") buildConv();
+  if(id==="s8") buildTraceInput();
+  if(id==="s9") buildGarden();
+}
+
+// ===== S2 — Topic =====
 function buildTopicGrid(){
-  const grid = document.getElementById("tGrid");
-  grid.innerHTML = "";
-  Object.keys(TNAMES).forEach(key => {
-    const card = document.createElement("div");
-    card.className = "sel-card";
-    card.onclick = () => pick("topic", key, card);
-    card.innerHTML = `
-      <div class="chk">✓</div>
-      <img src="${TSRCS[key]}" alt="${TNAMES[key]}"/>
-      <div class="card-overlay">
-        <div class="card-name">${TNAMES[key]}</div>
-        <div class="card-desc">${TDESC[key]}</div>
-      </div>`;
-    grid.appendChild(card);
-  });
-}
-
-/* ===== Build question grid (P2) — 9 image cards of selected topic ===== */
-function buildQuestionGrid(){
-  const grid = document.getElementById("qGrid");
-  grid.innerHTML = "";
-  const topic = S.topic;
-  if(!topic){ return; }
-  const qs = QDATA[topic];
-  qs.forEach((qText, i) => {
-    const qid = `${topic}-${i+1}`;
-    const qimgIdx = i % QSRCS.length;
-    const card = document.createElement("div");
-    card.className = "sel-card q-text";
-    card.onclick = () => pick("question", qid, card);
-    card.innerHTML = `
-      <div class="chk">✓</div>
-      <img src="${QSRCS[qimgIdx]}" alt=""/>`;
-    grid.appendChild(card);
-  });
-}
-
-/* ===== Build action grid (P3) ===== */
-function buildActionGrid(){
-  const grid = document.getElementById("aGrid");
-  grid.innerHTML = "";
-  // Primary 3: a01 (just listen), a02 (one question), a06 (stop here)
-  const primary = ['a01','a02','a06'];
-  const secondary = ['a03','a04','a05'];
-
-  function mkCard(key){
-    const card = document.createElement("div");
-    card.className = "sel-card";
-    card.onclick = () => pick("action", key, card);
-    card.innerHTML = `
-      <div class="chk">✓</div>
-      <img src="${ASRCS[key]}" alt="${ANAMES[key]}"/>
-      <div class="card-overlay">
-        <div class="card-name">${ANAMES[key]}</div>
-        <div class="card-desc">${ADESC[key]}</div>
-      </div>`;
-    return card;
-  }
-
-  primary.forEach(key => grid.appendChild(mkCard(key)));
-
-  // Wrap secondary in a hidden container with a toggle
-  const moreWrap = document.createElement("div");
-  moreWrap.className = "a-more-wrap";
-  moreWrap.style.display = "none";
-  secondary.forEach(key => moreWrap.appendChild(mkCard(key)));
-  grid.appendChild(moreWrap);
-
-  const toggle = document.createElement("button");
-  toggle.className = "a-more-toggle";
-  toggle.textContent = '더 보기 +';
-  toggle.onclick = function(e){
-    e.stopPropagation();
-    if(moreWrap.style.display === "none"){
-      moreWrap.style.display = "contents";
-      toggle.textContent = '접기 −';
-    } else {
-      moreWrap.style.display = "none";
-      toggle.textContent = '더 보기 +';
-    }
-  };
-  grid.appendChild(toggle);
-}
-
-function pick(type, val, el){
-  const g = el.closest(".grid2");
-  g.querySelectorAll(".sel-card").forEach(c => c.classList.remove("on"));
-  el.classList.add("on");
-  g.classList.add("picked");
-  S[type] = val;
-  const b = document.getElementById({topic:"btn1",question:"btn2",action:"btn3"}[type]);
-  if(b) b.disabled = false;
-}
-
-function goTo(id){
-  document.querySelectorAll(".page").forEach(p=>{
-    if(p.classList.contains("active")){p.classList.remove("active");p.classList.add("exit");setTimeout(()=>p.classList.remove("exit"),420);}
-  });
-  document.getElementById(id).classList.add("active");
-  window.scrollTo(0,0);
-  if(id==="pStart") buildBranchImages();
-  if(id==="p2"){ buildQuestionGrid(); document.getElementById("btn2").disabled = true; S.question = null; }
-  if(id==="p3"){ buildActionGrid(); document.getElementById("btn3").disabled = true; S.action = null; }
-  if(id==="p4") buildFinalCard();
-  if(id==="p5") buildAnswerPage();
-  if(id==="p6") buildGarden();
-}
-
-function buildBranchImages(){
-  var im1 = document.getElementById("bcImg1"); if(im1) im1.src = ASRCS["a01"];
-  var im2 = document.getElementById("bcImg2"); if(im2) im2.src = ASRCS["a02"];
-}
-
-function goBack(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  window.scrollTo(0,0);
-}
-
-/* Smart back handlers — follow the actual previous step */
-function backFromP4(){
-  // Final mode (action chosen) → P3, Think mode → P2
-  if(S.action) goBack("p3");
-  else goBack("p2");
-}
-function startOwn(){
-  S.isOwn = true;
-  S.ownQuestion = null;
-  S.topic = null;
-  S.question = null;
-  S.action = null;
-  goTo("pOwn");
-}
-function startCards(){
-  S.isOwn = false;
-  S.ownQuestion = null;
-  goTo("p1");
-}
-function updateOwnBtn(){
-  var t = document.getElementById("ownQuestionInput").value.trim();
-  document.getElementById("btnOwn").disabled = t.length < 3;
-}
-function submitOwnQuestion(){
-  var t = document.getElementById("ownQuestionInput").value.trim();
-  if(t.length < 3) return;
-  S.ownQuestion = t;
-  S.isOwn = true;
-  S.topic = "own";
-  S.question = "own-1";
-  S.action = null;
-  goTo("p4");
-}
-
-function backFromP3(){
-  // Going back from action selection drops the action and returns to P4 in Think mode
-  S.action = null;
-  document.querySelectorAll('#aGrid .sel-card.on').forEach(c=>c.classList.remove('on'));
-  document.getElementById("btn3").disabled = true;
-  goBack("p4");
-  buildFinalCard();
-}
-
-function buildFinalCard(){
-  const t = S.topic, q = S.question;
-  const isOwn = S.isOwn && S.ownQuestion;
-
-  // Background images on the card
-  if(isOwn){
-    document.getElementById("imgT").src = "";
-    document.getElementById("imgQ").src = "";
-    document.getElementById("p4Card").classList.add("is-own");
-    document.getElementById("bQ").textContent = S.ownQuestion;
-    document.getElementById("bSub").textContent = "";
-  } else {
-    const idx = parseInt(q.split('-')[1]) - 1;
-    const qimgIdx = idx % QSRCS.length;
-    document.getElementById("imgT").src = TSRCS[t];
-    document.getElementById("imgQ").src = QSRCS[qimgIdx];
-    document.getElementById("p4Card").classList.remove("is-own");
-    const qData = QDATA[t][idx];
-    document.getElementById("bQ").textContent = qData.q;
-    document.getElementById("bSub").textContent = qData.f || "";
-  }
-
-  // Render mini listen cards next to the question
-  buildListenRow();
-}
-
-function buildListenRow(){
-  const row = document.getElementById("p4ListenRow");
-  if(!row) return;
+  const row = document.getElementById("topicRow");
   row.innerHTML = "";
-  // Use q01~q06 plant images for listen mini-cards
-  Object.keys(ANAMES).forEach((key, i) => {
+  S.topic = null;
+  document.getElementById("btnS2").disabled = true;
+  Object.keys(TNAMES).forEach(key => {
     const c = document.createElement("button");
-    c.className = "lm-card";
-    if(S.action === key) c.classList.add("on");
+    c.className = "topic-card";
+    c.innerHTML = `<img src="${TSRCS[key]}" alt=""/>`;
     c.onclick = () => {
-      S.action = (S.action === key) ? null : key;
-      buildListenRow();
+      row.querySelectorAll(".topic-card").forEach(x=>x.classList.remove("on"));
+      c.classList.add("on");
+      S.topic = key;
+      document.getElementById("btnS2").disabled = false;
     };
-    c.innerHTML = `<img src="${QSRCS[i]}" alt=""/><span class="lm-name">${ANAMES[key]}</span>`;
     row.appendChild(c);
   });
 }
 
-/* ===== Action flow ===== */
+// ===== S3 — 3 random Q cards =====
+function buildQuestionChoices(){
+  const row = document.getElementById("qcardRow");
+  row.innerHTML = "";
+  S.question = null;
+  S.questionIdx = null;
+  document.getElementById("btnS3").disabled = true;
+
+  // Random 3 from 0..8
+  const indices = [0,1,2,3,4,5,6,7,8];
+  for(let i=indices.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [indices[i],indices[j]] = [indices[j],indices[i]];
+  }
+  S.qChoices = indices.slice(0,3);
+
+  S.qChoices.forEach(idx => {
+    const c = document.createElement("button");
+    c.className = "qcard";
+    const qimgIdx = idx % QSRCS.length;
+    c.innerHTML = `<img src="${QSRCS[qimgIdx]}" alt=""/>`;
+    c.onclick = () => {
+      row.querySelectorAll(".qcard").forEach(x=>x.classList.remove("on"));
+      c.classList.add("on");
+      S.question = S.topic + "-" + (idx+1);
+      S.questionIdx = idx;
+      document.getElementById("btnS3").disabled = false;
+    };
+    row.appendChild(c);
+  });
+}
+
+// ===== S4 — Read =====
+function buildReadCard(){
+  const t = S.topic, idx = S.questionIdx;
+  const qimgIdx = idx % QSRCS.length;
+  document.getElementById("rcImgT").src = TSRCS[t];
+  document.getElementById("rcImgQ").src = QSRCS[qimgIdx];
+  const qData = QDATA[t][idx];
+  document.getElementById("rcQ").textContent = qData.q;
+  document.getElementById("rcSub").textContent = qData.f || "";
+}
+
+// ===== S5 — Listen card selection =====
+function buildListenGrid(){
+  const primary = ["a01","a02","a06"];
+  const secondary = ["a03","a04","a05"];
+  const row = document.getElementById("listenGrid");
+  row.innerHTML = "";
+  primary.forEach(k => row.appendChild(makeListenCard(k)));
+
+  const moreRow = document.getElementById("listenMoreGrid");
+  moreRow.innerHTML = "";
+  secondary.forEach(k => moreRow.appendChild(makeListenCard(k)));
+  document.getElementById("listenMoreWrap").style.display = "none";
+  document.getElementById("moreToggle").textContent = "더 보기 +";
+}
+function makeListenCard(key){
+  const c = document.createElement("button");
+  c.className = "listen-card";
+  if(S.actions.includes(key)) c.classList.add("on");
+  c.onclick = () => {
+    if(S.actions.includes(key)) S.actions = S.actions.filter(x=>x!==key);
+    else S.actions.push(key);
+    buildListenGrid();
+  };
+  c.innerHTML = `
+    <img src="${ASRCS[key]}" alt=""/>
+    <div class="lc-text">
+      <span class="lc-name">${ANAMES[key]}</span>
+      <span class="lc-desc">${ADESC[key]}</span>
+    </div>`;
+  return c;
+}
+function toggleMore(){
+  const w = document.getElementById("listenMoreWrap");
+  const btn = document.getElementById("moreToggle");
+  if(w.style.display === "none"){
+    w.style.display = "";
+    btn.textContent = "접기 −";
+  } else {
+    w.style.display = "none";
+    btn.textContent = "더 보기 +";
+  }
+}
+function skipListen(){
+  S.actions = [];
+  go("s6");
+}
+
+// ===== S6 — Conversation =====
+function buildConv(){
+  const t = S.topic, idx = S.questionIdx;
+  const qimgIdx = idx % QSRCS.length;
+  document.getElementById("ccImgT").src = TSRCS[t];
+  document.getElementById("ccImgQ").src = QSRCS[qimgIdx];
+  const qData = QDATA[t][idx];
+  document.getElementById("ccQ").textContent = qData.q;
+  document.getElementById("ccSub").textContent = qData.f || "";
+  buildConvListen();
+}
+function buildConvListen(){
+  const row = document.getElementById("convListenRow");
+  row.innerHTML = "";
+  ["a01","a02","a03","a04","a05","a06"].forEach(key => {
+    const c = document.createElement("button");
+    c.className = "conv-listen-card";
+    if(S.actions.includes(key)) c.classList.add("on");
+    c.onclick = () => {
+      if(S.actions.includes(key)) S.actions = S.actions.filter(x=>x!==key);
+      else S.actions.push(key);
+      buildConvListen();
+    };
+    c.innerHTML = `<img src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
+    row.appendChild(c);
+  });
+}
+
+// ===== Planting flow =====
+function openPlantModal(){
+  document.getElementById("plantModal").classList.add("show");
+}
+function closePlantModal(){
+  document.getElementById("plantModal").classList.remove("show");
+}
 function todayStr(){
   const d = new Date();
   return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,'0') + "." + String(d.getDate()).padStart(2,'0');
 }
-
-function afterAction(){
-  // Action selected → return to P4 with renewed card
-  goTo("p4");
+function plantOnly(){
+  const col = TCOLORS[S.topic] || '#9aab9e';
+  const a = S.actions.length ? S.actions[0] : null;
+  entries.push({name:"나", topic:S.topic, q:S.question, a:a, answer:"", date:todayStr(), color:col});
+  showFlashAndGoGarden();
 }
-
-/* ===== Save flow with answer-or-not modal ===== */
-function askAnswerConfirm(){
-  document.getElementById("answerModal").classList.add("show");
-}
-function closeAnswerModal(e){
-  if(e && e.target.id !== "answerModal") return;
-  document.getElementById("answerModal").classList.remove("show");
-}
-function answerYes(){
-  document.getElementById("answerModal").classList.remove("show");
-  goTo("p5");
-}
-function answerNo(){
-  document.getElementById("answerModal").classList.remove("show");
-  // Save without an answer
-  const col = S.isOwn ? '#7a6e54' : (TCOLORS[S.topic] || '#9aab9e');
-  const entry = S.isOwn
-    ? {name:"나", topic:"own", q:"own-1", a:S.action, answer:"", date:todayStr(), color:col, isOwn:true, ownQuestion:S.ownQuestion}
-    : {name:"나", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col};
-  entries.push(entry);
-  goTo("p55");
-  setTimeout(()=> goTo("p6"), 2400);
-}
-
-/* ===== Answer page (P5) ===== */
-function buildAnswerPage(){
-  document.getElementById("answerText").value = "";
-  document.getElementById("charCount").textContent = "0";
-  document.getElementById("btn5").disabled = true;
-  clearFile();  // reset any previously uploaded file
-}
-
-function updateSubmitState(){
-  const v = document.getElementById("answerText").value;
-  document.getElementById("charCount").textContent = v.length;
-  const hasText = v.trim().length >= 3;
-  const hasFile = !!S.uploadedFile;
-  document.getElementById("btn5").disabled = !(hasText || hasFile);
-}
-
-// Back-compat alias — some inline handlers may still call updateCount
-function updateCount(){ updateSubmitState(); }
-
-function handleFileUpload(input){
-  const file = input.files[0];
-  if(!file) return;
-  const url = URL.createObjectURL(file);
-  S.uploadedFile = { url, type: file.type, name: file.name };
-
-  const preview = document.getElementById("filePreview");
-  const empty   = document.getElementById("fileDropEmpty");
-  const clearBtn = document.getElementById("fileClear");
-  preview.innerHTML = "";
-  if(file.type.startsWith("image/")){
-    preview.innerHTML = `<img src="${url}" alt="${file.name}"/>`;
-  } else if(file.type.startsWith("video/")){
-    preview.innerHTML = `<video src="${url}" controls playsinline></video>`;
-  } else if(file.type.startsWith("audio/")){
-    preview.innerHTML = `<audio src="${url}" controls></audio>`;
-  } else {
-    preview.innerHTML = `<div style="padding:14px;font-family:'Crimson Pro',serif;font-size:13px;color:#3a3028;">${file.name}</div>`;
-  }
-  preview.classList.add("show");
-  empty.style.display = "none";
-  clearBtn.style.display = "";
-  updateSubmitState();
-}
-
-function clearFile(){
-  S.uploadedFile = null;
-  const fi = document.getElementById("fileInput");
-  if(fi) fi.value = "";
-  const preview = document.getElementById("filePreview");
-  if(preview){ preview.innerHTML = ""; preview.classList.remove("show"); }
-  const empty = document.getElementById("fileDropEmpty");
-  if(empty) empty.style.display = "";
-  const clearBtn = document.getElementById("fileClear");
-  if(clearBtn) clearBtn.style.display = "none";
-  updateSubmitState();
-}
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  buildTopicGrid();
-});
-// also run immediately in case DOMContentLoaded already fired
-buildTopicGrid();
-
-function submitAnswer(){
-  const answer = document.getElementById("answerText").value.trim();
-  const col = S.isOwn ? '#7a6e54' : (TCOLORS[S.topic] || '#9aab9e');
-  const entry = S.isOwn
-    ? {name:"나", topic:"own", q:"own-1", a:S.action, answer, date:todayStr(), color:col, isOwn:true, ownQuestion:S.ownQuestion}
-    : {name:"나", topic:S.topic, q:S.question, a:S.action, answer, date:todayStr(), color:col};
+function plantWithTrace(){
+  const answer = document.getElementById("traceText").value.trim();
+  const col = TCOLORS[S.topic] || '#9aab9e';
+  const a = S.actions.length ? S.actions[0] : null;
+  const entry = {name:"나", topic:S.topic, q:S.question, a:a, answer, date:todayStr(), color:col};
   if(S.uploadedFile){
     const t = S.uploadedFile.type;
-    if(t.startsWith("image/"))      entry.photo = S.uploadedFile.url;
+    if(t.startsWith("image/")) entry.photo = S.uploadedFile.url;
     else if(t.startsWith("video/")) entry.video = S.uploadedFile.url;
     else if(t.startsWith("audio/")) entry.voice = S.uploadedFile.url;
   }
   entries.push(entry);
   S.uploadedFile = null;
-  goTo("p55");
-  setTimeout(()=> goTo("p6"), 2400);
+  showFlashAndGoGarden();
+}
+function showFlashAndGoGarden(){
+  const f = document.getElementById("sFlash");
+  f.classList.add("show");
+  setTimeout(() => {
+    f.classList.remove("show");
+    go("s9");
+  }, 2400);
 }
 
-// Garden
-let bubbleTimer=null;
-let bubbleIdx=0;
+// ===== S8 — Trace =====
+function buildTraceInput(){
+  document.getElementById("traceText").value = "";
+  document.getElementById("traceCount").textContent = "0";
+  clearFile();
+}
+function updateCounter(){
+  const v = document.getElementById("traceText").value;
+  document.getElementById("traceCount").textContent = String(v.length);
+}
+function onFilePicked(input){
+  if(!input.files || !input.files[0]) return;
+  const f = input.files[0];
+  const url = URL.createObjectURL(f);
+  S.uploadedFile = {type:f.type, url:url, name:f.name};
+  document.getElementById("fileName").textContent = f.name;
+  document.getElementById("uploadPreview").classList.add("show");
+  document.getElementById("uploadBox").style.display = "none";
+}
+function clearFile(){
+  S.uploadedFile = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("uploadPreview").classList.remove("show");
+  document.getElementById("uploadBox").style.display = "";
+}
 
+// ===== S9 — Garden =====
 function buildGarden(){
-  const container=document.getElementById("seedsContainer");
-  container.innerHTML="";
+  const canvas = document.getElementById("gardenCanvas");
+  canvas.innerHTML = "";
   document.getElementById("gardenSub").textContent = entries.length + "개의 흔적이 정원에 자라고 있어요";
 
-  const W=window.innerWidth, H=window.innerHeight-180;
-  const positions=getPositions(entries.length,W,H);
+  // Organic scattered positions
+  const positions = [
+    {x:14, y:6},  {x:62, y:12}, {x:38, y:22},
+    {x:6,  y:38}, {x:70, y:34}, {x:46, y:50},
+    {x:18, y:64}, {x:60, y:70}, {x:10, y:82},
+    {x:74, y:58}, {x:36, y:84}, {x:52, y:4}
+  ];
 
-  entries.forEach((e,i)=>{
-    const pos=positions[i];
-    // q ID can be either old "q05" or new "space-3" format
-    let qimgIdx = 0;
+  entries.forEach((e, i) => {
+    const pos = positions[i % positions.length];
+    const plant = document.createElement("div");
+    plant.className = "plant";
+    plant.style.left = pos.x + "%";
+    plant.style.top  = pos.y + "%";
+
+    let imgSrc = "";
     if(e.q && e.q.includes('-')){
-      qimgIdx = (parseInt(e.q.split('-')[1])-1) % QSRCS.length;
-    } else if(e.q){
-      qimgIdx = (parseInt(e.q.replace(/[^\d]/g,''))-1) % QSRCS.length;
+      const idx = parseInt(e.q.split('-')[1])-1;
+      imgSrc = QSRCS[idx % QSRCS.length];
+    } else {
+      imgSrc = QSRCS[i % QSRCS.length];
     }
-    const seed=document.createElement("div");
-    seed.className="seed";
-    seed.style.left=pos.x+"px";
-    seed.style.top=pos.y+"px";
-    seed.style.animationDelay=(i*0.12)+"s";
-    seed.innerHTML=`
-      <div class="seed-img">
-        <img src="${QSRCS[qimgIdx]}" alt=""/>
-      </div>
-      <div class="seed-name">${e.name}</div>`;
-    seed.onclick=()=>showBubble(e,pos,W);
-    container.appendChild(seed);
+    plant.innerHTML = `<img class="p-img" src="${imgSrc}" alt=""/><div class="p-name">${e.name}</div>`;
+    plant.onclick = (ev) => { ev.stopPropagation(); showBubble(e, pos); };
+    canvas.appendChild(plant);
   });
 
-  // Auto cycle answers every 5s
-  clearInterval(bubbleTimer);
-  bubbleIdx=0;
-  showBubbleAuto();
-  bubbleTimer=setInterval(()=>{
-    bubbleIdx=(bubbleIdx+1)%entries.length;
-    showBubbleAuto();
-  },5000);
+  document.addEventListener("click", hideBubble);
 }
-
-function getPositions(n,W,H){
-  const positions=[];
-  const cols=Math.ceil(Math.sqrt(n*1.4));
-  const rows=Math.ceil(n/cols);
-  const cw=W/cols, ch=H/rows;
-  for(let i=0;i<n;i++){
-    const col=i%cols, row=Math.floor(i/cols);
-    const jx=(Math.random()-.5)*cw*0.3;
-    const jy=(Math.random()-.5)*ch*0.3;
-    positions.push({x:cw*(col+.5)+jx, y:ch*(row+.5)+jy+40});
-  }
-  return positions;
-}
-
-function showBubbleAuto(){
-  if(!entries.length) return;
-  const e=entries[bubbleIdx];
-  const seeds=document.querySelectorAll(".seed");
-  if(!seeds[bubbleIdx]) return;
-  const rect=seeds[bubbleIdx].getBoundingClientRect();
-  const bodyRect=document.getElementById("p6").getBoundingClientRect();
-  showBubbleAt(e, rect.left-bodyRect.left+rect.width/2, rect.top-bodyRect.top);
-}
-
-function showBubble(e,pos,W){
-  showBubbleAt(e,pos.x,pos.y-50);
-}
-
-function showBubbleAt(e,x,y){
-  if(window._curAudio){window._curAudio.pause();window._curAudio=null;}
-  const bub=document.getElementById("answerBubble");
-  const col=e.color||"#9aab9e";
-  const inner=document.getElementById("bubbleInner");
-  inner.style.background=col+"22";
-  inner.style.borderColor=col+"44";
-  document.getElementById("bubbleName").textContent=e.name;
-  document.getElementById("bubbleName").style.color=col;
-
-  // Build header: Question · Date (own questions show their own text)
-  const topicName = TNAMES[e.topic] || e.topic;
+function showBubble(e, pos){
+  const b = document.getElementById("bubble");
   let qText = "";
-  if(e.isOwn && e.ownQuestion){
-    qText = e.ownQuestion;
-  } else if(e.q && e.q.includes('-')){
+  if(e.q && e.q.includes('-')){
     const idx = parseInt(e.q.split('-')[1])-1;
     const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
     qText = obj ? obj.q : "";
   }
-  const dateStr = e.date || "";
-  let headerHtml = `
-    <div class="b-question">"${qText}"</div>
-    <div class="b-date">${dateStr}</div>`;
+  let body = "";
+  if(e.answer){ body = `<span class="b-quote">"${e.answer}"</span>`; }
+  else if(e.photo) body = `<span class="b-quote">(사진 흔적)</span>`;
+  else if(e.video) body = `<span class="b-quote">(영상 흔적)</span>`;
+  else if(e.voice) body = `<span class="b-quote">(음성 흔적)</span>`;
+  else body = `<span class="b-quote">(흔적만 남김)</span>`;
 
-  // Body: optional media or answer
-  let bodyHtml = "";
-  if(e.video){
-    bodyHtml = '<video src="'+e.video+'" style="width:100%;aspect-ratio:16/9;border-radius:6px;display:block;margin-top:8px;" autoplay muted loop playsinline></video>';
-  } else if(e.photo){
-    bodyHtml = '<img src="'+e.photo+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;display:block;margin-top:8px;"/>';
-  } else if(e.voice){
-    var bars="";
-    for(var i=0;i<28;i++){
-      var h=8+Math.abs(Math.sin(i*0.7+1)*20+Math.cos(i*0.4)*14);
-      bars+='<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
-    }
-    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">▶ playing</div></div>';
-    var audio=new Audio(e.voice);
-    audio.play().catch(function(){});
-    window._curAudio=audio;
-  } else if(e.answer){
-    bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
-  }
-
-  inner.innerHTML = headerHtml + bodyHtml;
-
-  var bw=240;
-  var lx=x-bw/2;
-  lx=Math.max(10,Math.min(lx,window.innerWidth-bw-10));
-  bub.style.left=lx+"px";
-  bub.style.top=Math.max(10,y-20)+"px";
-  bub.classList.remove("show");
-  requestAnimationFrame(function(){bub.classList.add("show");});
+  b.innerHTML = `${body}<span class="b-meta">${qText.slice(0,40)}${qText.length>40?'…':''} · ${e.date}</span>`;
+  b.style.left = (pos.x > 50 ? (pos.x - 40) : (pos.x + 12)) + "%";
+  b.style.top  = (pos.y + 10) + "%";
+  b.classList.add("show");
+}
+function hideBubble(){
+  document.getElementById("bubble").classList.remove("show");
 }
 
-function resetAll(){
-  S={topic:null,question:null,action:null,isOwn:false,ownQuestion:null};
-  var oi = document.getElementById("ownQuestionInput"); if(oi) oi.value = "";
-  document.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
-  document.querySelectorAll(".grid2").forEach(g=>g.classList.remove("picked"));
-  
-  ["btn1","btn2","btn3"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
-  clearInterval(bubbleTimer);
+// ===== Reset =====
+function resetAndGo(){
+  S = {topic:null, question:null, questionIdx:null, qChoices:[], actions:[], uploadedFile:null};
+  go("s1");
 }
 </script>
+
 </body>
 </html>
