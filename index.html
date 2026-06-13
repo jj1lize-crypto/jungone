@@ -216,6 +216,8 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .step-indicator{display:flex;justify-content:space-between;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.12em;color:#c8bfb0;margin-top:8px;padding-bottom:2px;}
 .step-indicator .si{flex:1;text-align:center;padding:6px 0;border-top:1.5px solid #e0d8cc;transition:all .3s;}
 .step-indicator .si.active{color:#0e0c09;border-top-color:#0e0c09;}
+.step-indicator.hide-labels .si{font-size:0;color:transparent;padding:8px 0 0;border-top-width:2px;}
+.step-indicator.hide-labels .si.active{border-top-color:#0e0c09;}
 .tone-prompt{margin-top:6px;text-align:center;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14.5px;line-height:1.65;color:#0e0c09;padding:14px 12px 12px;}
 .tone-prompt span{display:block;margin-top:10px;font-size:12px;color:#8a7e74;font-style:italic;letter-spacing:.02em;}
 
@@ -226,42 +228,61 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 
 <!-- P0: Opening -->
 <div class="page active" id="p0">
-  <div class="ph">
-    <div class="title">정원: The Garden</div>
-    <div class="opening-tagline">위기가 오기 전, 가족이 돌봄을 이야기해보는 카드와 온라인 정원입니다.</div>
+  <div class="ph" style="text-align:center;">
+    <div class="title" style="text-align:center;">정원: The Garden</div>
   </div>
-  <div class="pb">
-    <ol class="steps-overview">
-      <li>
-        <span class="s-name">고르기</span>
-        <span class="s-desc">색이나 이미지로 카드를 고르세요.</span>
-      </li>
-      <li>
-        <span class="s-name">읽기</span>
-        <span class="s-desc">질문을 조용히 읽어보세요.</span>
-      </li>
-      <li>
-        <span class="s-name">듣기</span>
-        <span class="s-desc">듣고 싶은 방식을 고르세요.</span>
-      </li>
-      <li>
-        <span class="s-name">남기기</span>
-        <span class="s-desc">흔적을 남기거나, 그냥 두세요.</span>
-      </li>
-    </ol>
-
-    <details class="what-is-this">
-      <summary>이 프로젝트는 무엇인가요?</summary>
-      <div class="what-is-this-body">
-        <p>정원은 가족이 질문하고, 듣고, 멈추고, 다시 돌아오며 서로의 대화를 작은 정원처럼 가꿔보는 툴입니다.</p>
-        <p>돌봄은 때로 관심이 되고, 때로 간섭이 됩니다. 정원은 서로를 고치거나 설득하기보다, 필요한 거리와 도움의 기준을 작게 조율하도록 돕습니다. 말하지 않는 것도 대답이고, 남기지 않는 것도 선택입니다.</p>
-        <p class="principle-note">반응 카드는 한쪽을 맞추기 위한 카드가 아니라, 서로가 대화의 속도와 방식을 조율하기 위한 카드입니다.</p>
-        <p class="closing-note">서로의 삶이 가진 색과 향을 지키기 위해, 정원은 건강한 거리에서 돌보는 법을 연습합니다.</p>
-      </div>
-    </details>
+  <div class="pb" style="text-align:center;display:flex;flex-direction:column;justify-content:center;">
+    <div class="p0-prose">
+      <p>가족의 대화를 작은 정원처럼 가꿉니다.</p>
+      <p>고치거나 설득하기보다,<br>필요한 거리를 함께 맞추는 일.</p>
+      <p>말하지 않는 것도 대답이고,<br>남기지 않는 것도 선택입니다.</p>
+    </div>
   </div>
   <div class="pf">
-    <button class="btn" onclick="goTo('p1')">시작하기 →</button>
+    <button class="btn" onclick="goTo('pStart')">시작하기 →</button>
+  </div>
+</div>
+
+<!-- pStart: branch with two image cards -->
+<div class="page" id="pStart">
+  <div class="ph">
+    <div class="step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
+  </div>
+  <div class="pb">
+    <div class="branch-cards">
+      <button class="branch-card" onclick="startOwn()">
+        <img id="bcImg1" src="" alt=""/>
+        <div class="branch-card-overlay">
+          <span class="branch-card-label">직접 질문하기</span>
+        </div>
+      </button>
+      <button class="branch-card" onclick="startCards()">
+        <img id="bcImg2" src="" alt=""/>
+        <div class="branch-card-overlay">
+          <span class="branch-card-label">주제 고르기</span>
+        </div>
+      </button>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn-back" onclick="goBack('p0')">← 뒤로</button>
+  </div>
+</div>
+
+<!-- pOwn: Write your own question -->
+<div class="page" id="pOwn">
+  <div class="ph">
+    <div class="step" style="display:none;">JUNG ONE</div>
+    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
+  </div>
+  <div class="pb">
+    <p class="own-helper">완벽한 문장이 아니어도 괜찮습니다. 마음에 걸리는 말, 확인하고 싶은 것, 조심스럽게 꺼내고 싶은 것 모두 괜찮습니다.</p>
+    <textarea class="answer-textarea" id="ownQuestionInput" placeholder="여기에 적어주세요..." maxlength="200" oninput="updateOwnBtn()" style="margin-top:12px;"></textarea>
+  </div>
+  <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
+    <button class="btn" id="btnOwn" onclick="submitOwnQuestion()" disabled>이 질문으로 시작하기 →</button>
+    <button class="btn-back" onclick="goBack('pStart')">← 뒤로</button>
   </div>
 </div>
 
@@ -269,8 +290,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <div class="page" id="p1">
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si active">고르기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-    <div class="title">색이나 이미지로 골라주세요</div>
+    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
   </div>
   <div class="pb"><div class="grid2" id="tGrid"></div></div>
   <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>다음 →</button></div>
@@ -280,8 +300,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <div class="page" id="p2">
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si active">고르기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-    <div class="title">색이나 이미지로 골라주세요</div>
+    <div class="step-indicator hide-labels"><span class="si active">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
   </div>
   <div class="pb">
     <div class="grid2" id="qGrid"></div>
@@ -292,63 +311,29 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
   </div>
 </div>
 
-<!-- P3: Action (optional, entered from P4) -->
-<div class="page" id="p3">
-  <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si">고르기</span><span class="si">읽기</span><span class="si active">듣기</span><span class="si">남기기</span></div>
-    <div class="title">어떻게 들어주길 바라나요?</div>
-    <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">가족이 어떤 방식으로 들어주면 좋을지 골라주세요.</div>
-  </div>
-  <div class="pb"><div class="grid2" id="aGrid"></div></div>
-  <div class="pf">
-    <button class="btn" id="btn3" onclick="afterAction()" disabled>다음 →</button>
-    <button class="btn-back" onclick="backFromP3()">← 뒤로</button>
-  </div>
-</div>
-
 <!-- P4: Final card -->
 <div class="page" id="p4">
   <div class="ph" style="padding-bottom:8px;">
     <div class="step" id="p4Step" style="display:none;">JUNG ONE · 읽기</div>
-    <div class="step-indicator"><span class="si">고르기</span><span class="si active" id="p4SiRead">읽기</span><span class="si" id="p4SiListen">듣기</span><span class="si">남기기</span></div>
-    <div class="title" id="p4Title">질문을 조용히 읽어보세요</div>
+    <div class="step-indicator hide-labels"><span class="si">묻기</span><span class="si active" id="p4SiRead">읽기</span><span class="si" id="p4SiListen">듣기</span><span class="si">남기기</span></div>
+    <div class="title" id="p4Title">오늘의 식물</div>
   </div>
-  <div class="final-stage">
-    <div id="p4Intro" class="p4-final-note">
-      <ul class="p4-final-list">
-        <li>1분 동안 답을 생각해 보세요.</li>
-        <li>가족에게 원하는 반응을 골라주세요.</li>
-      </ul>
-    </div>
-    <div id="p4FinalNote" class="p4-final-note" style="display:none;">
-      <p class="p4-final-helper">상대는 답변이 끝날 때까지 들어주세요.</p>
-    </div>
-    <div class="card-pair">
-      <div class="card-box">
-        <div class="card-front" id="cFront">
-          <img class="img-t" id="imgT" src="" alt=""/>
-          <img class="img-q" id="imgQ" src="" alt=""/>
-          <img class="img-a" id="imgA" src="" alt="" style="display:none;"/>
-        </div>
+  <div class="pb p4-stage">
+    <div class="p4-question-card" id="p4Card">
+      <div class="p4-qc-bg">
+        <img class="img-t" id="imgT" src="" alt=""/>
+        <img class="img-q" id="imgQ" src="" alt=""/>
       </div>
-      <div class="card-box">
-        <div class="card-back" id="cBack">
-          <div>
-            <div class="back-badges" id="bBadges"></div>
-            <div class="back-q" id="bQ"></div>
-            <div class="back-sub" id="bSub"></div>
-          </div>
-          <div>
-            <div class="back-follow" id="bF" style="display:none;"></div>
-          </div>
-        </div>
+      <div class="p4-qc-text">
+        <div class="p4-qc-q" id="bQ"></div>
+        <div class="p4-qc-sub" id="bSub"></div>
       </div>
     </div>
+    <div class="p4-listen-row" id="p4ListenRow"></div>
+    <div class="p4-hint">같은 질문을 다른 사람에게도 해보세요</div>
   </div>
   <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnAction" onclick="goTo('p3')">이렇게 들어주세요 카드 고르기 →</button>
-    <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">다 말했어요</button>
+    <button class="btn" id="btnSave" onclick="askAnswerConfirm()">정원에 심기 →</button>
     <button class="btn-back" onclick="backFromP4()">← 뒤로</button>
   </div>
 </div>
@@ -357,16 +342,10 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <div class="page" id="p5">
   <div class="ph">
     <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si">고르기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si active">남기기</span></div>
-    <div class="title">무엇을 남기고 싶나요?</div>
+    <div class="step-indicator hide-labels"><span class="si">묻기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si active">남기기</span></div>
   </div>
   <div class="answer-wrap">
-    <div class="answer-card-mini" id="miniCard">
-      <img class="mini-img" id="miniImg" src="" alt=""/>
-      <div class="mini-q"><span id="miniLabel"></span><span id="miniQ"></span></div>
-    </div>
-
-    <div class="answer-section">
+<div class="answer-section">
       <div class="answer-section-label">글로</div>
       <textarea class="answer-textarea" id="answerText" placeholder="오늘 마음에 남은 것을 적어주세요." maxlength="200" oninput="updateSubmitState()"></textarea>
       <div class="char-count"><span id="charCount">0</span> / 200</div>
@@ -448,11 +427,10 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- Modal: Ask if user wants to leave an answer -->
 <div class="modal-backdrop" id="answerModal" onclick="closeAnswerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-title">흔적을 같이 남기시겠어요?</div>
-    <div class="modal-sub">답변 없이 카드만 정원에 심을 수도 있어요.</div>
+    <div class="modal-title">메모 남길까요?</div>
     <div class="modal-buttons">
-      <button class="btn" onclick="answerYes()">흔적 남기기</button>
-      <button class="btn btn-secondary" onclick="answerNo()">질문만 심기</button>
+      <button class="btn" onclick="answerYes()">메모 남기기</button>
+      <button class="btn btn-secondary" onclick="answerNo()">정원에 심기</button>
     </div>
   </div>
 </div>
@@ -575,7 +553,7 @@ const DEMO = [
   {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
 ];
 
-let S={topic:null,question:null,action:null};
+let S={topic:null,question:null,action:null,isOwn:false,ownQuestion:null};
 let entries=[];
 entries = [...DEMO];
 
@@ -622,7 +600,11 @@ function buildQuestionGrid(){
 function buildActionGrid(){
   const grid = document.getElementById("aGrid");
   grid.innerHTML = "";
-  Object.keys(ANAMES).forEach(key => {
+  // Primary 3: a01 (just listen), a02 (one question), a06 (stop here)
+  const primary = ['a01','a02','a06'];
+  const secondary = ['a03','a04','a05'];
+
+  function mkCard(key){
     const card = document.createElement("div");
     card.className = "sel-card";
     card.onclick = () => pick("action", key, card);
@@ -633,8 +615,32 @@ function buildActionGrid(){
         <div class="card-name">${ANAMES[key]}</div>
         <div class="card-desc">${ADESC[key]}</div>
       </div>`;
-    grid.appendChild(card);
-  });
+    return card;
+  }
+
+  primary.forEach(key => grid.appendChild(mkCard(key)));
+
+  // Wrap secondary in a hidden container with a toggle
+  const moreWrap = document.createElement("div");
+  moreWrap.className = "a-more-wrap";
+  moreWrap.style.display = "none";
+  secondary.forEach(key => moreWrap.appendChild(mkCard(key)));
+  grid.appendChild(moreWrap);
+
+  const toggle = document.createElement("button");
+  toggle.className = "a-more-toggle";
+  toggle.textContent = '더 보기 +';
+  toggle.onclick = function(e){
+    e.stopPropagation();
+    if(moreWrap.style.display === "none"){
+      moreWrap.style.display = "contents";
+      toggle.textContent = '접기 −';
+    } else {
+      moreWrap.style.display = "none";
+      toggle.textContent = '더 보기 +';
+    }
+  };
+  grid.appendChild(toggle);
 }
 
 function pick(type, val, el){
@@ -653,11 +659,17 @@ function goTo(id){
   });
   document.getElementById(id).classList.add("active");
   window.scrollTo(0,0);
+  if(id==="pStart") buildBranchImages();
   if(id==="p2"){ buildQuestionGrid(); document.getElementById("btn2").disabled = true; S.question = null; }
   if(id==="p3"){ buildActionGrid(); document.getElementById("btn3").disabled = true; S.action = null; }
   if(id==="p4") buildFinalCard();
   if(id==="p5") buildAnswerPage();
   if(id==="p6") buildGarden();
+}
+
+function buildBranchImages(){
+  var im1 = document.getElementById("bcImg1"); if(im1) im1.src = ASRCS["a01"];
+  var im2 = document.getElementById("bcImg2"); if(im2) im2.src = ASRCS["a02"];
 }
 
 function goBack(id){
@@ -672,6 +684,34 @@ function backFromP4(){
   if(S.action) goBack("p3");
   else goBack("p2");
 }
+function startOwn(){
+  S.isOwn = true;
+  S.ownQuestion = null;
+  S.topic = null;
+  S.question = null;
+  S.action = null;
+  goTo("pOwn");
+}
+function startCards(){
+  S.isOwn = false;
+  S.ownQuestion = null;
+  goTo("p1");
+}
+function updateOwnBtn(){
+  var t = document.getElementById("ownQuestionInput").value.trim();
+  document.getElementById("btnOwn").disabled = t.length < 3;
+}
+function submitOwnQuestion(){
+  var t = document.getElementById("ownQuestionInput").value.trim();
+  if(t.length < 3) return;
+  S.ownQuestion = t;
+  S.isOwn = true;
+  S.topic = "own";
+  S.question = "own-1";
+  S.action = null;
+  goTo("p4");
+}
+
 function backFromP3(){
   // Going back from action selection drops the action and returns to P4 in Think mode
   S.action = null;
@@ -682,60 +722,47 @@ function backFromP3(){
 }
 
 function buildFinalCard(){
-  const t = S.topic, q = S.question, a = S.action;
-  const idx = parseInt(q.split('-')[1]) - 1;
-  const qimgIdx = idx % QSRCS.length;
-  document.getElementById("imgT").src = TSRCS[t];
-  document.getElementById("imgQ").src = QSRCS[qimgIdx];
+  const t = S.topic, q = S.question;
+  const isOwn = S.isOwn && S.ownQuestion;
 
-  const imgA = document.getElementById("imgA");
-  if(a){ imgA.src = ASRCS[a]; imgA.style.display = ""; }
-  else { imgA.style.display = "none"; }
-
-  // No badges on back of card
-  document.getElementById("bBadges").innerHTML = '';
-
-  // Main + sub question
-  const qData = QDATA[t][idx];
-  document.getElementById("bQ").textContent = qData.q;
-  const bSub = document.getElementById("bSub");
-  if(bSub) bSub.textContent = qData.f || "";
-
-  // Action area (final mode only)
-  const bF = document.getElementById("bF");
-  if(a){
-    bF.innerHTML = '<span class="action-label">' + ANAMES[a] + '</span>' + ADESC[a];
-    bF.style.display = "";
+  // Background images on the card
+  if(isOwn){
+    document.getElementById("imgT").src = "";
+    document.getElementById("imgQ").src = "";
+    document.getElementById("p4Card").classList.add("is-own");
+    document.getElementById("bQ").textContent = S.ownQuestion;
+    document.getElementById("bSub").textContent = "";
   } else {
-    bF.style.display = "none";
+    const idx = parseInt(q.split('-')[1]) - 1;
+    const qimgIdx = idx % QSRCS.length;
+    document.getElementById("imgT").src = TSRCS[t];
+    document.getElementById("imgQ").src = QSRCS[qimgIdx];
+    document.getElementById("p4Card").classList.remove("is-own");
+    const qData = QDATA[t][idx];
+    document.getElementById("bQ").textContent = qData.q;
+    document.getElementById("bSub").textContent = qData.f || "";
   }
 
-  // Mode-specific UI: title, intro, buttons, final note
-  const titleEl = document.getElementById("p4Title");
-  const stepEl  = document.getElementById("p4Step");
-  const intro   = document.getElementById("p4Intro");
-  const finalNote = document.getElementById("p4FinalNote");
-  const btnAction = document.getElementById("btnAction");
-  const btnSave   = document.getElementById("btnSave");
-  if(a){
-    if(titleEl) titleEl.textContent = "답변을 나눠보세요";
-    var siR=document.getElementById("p4SiRead"),siL=document.getElementById("p4SiListen");
-    if(siR) siR.classList.remove("active"); if(siL) siL.classList.add("active");
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · 듣기";
-    if(intro) intro.style.display = "none";
-    if(finalNote) finalNote.style.display = "";
-    if(btnAction) btnAction.style.display = "none";
-    if(btnSave) btnSave.style.display = "";
-  } else {
-    if(titleEl) titleEl.textContent = "질문을 조용히 읽어보세요";
-    var siR2=document.getElementById("p4SiRead"),siL2=document.getElementById("p4SiListen");
-    if(siR2) siR2.classList.add("active"); if(siL2) siL2.classList.remove("active");
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · 읽기";
-    if(intro) intro.style.display = "";
-    if(finalNote) finalNote.style.display = "none";
-    if(btnAction) btnAction.style.display = "";
-    if(btnSave) btnSave.style.display = "none";
-  }
+  // Render mini listen cards next to the question
+  buildListenRow();
+}
+
+function buildListenRow(){
+  const row = document.getElementById("p4ListenRow");
+  if(!row) return;
+  row.innerHTML = "";
+  // Use q01~q06 plant images for listen mini-cards
+  Object.keys(ANAMES).forEach((key, i) => {
+    const c = document.createElement("button");
+    c.className = "lm-card";
+    if(S.action === key) c.classList.add("on");
+    c.onclick = () => {
+      S.action = (S.action === key) ? null : key;
+      buildListenRow();
+    };
+    c.innerHTML = `<img src="${QSRCS[i]}" alt=""/><span class="lm-name">${ANAMES[key]}</span>`;
+    row.appendChild(c);
+  });
 }
 
 /* ===== Action flow ===== */
@@ -764,20 +791,17 @@ function answerYes(){
 function answerNo(){
   document.getElementById("answerModal").classList.remove("show");
   // Save without an answer
-  const col = TCOLORS[S.topic] || '#9aab9e';
-  entries.push({name:"나", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col});
+  const col = S.isOwn ? '#7a6e54' : (TCOLORS[S.topic] || '#9aab9e');
+  const entry = S.isOwn
+    ? {name:"나", topic:"own", q:"own-1", a:S.action, answer:"", date:todayStr(), color:col, isOwn:true, ownQuestion:S.ownQuestion}
+    : {name:"나", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col};
+  entries.push(entry);
   goTo("p55");
   setTimeout(()=> goTo("p6"), 2400);
 }
 
 /* ===== Answer page (P5) ===== */
 function buildAnswerPage(){
-  const t = S.topic, q = S.question;
-  const idx = parseInt(q.split('-')[1]) - 1;
-  const qimgIdx = idx % QSRCS.length;
-  document.getElementById("miniImg").src = QSRCS[qimgIdx];
-  document.getElementById("miniLabel").textContent = "";
-  document.getElementById("miniQ").textContent = QDATA[t][idx].q;
   document.getElementById("answerText").value = "";
   document.getElementById("charCount").textContent = "0";
   document.getElementById("btn5").disabled = true;
@@ -841,8 +865,10 @@ buildTopicGrid();
 
 function submitAnswer(){
   const answer = document.getElementById("answerText").value.trim();
-  const col = TCOLORS[S.topic] || '#9aab9e';
-  const entry = {name:"나", topic:S.topic, q:S.question, a:S.action, answer, date:todayStr(), color:col};
+  const col = S.isOwn ? '#7a6e54' : (TCOLORS[S.topic] || '#9aab9e');
+  const entry = S.isOwn
+    ? {name:"나", topic:"own", q:"own-1", a:S.action, answer, date:todayStr(), color:col, isOwn:true, ownQuestion:S.ownQuestion}
+    : {name:"나", topic:S.topic, q:S.question, a:S.action, answer, date:todayStr(), color:col};
   if(S.uploadedFile){
     const t = S.uploadedFile.type;
     if(t.startsWith("image/"))      entry.photo = S.uploadedFile.url;
@@ -938,10 +964,12 @@ function showBubbleAt(e,x,y){
   document.getElementById("bubbleName").textContent=e.name;
   document.getElementById("bubbleName").style.color=col;
 
-  // Build header: Topic · Question · Date
+  // Build header: Question · Date (own questions show their own text)
   const topicName = TNAMES[e.topic] || e.topic;
   let qText = "";
-  if(e.q && e.q.includes('-')){
+  if(e.isOwn && e.ownQuestion){
+    qText = e.ownQuestion;
+  } else if(e.q && e.q.includes('-')){
     const idx = parseInt(e.q.split('-')[1])-1;
     const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
     qText = obj ? obj.q : "";
@@ -983,7 +1011,8 @@ function showBubbleAt(e,x,y){
 }
 
 function resetAll(){
-  S={topic:null,question:null,action:null};
+  S={topic:null,question:null,action:null,isOwn:false,ownQuestion:null};
+  var oi = document.getElementById("ownQuestionInput"); if(oi) oi.value = "";
   document.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
   document.querySelectorAll(".grid2").forEach(g=>g.classList.remove("picked"));
   
