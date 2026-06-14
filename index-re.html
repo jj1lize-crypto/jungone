@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ========================================
    JUNG ONE: 정원 — quiet printed ritual
@@ -415,14 +416,6 @@ body{
 .conv-card .rc-sub{font-size:11.5px;line-height:1.4;color:#e8dfd0;font-style:italic;text-shadow:0 1px 4px rgba(0,0,0,0.5);}
 .conv-card .rc-aside{font-size:10.5px;line-height:1.4;color:#a89a7c;font-style:italic;margin-top:6px;text-shadow:0 1px 4px rgba(0,0,0,0.5);border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;}
 
-.conv-listen-label{
-  font-size:12px;
-  color:#7A6E54;
-  letter-spacing:.08em;
-  text-align:center;
-  margin:8px 0 10px;
-  text-transform:uppercase;
-}
 .conv-listen-row{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -740,6 +733,315 @@ body{
   text-shadow:0 1px 6px rgba(0,0,0,0.4);
 }
 
+
+/* Invitation screens (S7, S7b, sInvite) */
+.invite-intro{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  margin-top:24px;
+}
+.invite-title{
+  font-size:28px;
+  font-weight:700;
+  line-height:1.3;
+  color:#111;
+  letter-spacing:-.01em;
+  margin-bottom:30px;
+}
+.invite-prose{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  max-width:320px;
+}
+.invite-prose p{
+  font-size:16px;
+  line-height:1.75;
+  color:#1a1a1a;
+}
+.link-box{
+  margin-top:30px;
+  padding:10px 8px 10px 14px;
+  background:#fff;
+  border:1px solid #D9CFBE;
+  border-radius:3px;
+  color:#5A4F3D;
+  text-align:left;
+  width:100%;
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+}
+.link-box span{
+  flex:1;
+  font-size:11.5px;
+  font-family:'SF Mono','Menlo','Monaco',monospace;
+  line-height:1.55;
+  word-break:break-all;
+  padding-top:5px;
+}
+.copy-icon{
+  flex-shrink:0;
+  background:transparent;
+  border:1px solid #C8BFA8;
+  color:#5A4F3D;
+  width:32px;height:32px;
+  border-radius:3px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+}
+.copy-icon:hover{background:#FAF6ED;border-color:#7A6E54;color:#111;}
+.copy-icon:active{background:#E5DCC9;}
+.copy-status{
+  text-align:center;
+  font-size:12.5px;
+  color:#7A6E54;
+  margin-top:10px;
+  min-height:18px;
+  font-style:italic;
+}
+
+/* Invite VIEW (invited person) */
+.invite-view-header{
+  text-align:center;
+  margin-bottom:30px;
+}
+.invite-view-mark{
+  font-size:13px;
+  letter-spacing:.18em;
+  color:#7A6E54;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.invite-view-sub{
+  font-size:18px;
+  font-weight:500;
+  line-height:1.45;
+  color:#111;
+}
+.invite-display{
+  background:#fff;
+  border:1px solid #E5DCC9;
+  border-radius:3px;
+  padding:18px 18px 20px;
+  margin-bottom:14px;
+}
+.invite-label{
+  font-size:11px;
+  letter-spacing:.14em;
+  color:#9A8B73;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.invite-question{
+  font-size:18px;
+  line-height:1.55;
+  font-weight:500;
+  color:#111;
+  margin-bottom:6px;
+}
+.invite-question-sub{
+  font-size:13.5px;
+  line-height:1.6;
+  color:#5A4F3D;
+  font-style:italic;
+}
+.invite-listen-card{
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+.invite-listen-card img{
+  width:54px;
+  height:70px;
+  object-fit:contain;
+  padding:6px;
+  background:#0e0c09;
+  border-radius:3px;
+  opacity:.85;
+  mix-blend-mode:screen;
+  filter:sepia(0.25);
+}
+.invite-listen-info{flex:1;}
+.invite-listen-name{
+  font-size:15px;
+  font-weight:500;
+  color:#111;
+  margin-bottom:4px;
+}
+.invite-listen-desc{
+  font-size:13px;
+  line-height:1.55;
+  color:#5A4F3D;
+}
+.invite-footer-note{
+  text-align:center;
+  margin-top:8px;
+  font-size:14px;
+  color:#7A6E54;
+  font-style:italic;
+  line-height:1.6;
+}
+
+/* Listen modal: add select button */
+.lm-select-btn{
+  display:block;
+  width:88%;
+  max-width:300px;
+  margin:14px auto 0;
+  height:46px;
+  background:#f5f0e8;
+  color:#0e0c09;
+  border:none;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:500;
+  cursor:pointer;
+  border-radius:2px;
+  position:relative;
+  z-index:3;
+}
+.lm-select-btn.btn-outline{
+  background:transparent;
+  color:#f5f0e8;
+  border:1.5px solid #f5f0e8;
+}
+.listen-modal-card{
+  cursor:default !important;
+  padding-bottom:18px;
+}
+
+/* conv-listen-card selected state */
+.conv-listen-card.on{
+  outline:2px solid #111;
+  outline-offset:-2px;
+}
+.conv-listen-card.on::after{
+  content:'✓';
+  position:absolute;
+  top:4px;right:5px;z-index:3;
+  width:15px;height:15px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  font-size:10px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+
+/* Invitation card preview (the share image) */
+.invite-card-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom:18px;
+}
+.invite-card-preview{
+  position:relative;
+  width:88%;
+  max-width:320px;
+  aspect-ratio:5/7;
+  background:#0e0c09;
+  border-radius:6px;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(14,12,9,0.22);
+}
+.icp-bg{position:absolute;inset:0;}
+.icp-img-t{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:0.45;
+  mix-blend-mode:screen;
+}
+.icp-img-q{
+  position:absolute;
+  top:14%;left:50%;
+  transform:translateX(-50%);
+  width:54%;
+  height:38%;
+  object-fit:contain;
+  opacity:0.78;
+  mix-blend-mode:screen;
+  filter:sepia(0.3);
+}
+.icp-content{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  padding:18px 20px 22px;
+  color:#f5f0e8;
+  background:linear-gradient(180deg,rgba(14,12,9,0.1) 0%,rgba(14,12,9,0.4) 38%,rgba(14,12,9,0.88) 70%,rgba(14,12,9,0.95) 100%);
+  z-index:2;
+}
+.icp-mark{
+  font-size:10.5px;
+  letter-spacing:.22em;
+  color:#d4c9b8;
+  text-transform:uppercase;
+  text-align:center;
+  margin-bottom:auto;
+}
+.icp-question{
+  font-size:15px;
+  font-weight:500;
+  line-height:1.45;
+  margin-top:12px;
+  text-align:center;
+  text-shadow:0 1px 6px rgba(0,0,0,0.5);
+}
+.icp-sub{
+  font-size:12px;
+  line-height:1.5;
+  margin-top:6px;
+  color:#e8dfd0;
+  font-style:italic;
+  text-align:center;
+  text-shadow:0 1px 4px rgba(0,0,0,0.4);
+}
+.icp-divider{
+  width:36px;
+  height:1px;
+  background:rgba(245,240,232,0.4);
+  margin:14px auto 12px;
+}
+.icp-listen-line{
+  font-size:12px;
+  line-height:1.55;
+  color:#e8dfd0;
+  text-align:center;
+  text-shadow:0 1px 4px rgba(0,0,0,0.4);
+}
+.icp-listen-name{
+  font-weight:600;
+  color:#fff;
+  font-style:normal;
+}
+.icp-listen-msg{
+  font-size:12.5px;
+  line-height:1.5;
+  margin-top:6px;
+  color:#fff;
+  text-align:center;
+  font-style:italic;
+  text-shadow:0 1px 5px rgba(0,0,0,0.5);
+}
+.invite-tip{
+  text-align:center;
+  font-size:13.5px;
+  color:#5A4F3D;
+  margin-top:6px;
+  margin-bottom:8px;
+  font-style:italic;
+  min-height:20px;
+  line-height:1.5;
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -760,7 +1062,7 @@ body{
     </div>
     <div class="empty-space"></div>
     <div class="bottom">
-      <button class="btn" onclick="go('s2')">시작하기 →</button>
+      <button class="btn" onclick="go('s2')">정원 초대장 만들기 →</button>
     </div>
   </section>
 
@@ -804,7 +1106,6 @@ body{
       <div class="step active"><div class="bar"></div><div class="label">듣기</div></div>
       <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
     </div>
-    <div class="s-title center">오늘의 카드</div>
     <div class="conv-card" id="convCard">
       <div class="rc-bg">
         <img class="img-t" id="ccImgT" src="" alt=""/>
@@ -813,19 +1114,50 @@ body{
       <div class="rc-text">
         <div class="rc-q" id="ccQ"></div>
         <div class="rc-sub" id="ccSub"></div>
-        <div class="rc-aside">가족들에게도 물어보세요.</div>
       </div>
     </div>
-    <div class="conv-listen-label">— 듣기 카드 —</div>
+    <div class="s-title center">답을 떠올린 뒤,<br>듣고 싶은 방식을 골라주세요</div>
     <div class="conv-listen-row" id="convListenRow"></div>
     <div class="empty-space"></div>
     <div class="bottom">
-      <button class="btn" onclick="openPlantModal()">정원에 심기</button>
+      <button class="btn" id="btnS6" disabled onclick="createInvitation()">초대장 만들기 →</button>
       <button class="btn-back" onclick="go('s3')">← 뒤로</button>
     </div>
   </section>
+<!-- ===== SCREEN 7B — INVITATION CARD ===== -->
+  <section class="screen" id="s7b">
+    <div class="progress">
+      <div class="step"><div class="bar"></div><div class="label">묻기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">읽기</div></div>
+      <div class="step active"><div class="bar"></div><div class="label">듣기</div></div>
+      <div class="step"><div class="bar"></div><div class="label">남기기</div></div>
+    </div>
+    <div class="invite-card-wrap">
+      <div class="invite-card-preview" id="inviteCardPreview">
+        <div class="icp-bg">
+          <img class="icp-img-t" id="icpImgT" src="" alt=""/>
+          <img class="icp-img-q" id="icpImgQ" src="" alt=""/>
+        </div>
+        <div class="icp-content">
+          <div class="icp-mark">정원 초대장</div>
+          <div class="icp-question" id="icpQ"></div>
+          <div class="icp-sub" id="icpSub"></div>
+          <div class="icp-divider"></div>
+          <div class="icp-listen-line">초대하신 분이 <span class="icp-listen-name" id="icpListenName"></span>을(를)<br>선택했어요.</div>
+          <div class="icp-listen-msg" id="icpListenMsg"></div>
+        </div>
+      </div>
+    </div>
+    <div class="invite-tip" id="inviteTip">이 카드를 가족에게 보내주세요.</div>
+    <div class="empty-space"></div>
+    <div class="bottom">
+      <button class="btn btn-outline" onclick="downloadInvitation()">이미지로 저장하기</button>
+      <button class="btn" onclick="openPlantModal()" style="margin-top:8px;">정원에 심기 →</button>
+      <button class="btn-back" onclick="go('s6')">← 뒤로</button>
+    </div>
+  </section>
 
-  <!-- ===== SCREEN 8 — TRACE INPUT ===== -->
+<!-- ===== SCREEN 8 — TRACE INPUT ===== -->
   <section class="screen" id="s8">
     <div class="progress">
       <div class="step"><div class="bar"></div><div class="label">묻기</div></div>
@@ -870,13 +1202,14 @@ body{
 
 <!-- ===== LISTEN CARD POPUP ===== -->
 <div class="modal listen-modal" id="listenModal" onclick="closeListenModal()">
-  <div class="listen-modal-card" onclick="closeListenModal()">
+  <div class="listen-modal-card" onclick="event.stopPropagation();">
     <div class="lm-img-wrap">
       <img id="lmImg" src="" alt=""/>
     </div>
     <div class="lm-info">
       <div class="lm-name-big" id="lmName"></div>
       <div class="lm-desc-big" id="lmDesc"></div>
+      <button class="lm-select-btn" id="lmSelectBtn" onclick="selectListenCard()">이 카드 선택하기</button>
     </div>
   </div>
 </div>
@@ -1021,7 +1354,7 @@ const DEMO = [
 let entries = [...DEMO];
 
 // State
-let S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, actions:[], uploadedFile:null};
+let S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null};
 
 // ===== Navigation =====
 function go(id){
@@ -1114,52 +1447,6 @@ function buildReadCard(){
   document.getElementById("rcSub").textContent = qData.f || "";
 }
 
-// ===== S5 — Listen card selection =====
-function buildListenGrid(){
-  const primary = ["a01","a02","a06"];
-  const secondary = ["a03","a04","a05"];
-  const row = document.getElementById("listenGrid");
-  row.innerHTML = "";
-  primary.forEach(k => row.appendChild(makeListenCard(k)));
-
-  const moreRow = document.getElementById("listenMoreGrid");
-  moreRow.innerHTML = "";
-  secondary.forEach(k => moreRow.appendChild(makeListenCard(k)));
-  document.getElementById("listenMoreWrap").style.display = "none";
-  document.getElementById("moreToggle").textContent = "더 보기 +";
-}
-function makeListenCard(key){
-  const c = document.createElement("button");
-  c.className = "listen-card";
-  if(S.actions.includes(key)) c.classList.add("on");
-  c.onclick = () => {
-    if(S.actions.includes(key)) S.actions = S.actions.filter(x=>x!==key);
-    else S.actions.push(key);
-    buildListenGrid();
-  };
-  c.innerHTML = `
-    <img src="${ASRCS[key]}" alt=""/>
-    <div class="lc-text">
-      <span class="lc-name">${ANAMES[key]}</span>
-      <span class="lc-desc">${ADESC[key]}</span>
-    </div>`;
-  return c;
-}
-function toggleMore(){
-  const w = document.getElementById("listenMoreWrap");
-  const btn = document.getElementById("moreToggle");
-  if(w.style.display === "none"){
-    w.style.display = "";
-    btn.textContent = "접기 −";
-  } else {
-    w.style.display = "none";
-    btn.textContent = "더 보기 +";
-  }
-}
-function skipListen(){
-  S.actions = [];
-  go("s6");
-}
 
 // ===== S6 — Conversation =====
 function buildConv(){
@@ -1178,20 +1465,48 @@ function buildConvListen(){
   ["a01","a02","a03","a04","a05","a06"].forEach(key => {
     const c = document.createElement("button");
     c.className = "conv-listen-card";
+    if(S.listenCard === key) c.classList.add("on");
     c.onclick = () => openListenModal(key);
     c.innerHTML = `<img src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
     row.appendChild(c);
   });
+  updateInviteBtn();
 }
 
+let _currentModalKey = null;
 function openListenModal(key){
+  _currentModalKey = key;
   document.getElementById("lmImg").src = ASRCS[key];
   document.getElementById("lmName").textContent = ANAMES[key];
   document.getElementById("lmDesc").textContent = ADESC[key];
+  // Update select button label based on selection state
+  const selBtn = document.getElementById("lmSelectBtn");
+  if(S.listenCard === key){
+    selBtn.textContent = "선택 해제";
+    selBtn.classList.add("btn-outline");
+  } else {
+    selBtn.textContent = "이 카드 선택하기";
+    selBtn.classList.remove("btn-outline");
+  }
   document.getElementById("listenModal").classList.add("show");
 }
 function closeListenModal(){
   document.getElementById("listenModal").classList.remove("show");
+  _currentModalKey = null;
+}
+function selectListenCard(){
+  if(!_currentModalKey) return;
+  if(S.listenCard === _currentModalKey){
+    S.listenCard = null;
+  } else {
+    S.listenCard = _currentModalKey;
+  }
+  closeListenModal();
+  buildConvListen();
+}
+function updateInviteBtn(){
+  const btn = document.getElementById("btnS6");
+  if(btn) btn.disabled = !S.listenCard;
 }
 
 // ===== Planting flow =====
@@ -1207,14 +1522,14 @@ function todayStr(){
 }
 function plantOnly(){
   const col = TCOLORS[S.topic] || '#9aab9e';
-  const a = S.actions.length ? S.actions[0] : null;
+  const a = S.listenCard || null;
   entries.push({name:"나", topic:S.topic, q:S.question, a:a, answer:"", date:todayStr(), color:col});
   showFlashAndGoGarden();
 }
 function plantWithTrace(){
   const answer = document.getElementById("traceText").value.trim();
   const col = TCOLORS[S.topic] || '#9aab9e';
-  const a = S.actions.length ? S.actions[0] : null;
+  const a = S.listenCard || null;
   const entry = {name:"나", topic:S.topic, q:S.question, a:a, answer, date:todayStr(), color:col};
   if(S.uploadedFile){
     const t = S.uploadedFile.type;
@@ -1320,9 +1635,66 @@ function hideBubble(){
   document.getElementById("bubble").classList.remove("show");
 }
 
+
+// ===== Invitation system =====
+// ===== Invitation card =====
+// Short, invite-friendly listening messages (different from ADESC)
+const INVITE_MSG = {
+  a01: "의견을 존중하며 들어주세요.",
+  a02: "한 번에 한 가지만 물어봐 주세요.",
+  a03: "비슷한 경험을 짧게 나눠 주세요. 조언이나 비교는 아니에요.",
+  a04: "지금은 조언보다 들어주는 것이 필요해요.",
+  a05: "판단 없이 있는 그대로 들어 주세요.",
+  a06: "오늘은 여기까지 함께 듣고 멈춰 주세요."
+};
+
+function createInvitation(){
+  // Populate the invitation card preview
+  const t = S.topic, idx = S.questionIdx;
+  const qimgIdx = idx % QSRCS.length;
+  document.getElementById("icpImgT").src = TSRCS[t];
+  document.getElementById("icpImgQ").src = QSRCS[qimgIdx];
+  const qData = QDATA[t][idx];
+  document.getElementById("icpQ").textContent = qData.q;
+  document.getElementById("icpSub").textContent = qData.f || "";
+  document.getElementById("icpListenName").textContent = "'" + ANAMES[S.listenCard] + "'";
+  document.getElementById("icpListenMsg").textContent = INVITE_MSG[S.listenCard] || ADESC[S.listenCard];
+  go("s7b");
+}
+
+function downloadInvitation(){
+  const card = document.getElementById("inviteCardPreview");
+  if(typeof html2canvas === "undefined"){
+    setTip("스크린샷으로 저장해 주세요.");
+    return;
+  }
+  setTip("이미지 만드는 중…");
+  html2canvas(card, {
+    backgroundColor: "#0e0c09",
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    logging: false
+  }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "jungone-초대장.png";
+    link.href = canvas.toDataURL("image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTip("✓ 저장되었어요. 가족에게 이미지를 보내주세요.");
+  }).catch(() => {
+    setTip("저장에 실패했어요. 스크린샷으로 저장해 주세요.");
+  });
+}
+function setTip(msg){
+  const el = document.getElementById("inviteTip");
+  if(el) el.textContent = msg;
+}
+
 // ===== Reset =====
 function resetAndGo(){
-  S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, actions:[], uploadedFile:null};
+  S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null};
   go("s1");
 }
 </script>
