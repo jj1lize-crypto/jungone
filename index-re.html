@@ -8,6 +8,50 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<script>
+(function(){
+  function loadScript(src){
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("Failed: " + src));
+      document.head.appendChild(s);
+    });
+  }
+  // After all gstatic scripts run, check if firebase is loaded.
+  // If NOT, try jsdelivr fallback CDN.
+  window._fbReady = new Promise((resolve) => {
+    if(typeof firebase !== "undefined"){
+      console.log("✓ Firebase loaded via gstatic");
+      resolve(true);
+      return;
+    }
+    console.warn("Firebase not on gstatic — trying jsdelivr fallback...");
+    loadScript("https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-app.js")
+      .then(() => loadScript("https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-database.js"))
+      .then(() => loadScript("https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-storage.js"))
+      .then(() => {
+        if(typeof firebase !== "undefined"){
+          console.log("✓ Firebase loaded via jsdelivr");
+          resolve(true);
+        } else {
+          console.error("Firebase failed to load from both CDNs");
+          resolve(false);
+        }
+      })
+      .catch(err => {
+        console.error("Fallback failed:", err);
+        resolve(false);
+      });
+  });
+})();
+</script>
+
+
 <style>
 /* ========================================
    JUNG ONE: 정원 — quiet printed ritual
@@ -1032,6 +1076,43 @@ body{
   line-height:1.5;
 }
 
+
+/* New plant arriving — bloom in */
+.seed.new-arrival{
+  animation: bloomIn 2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes bloomIn{
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.3) rotate(-8deg); filter:blur(6px); }
+  60%  { opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(2deg); filter:blur(0); }
+  100% { opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg);    filter:blur(0); }
+}
+
+/* Display mode — larger plants, no chrome */
+body.display-mode .app{max-width:none;background:#0e0c09;}
+body.display-mode #s9{padding:60px 40px;}
+body.display-mode .garden-title{font-size:36px;}
+body.display-mode .garden-sub{font-size:14px;}
+body.display-mode .seed-img{width:120px;}
+body.display-mode .bubble-inner{font-size:14px;padding:18px 22px;}
+body.display-mode .bubble-inner .b-question{font-size:12px;}
+body.display-mode .bubble-inner .b-answer{font-size:20px;}
+
+
+.display-hint{
+  position:absolute;
+  bottom:32px;
+  left:0;
+  right:0;
+  text-align:center;
+  font-size:13px;
+  color:#7a6e54;
+  letter-spacing:.05em;
+  font-style:italic;
+  opacity:.7;
+  pointer-events:none;
+}
+body.display-mode .display-hint{font-size:16px;bottom:48px;}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -1345,6 +1426,60 @@ const DEMO = [
   {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
 ];
 
+
+// ===== Display mode check — runs FIRST, no Firebase dependency =====
+// Accept many URL patterns so the big-screen mode is hard to miss:
+//   ?display=garden, ?mode=garden, ?garden, #garden, or path ending /garden
+function detectDisplayMode(){
+  const url = window.location.href;
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("display") === "garden") return true;
+  if(params.get("mode") === "garden") return true;
+  if(params.has("garden")) return true;
+  if(window.location.hash === "#garden") return true;
+  if(window.location.pathname.endsWith("/garden")) return true;
+  return false;
+}
+const IS_DISPLAY_MODE = detectDisplayMode();
+console.log("[JungOne] URL:", window.location.href);
+console.log("[JungOne] Display mode:", IS_DISPLAY_MODE);
+
+// Track positions so existing plants don't jump on each update
+const positionsByKey = {};
+// Track which keys we've already seen so new ones bloom in
+const seenKeys = new Set();
+
+// ===== Firebase setup (graceful failure if blocked) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCwWe7u9t7egHfqaWYlGY-6eAq8YlI7VPc",
+  authDomain: "jungone-3f285.firebaseapp.com",
+  databaseURL: "https://jungone-3f285-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jungone-3f285",
+  storageBucket: "jungone-3f285.firebasestorage.app",
+  messagingSenderId: "841576869762",
+  appId: "1:841576869762:web:78496fdfbc0bd2f523699b"
+};
+let fdb = null, fst = null, ENTRIES_REF = null;
+async function initFirebase(){
+  // Wait for SDK loader (handles gstatic OR jsdelivr fallback)
+  const ready = await (window._fbReady || Promise.resolve(false));
+  if(!ready || typeof firebase === "undefined"){
+    console.error("Firebase SDK could not load — running in offline mode");
+    return;
+  }
+  try {
+    firebase.initializeApp(firebaseConfig);
+    fdb = firebase.database();
+    fst = firebase.storage();
+    ENTRIES_REF = fdb.ref("entries");
+    console.log("✓ Firebase connected");
+    // Now safe to start listener
+    startFirebaseListener();
+  } catch(err){
+    console.error("Firebase init failed:", err);
+  }
+}
+
 let entries = [...DEMO];
 
 // State
@@ -1517,23 +1652,91 @@ function todayStr(){
 function plantOnly(){
   const col = TCOLORS[S.topic] || '#9aab9e';
   const a = S.listenCard || null;
-  entries.push({name:"나", topic:S.topic, q:S.question, a:a, answer:"", date:todayStr(), color:col});
+  const entry = {name:"나", topic:S.topic, q:S.question, a:a, answer:"", date:todayStr(), color:col};
+  pushToFirebase(entry);
   showFlashAndGoGarden();
 }
-function plantWithTrace(){
+
+async function plantWithTrace(){
   const answer = document.getElementById("traceText").value.trim();
   const col = TCOLORS[S.topic] || '#9aab9e';
   const a = S.listenCard || null;
   const entry = {name:"나", topic:S.topic, q:S.question, a:a, answer, date:todayStr(), color:col};
-  if(S.uploadedFile){
-    const t = S.uploadedFile.type;
-    if(t.startsWith("image/")) entry.photo = S.uploadedFile.url;
-    else if(t.startsWith("video/")) entry.video = S.uploadedFile.url;
-    else if(t.startsWith("audio/")) entry.voice = S.uploadedFile.url;
+
+  // Upload media file to Firebase Storage (if any), then attach URL
+  if(S.uploadedFile && S.uploadedFile.file){
+    try{
+      setFlashText("파일을 정원에 올리는 중...");
+      const url = await uploadFileToStorage(S.uploadedFile.file);
+      const t = S.uploadedFile.type;
+      if(t.startsWith("image/")) entry.photo = url;
+      else if(t.startsWith("video/")) entry.video = url;
+      else if(t.startsWith("audio/")) entry.voice = url;
+    } catch(err){
+      console.error("Upload failed:", err);
+      alert("파일 업로드에 실패했어요. 텍스트만 심을게요.");
+    }
   }
-  entries.push(entry);
+  pushToFirebase(entry);
   S.uploadedFile = null;
   showFlashAndGoGarden();
+}
+
+function setFlashText(msg){
+  const f = document.getElementById("sFlash");
+  const t = f.querySelector(".ft");
+  if(t) t.innerHTML = msg;
+  f.classList.add("show");
+}
+
+function pushToFirebase(entry){
+  if(!ENTRIES_REF){
+    // No Firebase available — just add locally
+    entries.push(entry);
+    if(document.getElementById("s9").classList.contains("active")) buildGarden();
+    return;
+  }
+  ENTRIES_REF.push(entry).catch(err => {
+    console.error("DB push failed:", err);
+    entries.push(entry);
+    if(document.getElementById("s9").classList.contains("active")) buildGarden();
+  });
+}
+
+// Image resize before upload (1280px max width) for fast transfer
+async function resizeImage(file, maxWidth = 1280, quality = 0.85){
+  if(!file.type.startsWith("image/")) return file;
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if(w > maxWidth){
+          h = h * (maxWidth / w);
+          w = maxWidth;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        canvas.toBlob(blob => resolve(blob || file), "image/jpeg", quality);
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadFileToStorage(file){
+  if(!fst) throw new Error("Storage not available");
+  const optimized = await resizeImage(file);
+  const ext = file.name.split('.').pop() || (file.type.split('/')[1]) || 'bin';
+  const path = "traces/" + Date.now() + "-" + Math.random().toString(36).slice(2,8) + "." + ext;
+  const ref = fst.ref(path);
+  const snap = await ref.put(optimized);
+  return await snap.getDownloadURL();
 }
 function showFlashAndGoGarden(){
   const f = document.getElementById("sFlash");
@@ -1558,7 +1761,7 @@ function onFilePicked(input){
   if(!input.files || !input.files[0]) return;
   const f = input.files[0];
   const url = URL.createObjectURL(f);
-  S.uploadedFile = {type:f.type, url:url, name:f.name};
+  S.uploadedFile = {type:f.type, url:url, name:f.name, file:f};
   document.getElementById("fileName").textContent = f.name;
   document.getElementById("uploadPreview").classList.add("show");
   document.getElementById("uploadBox").style.display = "none";
@@ -1633,6 +1836,56 @@ function setTip(msg){
   if(el) el.textContent = msg;
 }
 
+
+// ===== Realtime sync from Firebase =====
+function startFirebaseListener(){
+  if(!ENTRIES_REF){
+    console.warn("Firebase not connected — running in offline mode");
+    return;
+  }
+  ENTRIES_REF.on("value", snapshot => {
+    const data = snapshot.val();
+    const fbEntries = [];
+    if(data){
+      Object.keys(data).forEach(key => {
+        const e = data[key];
+        e._key = key;
+        fbEntries.push(e);
+      });
+    }
+    // Merge: DEMO seeds first (anchor garden), then live entries
+    entries = [...DEMO, ...fbEntries];
+
+    // If we're on the garden screen, redraw (preserves existing positions)
+    const gardenActive = document.getElementById("s9").classList.contains("active");
+    if(gardenActive) buildGarden();
+  });
+}
+
+// ===== Display mode (?display=garden) =====
+function enterDisplayMode(){
+  document.body.classList.add("display-mode");
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("s9").classList.add("active");
+  // Hide the reset button in display mode (it's the big shared screen)
+  const btn = document.querySelector("#s9 .bottom");
+  if(btn) btn.style.display = "none";
+  // Add small hint text
+  const hint = document.createElement("div");
+  hint.className = "display-hint";
+  hint.textContent = "가족이 흔적을 심으면, 여기에 자라납니다.";
+  document.getElementById("s9").appendChild(hint);
+  buildGarden();
+}
+
+// Boot: start listening, then either go to display mode or normal intro
+window.addEventListener("DOMContentLoaded", () => {
+  initFirebase();  // Async — listener starts once Firebase is ready
+  if(IS_DISPLAY_MODE){
+    enterDisplayMode();  // Display mode is INDEPENDENT of Firebase
+  }
+});
+
 // ===== S9 — Garden (live design, no name labels) =====
 let bubbleTimer = null;
 let bubbleIdx = 0;
@@ -1643,20 +1896,35 @@ function buildGarden(){
   document.getElementById("gardenSub").textContent = entries.length + "개의 흔적이 정원에 자라고 있어요";
 
   const body = document.getElementById("gardenBody");
-  // Wait a tick to ensure layout
   requestAnimationFrame(() => {
     const W = body.clientWidth;
     const H = body.clientHeight;
-    const positions = getPositions(entries.length, W, H);
+
+    // For positioning: separate keyed (Firebase) from un-keyed (DEMO)
+    // DEMO uses fresh layout; keyed entries use cached positions
+    const freshPositions = getPositions(entries.length, W, H);
 
     entries.forEach((e, i) => {
-      const pos = positions[i];
+      let pos;
+      const cacheKey = e._key || ("demo-" + i);
+      if(positionsByKey[cacheKey]){
+        pos = positionsByKey[cacheKey];
+      } else {
+        pos = freshPositions[i];
+        positionsByKey[cacheKey] = pos;
+      }
+
       let qimgIdx = 0;
       if(e.q && e.q.includes('-')){
         qimgIdx = (parseInt(e.q.split('-')[1])-1) % QSRCS.length;
       }
       const seed = document.createElement("div");
       seed.className = "seed";
+      // New arrival? Bloom in.
+      if(e._key && !seenKeys.has(e._key)){
+        seed.classList.add("new-arrival");
+        seenKeys.add(e._key);
+      }
       seed.style.left = pos.x + "px";
       seed.style.top  = pos.y + "px";
       seed.innerHTML = `<div class="seed-img"><img src="${QSRCS[qimgIdx]}" alt=""/></div>`;
@@ -1664,14 +1932,17 @@ function buildGarden(){
       container.appendChild(seed);
     });
 
-    // Auto-cycle answers every 5s
+    // Auto-cycle answers (faster in display mode for big-screen feel)
     if(bubbleTimer) clearInterval(bubbleTimer);
     bubbleIdx = 0;
-    showBubbleAuto();
-    bubbleTimer = setInterval(() => {
-      bubbleIdx = (bubbleIdx + 1) % entries.length;
+    if(entries.length){
       showBubbleAuto();
-    }, 5000);
+      const cycle = IS_DISPLAY_MODE ? 4000 : 5000;
+      bubbleTimer = setInterval(() => {
+        bubbleIdx = (bubbleIdx + 1) % entries.length;
+        showBubbleAuto();
+      }, cycle);
+    }
   });
 }
 
@@ -1700,6 +1971,11 @@ function showBubbleAuto(){
 }
 
 function showBubbleAt(e, x, y){
+  // Stop any previously playing audio
+  if(window._curAudio){
+    window._curAudio.pause();
+    window._curAudio = null;
+  }
   const bub = document.getElementById("answerBubble");
   const col = e.color || "#9aab9e";
   const inner = document.getElementById("bubbleInner");
@@ -1728,7 +2004,10 @@ function showBubbleAt(e, x, y){
       const h = 8 + Math.abs(Math.sin(i*0.7+1)*20 + Math.cos(i*0.4)*14);
       bars += '<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
     }
-    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg></div>';
+    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">▶ playing</div></div>';
+    const audio = new Audio(e.voice);
+    audio.play().catch(function(){});
+    window._curAudio = audio;
   } else if(e.answer){
     bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
   }
@@ -1746,6 +2025,7 @@ function showBubbleAt(e, x, y){
 // ===== Reset =====
 function resetAndGo(){
   if(bubbleTimer) clearInterval(bubbleTimer);
+  if(window._curAudio){window._curAudio.pause();window._curAudio=null;}
   S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null};
   go("s1");
 }
