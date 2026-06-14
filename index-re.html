@@ -618,67 +618,184 @@ body{
 
 
 
-/* Garden — Screen 9 (live design, no labels) */
-.screen.dark-bg .garden-header{padding:36px 24px 8px;flex-shrink:0;}
-.garden-title{font-size:clamp(20px,5vw,28px);font-weight:400;color:#f5f0e8;opacity:.88;letter-spacing:-.01em;}
-.garden-sub{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7a6e54;margin-top:8px;}
-.garden-body{flex:1;position:relative;overflow:hidden;margin-bottom:80px;}
+/* Garden — Screen 9 (vine-rooted, organic, 3 layers) */
+.screen.dark-bg{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%),
+    url("garden-bg-square.PNG") center center / cover no-repeat,
+    #030604;
+  color:#f5f0e8;
+  position:relative;
+}
+/* Subtle moss tint over the bg to keep it dark+green even on bright shots */
+.screen.dark-bg::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 30% 25%, rgba(20,40,28,0.30) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 80%, rgba(15,32,22,0.35) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(3,6,4,0.45) 0%, rgba(3,6,4,0.15) 30%, rgba(3,6,4,0.55) 100%);
+  pointer-events:none;
+  z-index:1;
+}
+/* Soft vignette */
+.screen.dark-bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+  pointer-events:none;
+  z-index:2;
+}
+
+.screen.dark-bg .garden-header{padding:36px 28px 8px;flex-shrink:0;position:relative;z-index:5;}
+.garden-title{
+  font-size:clamp(20px,5vw,28px);
+  font-weight:400;
+  color:#f0ead8;
+  opacity:.78;
+  letter-spacing:-.01em;
+  text-shadow:0 1px 8px rgba(0,0,0,0.6);
+}
+.garden-sub{
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#7a8a72;
+  margin-top:8px;
+  text-shadow:0 1px 6px rgba(0,0,0,0.5);
+}
+
+.garden-body{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:80px;
+  z-index:3;
+}
 .seeds-container{position:absolute;inset:0;}
 
-/* Seed plants — natural organic look, no card box */
-.seed{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all .3s;}
-.seed-img{width:84px;aspect-ratio:5/7;position:relative;overflow:visible;}
+/* Seed plants — organic, no boxes, three depth layers */
+.seed{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  transition:transform .4s, filter .4s;
+}
+.seed-img{
+  position:relative;
+  width:84px;
+  aspect-ratio:5/7;
+  overflow:visible;
+}
 .seed-img img{
   width:100%;height:100%;
   object-fit:cover;
   display:block;
-  filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);
   mix-blend-mode:screen;
-  opacity:.92;
-  -webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
-  mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
+  -webkit-mask-image:radial-gradient(ellipse 60% 75% at center 55%, #000 38%, transparent 90%);
+  mask-image:radial-gradient(ellipse 60% 75% at center 55%, #000 38%, transparent 90%);
 }
 
-/* Answer bubble — organic blob */
+/* Layer 1 — background plants (large, faint, blurry) */
+.seed.layer-bg{z-index:3;}
+.seed.layer-bg .seed-img{width:180px;}
+.seed.layer-bg .seed-img img{
+  opacity:0.14;
+  filter:sepia(0.5) saturate(1.3) hue-rotate(-30deg) brightness(0.7) blur(2px);
+}
+
+/* Layer 2 — middle plants */
+.seed.layer-mid{z-index:6;}
+.seed.layer-mid .seed-img{width:110px;}
+.seed.layer-mid .seed-img img{
+  opacity:0.55;
+  filter:sepia(0.4) saturate(1.45) hue-rotate(-25deg) brightness(0.95) blur(0.4px);
+}
+
+/* Layer 3 — trace plants (active, clearest, category color) */
+.seed.layer-trace{z-index:10;}
+.seed.layer-trace .seed-img{width:86px;}
+.seed.layer-trace .seed-img img{
+  opacity:0.92;
+  filter:sepia(0.3) saturate(1.7) brightness(1.15) contrast(1.05);
+}
+.seed.layer-trace:hover{transform:translate(-50%,-50%) scale(1.06);}
+
+/* Gentle sway */
+@keyframes seed-sway{
+  0%,100%{transform:translate(-50%,-50%) rotate(var(--rot,0deg));}
+  50%   {transform:translate(-50%,-50%) rotate(calc(var(--rot,0deg) + 1.6deg)) translateY(-2px);}
+}
+.seed{animation:seed-sway 8s ease-in-out infinite;}
+
+/* ===== Trace bubble — organic blob, warm and quiet ===== */
 .answer-bubble{
   position:absolute;
   z-index:50;
   pointer-events:none;
   opacity:0;
-  transition:opacity .5s;
-  max-width:260px;
+  transition:opacity .6s;
+  max-width:250px;
 }
 .answer-bubble.show{opacity:1;}
 .bubble-inner{
-  padding:14px 16px;
-  border-radius:50% 40% 55% 45% / 45% 55% 40% 50%;
-  font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;
-  font-size:12px;
+  padding:16px 18px 18px;
+  border-radius:58% 42% 55% 45% / 50% 60% 40% 50%;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(72,52,40,0.92) 0%, rgba(54,38,28,0.88) 60%, rgba(40,28,20,0.85) 100%);
+  font-family:'Crimson Pro','Noto Serif KR','Nanum Myeongjo',Georgia,serif;
+  font-size:12.5px;
   line-height:1.65;
   color:#f5f0e8;
-  border:1px solid rgba(255,255,255,.15);
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .bubble-inner .b-question{
-  font-size:10px;
+  font-size:10.5px;
   line-height:1.5;
-  color:rgba(245,240,232,.55);
+  color:rgba(245,240,232,.6);
   font-style:italic;
+  margin-bottom:6px;
 }
 .bubble-inner .b-date{
-  font-size:8.5px;
-  letter-spacing:.14em;
-  color:rgba(245,240,232,.4);
-  margin-top:6px;
+  font-size:9px;
+  letter-spacing:.16em;
+  color:rgba(245,240,232,.45);
+  margin-bottom:10px;
 }
 .bubble-inner .b-answer{
   font-size:15px;
-  line-height:1.55;
-  color:#f5f0e8;
-  margin-top:10px;
-  padding-top:10px;
-  border-top:1px solid rgba(245,240,232,.18);
+  line-height:1.6;
+  color:#f5eedf;
+  font-style:italic;
   font-weight:400;
+  padding-top:8px;
+  border-top:1px solid rgba(245,240,232,.18);
 }
+
+/* ===== Responsive ===== */
+@media (max-width:430px){
+  .seed.layer-bg .seed-img{width:140px;}
+  .seed.layer-mid .seed-img{width:88px;}
+  .seed.layer-trace .seed-img{width:70px;}
+  .answer-bubble{max-width:210px;}
+}
+@media (min-width:900px){
+  .seed.layer-bg .seed-img{width:240px;}
+  .seed.layer-mid .seed-img{width:140px;}
+  .seed.layer-trace .seed-img{width:110px;}
+  .answer-bubble{max-width:320px;}
+  .bubble-inner{font-size:14px;padding:20px 24px;}
+}
+/* Big-screen display mode is bigger still */
+body.display-mode .seed.layer-bg .seed-img{width:340px;}
+body.display-mode .seed.layer-mid .seed-img{width:200px;}
+body.display-mode .seed.layer-trace .seed-img{width:160px;}
+body.display-mode .bubble-inner{font-size:16px;padding:24px 28px;}
+body.display-mode .bubble-inner .b-answer{font-size:22px;}
 
 /* P55 flash transition */
 #sFlash{
@@ -1900,17 +2017,17 @@ function buildGarden(){
     const W = body.clientWidth;
     const H = body.clientHeight;
 
-    // For positioning: separate keyed (Firebase) from un-keyed (DEMO)
-    // DEMO uses fresh layout; keyed entries use cached positions
-    const freshPositions = getPositions(entries.length, W, H);
+    // Decide layer for each entry deterministically by index
+    // (so positions stay stable when entries are added)
+    const positions = getPositions(entries.length, W, H);
 
     entries.forEach((e, i) => {
-      let pos;
       const cacheKey = e._key || ("demo-" + i);
+      let pos;
       if(positionsByKey[cacheKey]){
         pos = positionsByKey[cacheKey];
       } else {
-        pos = freshPositions[i];
+        pos = positions[i];
         positionsByKey[cacheKey] = pos;
       }
 
@@ -1919,8 +2036,17 @@ function buildGarden(){
         qimgIdx = (parseInt(e.q.split('-')[1])-1) % QSRCS.length;
       }
       const seed = document.createElement("div");
-      seed.className = "seed";
-      // New arrival? Bloom in.
+      // Layer: 0 = background (faintest), 1 = middle, 2 = trace (clearest)
+      // Distribute roughly: 25% bg, 45% mid, 30% trace
+      const layerClass = pos.layer === 0 ? "layer-bg" : pos.layer === 1 ? "layer-mid" : "layer-trace";
+      seed.className = "seed " + layerClass;
+      // Random rotation per seed
+      const rot = (pos.rot != null) ? pos.rot : ((i * 37) % 17 - 8);
+      seed.style.setProperty("--rot", rot + "deg");
+      seed.style.transform = "translate(-50%,-50%) rotate(" + rot + "deg)";
+      seed.style.animationDelay = (i * 0.3) + "s";
+      seed.style.animationDuration = (7 + (i % 4) * 1.1) + "s";
+
       if(e._key && !seenKeys.has(e._key)){
         seed.classList.add("new-arrival");
         seenKeys.add(e._key);
@@ -1932,7 +2058,6 @@ function buildGarden(){
       container.appendChild(seed);
     });
 
-    // Auto-cycle answers (faster in display mode for big-screen feel)
     if(bubbleTimer) clearInterval(bubbleTimer);
     bubbleIdx = 0;
     if(entries.length){
@@ -1946,16 +2071,50 @@ function buildGarden(){
   });
 }
 
+// Organic clustering — NOT a grid.
+// Bg plants near edges (partly off-screen OK).
+// Trace plants closer to center (vine intersection area).
+// Mid plants in between.
 function getPositions(n, W, H){
   const positions = [];
-  const cols = Math.ceil(Math.sqrt(n * 1.4));
-  const rows = Math.ceil(n / cols);
-  const cw = W / cols, ch = H / rows;
+  // Deterministic pseudo-random per index (stable across reloads)
+  function r(seed){ const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
+
   for(let i = 0; i < n; i++){
-    const col = i % cols, row = Math.floor(i / cols);
-    const jx = (Math.random() - .5) * cw * 0.3;
-    const jy = (Math.random() - .5) * ch * 0.3;
-    positions.push({x: cw*(col+.5)+jx, y: ch*(row+.5)+jy + 20});
+    // Assign layer: every 4th = bg, every other = mid, rest = trace
+    let layer;
+    const mod = i % 7;
+    if(mod === 0 || mod === 5) layer = 0;        // ~28% background
+    else if(mod === 2 || mod === 3 || mod === 6) layer = 1;  // ~43% middle
+    else layer = 2;                              // ~29% trace
+
+    let x, y;
+    if(layer === 0){
+      // Background — spread to edges, can go slightly off-screen
+      const edge = i % 4;
+      const ofs = r(i + 100);
+      if(edge === 0)      { x = W * (0.05 + 0.20 * ofs); y = H * (0.10 + 0.80 * r(i + 200)); }
+      else if(edge === 1) { x = W * (0.75 + 0.20 * ofs); y = H * (0.10 + 0.80 * r(i + 300)); }
+      else if(edge === 2) { x = W * (0.10 + 0.80 * ofs); y = H * (0.05 + 0.18 * r(i + 400)); }
+      else                { x = W * (0.10 + 0.80 * ofs); y = H * (0.78 + 0.18 * r(i + 500)); }
+    } else if(layer === 1){
+      // Middle — distributed but biased toward middle bands
+      x = W * (0.15 + 0.70 * r(i + 600));
+      y = H * (0.20 + 0.62 * r(i + 700));
+      // Slight cluster bias to avoid evenness
+      x += (r(i + 800) - 0.5) * 60;
+      y += (r(i + 900) - 0.5) * 50;
+    } else {
+      // Trace — central node area (where the vine intersects)
+      const cx = W * 0.5, cy = H * 0.5;
+      const ang = r(i + 1000) * Math.PI * 2;
+      const rad = (0.18 + 0.22 * r(i + 1100)) * Math.min(W, H);
+      x = cx + Math.cos(ang) * rad;
+      y = cy + Math.sin(ang) * rad * 0.85;
+    }
+    // Slight rotation variation
+    const rot = (r(i + 1200) - 0.5) * 18;
+    positions.push({x, y, layer, rot});
   }
   return positions;
 }
