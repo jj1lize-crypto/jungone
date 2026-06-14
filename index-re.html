@@ -572,78 +572,68 @@ body{
   color:#9A8B73;cursor:pointer;padding:0;
 }
 
-/* Garden — Screen 9 */
-.garden-header{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  margin-bottom:8px;
-}
-.garden-title{
-  font-size:22px;
-  font-weight:500;
-  color:#f5f0e8;
-  letter-spacing:-.01em;
-}
-.garden-sub{
-  font-size:12.5px;
-  color:#A89E8C;
-  font-style:italic;
-}
-.garden-canvas{
-  position:relative;
-  flex:1;
-  min-height:400px;
-  margin-top:14px;
-}
-.plant{
-  position:absolute;
-  width:74px;
-  height:92px;
-  cursor:pointer;
-  transition:transform .2s;
-}
-.plant:hover{transform:scale(1.08);}
-.plant .p-img{
+
+
+/* Garden — Screen 9 (live design, no labels) */
+.screen.dark-bg .garden-header{padding:36px 24px 8px;flex-shrink:0;}
+.garden-title{font-size:clamp(20px,5vw,28px);font-weight:400;color:#f5f0e8;opacity:.88;letter-spacing:-.01em;}
+.garden-sub{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#7a6e54;margin-top:8px;}
+.garden-body{flex:1;position:relative;overflow:hidden;margin-bottom:80px;}
+.seeds-container{position:absolute;inset:0;}
+
+/* Seed plants — natural organic look, no card box */
+.seed{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all .3s;}
+.seed-img{width:84px;aspect-ratio:5/7;position:relative;overflow:visible;}
+.seed-img img{
   width:100%;height:100%;
-  object-fit:contain;
-  opacity:0.78;
-  filter:sepia(0.3);
+  object-fit:cover;
+  display:block;
+  filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);
   mix-blend-mode:screen;
-}
-.plant .p-name{
-  position:absolute;
-  bottom:-14px;
-  left:0;right:0;
-  text-align:center;
-  font-size:10.5px;
-  color:#A89E8C;
-  letter-spacing:.02em;
+  opacity:.92;
+  -webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
+  mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
 }
 
-/* Trace bubble — warm brown organic oval */
-.bubble{
+/* Answer bubble — organic blob */
+.answer-bubble{
   position:absolute;
-  background:rgba(102,72,52,0.88);
-  color:#f5f0e8;
-  padding:14px 17px;
-  border-radius:20px 24px 18px 22px;
-  font-size:13px;
-  line-height:1.55;
-  max-width:210px;
-  display:none;
-  z-index:10;
-  box-shadow:0 6px 18px rgba(0,0,0,0.35);
+  z-index:50;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .5s;
+  max-width:260px;
 }
-.bubble.show{display:block;}
-.bubble .b-quote{font-style:italic;}
-.bubble .b-meta{
-  display:block;
-  font-size:10.5px;
-  color:#d4c9b8;
-  font-style:normal;
+.answer-bubble.show{opacity:1;}
+.bubble-inner{
+  padding:14px 16px;
+  border-radius:50% 40% 55% 45% / 45% 55% 40% 50%;
+  font-family:'Noto Serif KR','Nanum Myeongjo',Georgia,serif;
+  font-size:12px;
+  line-height:1.65;
+  color:#f5f0e8;
+  border:1px solid rgba(255,255,255,.15);
+}
+.bubble-inner .b-question{
+  font-size:10px;
+  line-height:1.5;
+  color:rgba(245,240,232,.55);
+  font-style:italic;
+}
+.bubble-inner .b-date{
+  font-size:8.5px;
+  letter-spacing:.14em;
+  color:rgba(245,240,232,.4);
   margin-top:6px;
-  letter-spacing:.04em;
+}
+.bubble-inner .b-answer{
+  font-size:15px;
+  line-height:1.55;
+  color:#f5f0e8;
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid rgba(245,240,232,.18);
+  font-weight:400;
 }
 
 /* P55 flash transition */
@@ -1191,10 +1181,14 @@ body{
       <div class="garden-title">정원: The Garden</div>
       <div class="garden-sub" id="gardenSub">가족의 흔적이 정원에 자라고 있어요</div>
     </div>
-    <div class="garden-canvas" id="gardenCanvas"></div>
-    <div class="bubble" id="bubble"></div>
+    <div class="garden-body" id="gardenBody">
+      <div class="seeds-container" id="seedsContainer"></div>
+      <div class="answer-bubble" id="answerBubble">
+        <div class="bubble-inner" id="bubbleInner"></div>
+      </div>
+    </div>
     <div class="bottom">
-      <button class="btn btn-outline" style="border-color:#f5f0e8;color:#f5f0e8;background:transparent;" onclick="resetAndGo()">또 가꾸러 가볼까요?</button>
+      <button class="btn btn-outline" style="border-color:#3a3028;color:#d4c9b0;background:transparent;" onclick="resetAndGo()">또 가꾸러 가볼까요?</button>
     </div>
   </section>
 
@@ -1576,64 +1570,7 @@ function clearFile(){
   document.getElementById("uploadBox").style.display = "";
 }
 
-// ===== S9 — Garden =====
-function buildGarden(){
-  const canvas = document.getElementById("gardenCanvas");
-  canvas.innerHTML = "";
-  document.getElementById("gardenSub").textContent = entries.length + "개의 흔적이 정원에 자라고 있어요";
 
-  // Organic scattered positions
-  const positions = [
-    {x:14, y:6},  {x:62, y:12}, {x:38, y:22},
-    {x:6,  y:38}, {x:70, y:34}, {x:46, y:50},
-    {x:18, y:64}, {x:60, y:70}, {x:10, y:82},
-    {x:74, y:58}, {x:36, y:84}, {x:52, y:4}
-  ];
-
-  entries.forEach((e, i) => {
-    const pos = positions[i % positions.length];
-    const plant = document.createElement("div");
-    plant.className = "plant";
-    plant.style.left = pos.x + "%";
-    plant.style.top  = pos.y + "%";
-
-    let imgSrc = "";
-    if(e.q && e.q.includes('-')){
-      const idx = parseInt(e.q.split('-')[1])-1;
-      imgSrc = QSRCS[idx % QSRCS.length];
-    } else {
-      imgSrc = QSRCS[i % QSRCS.length];
-    }
-    plant.innerHTML = `<img class="p-img" src="${imgSrc}" alt=""/><div class="p-name">${e.name}</div>`;
-    plant.onclick = (ev) => { ev.stopPropagation(); showBubble(e, pos); };
-    canvas.appendChild(plant);
-  });
-
-  document.addEventListener("click", hideBubble);
-}
-function showBubble(e, pos){
-  const b = document.getElementById("bubble");
-  let qText = "";
-  if(e.q && e.q.includes('-')){
-    const idx = parseInt(e.q.split('-')[1])-1;
-    const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
-    qText = obj ? obj.q : "";
-  }
-  let body = "";
-  if(e.answer){ body = `<span class="b-quote">"${e.answer}"</span>`; }
-  else if(e.photo) body = `<span class="b-quote">(사진 흔적)</span>`;
-  else if(e.video) body = `<span class="b-quote">(영상 흔적)</span>`;
-  else if(e.voice) body = `<span class="b-quote">(음성 흔적)</span>`;
-  else body = `<span class="b-quote">(흔적만 남김)</span>`;
-
-  b.innerHTML = `${body}<span class="b-meta">${qText.slice(0,40)}${qText.length>40?'…':''} · ${e.date}</span>`;
-  b.style.left = (pos.x > 50 ? (pos.x - 40) : (pos.x + 12)) + "%";
-  b.style.top  = (pos.y + 10) + "%";
-  b.classList.add("show");
-}
-function hideBubble(){
-  document.getElementById("bubble").classList.remove("show");
-}
 
 
 // ===== Invitation system =====
@@ -1669,12 +1606,16 @@ function downloadInvitation(){
     return;
   }
   setTip("이미지 만드는 중…");
+  // High-res: 3x scale + devicePixelRatio for crisp output
+  const scale = Math.max(3, (window.devicePixelRatio || 1) * 2);
   html2canvas(card, {
     backgroundColor: "#0e0c09",
-    scale: 2,
+    scale: scale,
     useCORS: true,
     allowTaint: true,
-    logging: false
+    logging: false,
+    imageTimeout: 0,
+    foreignObjectRendering: false
   }).then(canvas => {
     const link = document.createElement("a");
     link.download = "jungone-초대장.png";
@@ -1692,8 +1633,119 @@ function setTip(msg){
   if(el) el.textContent = msg;
 }
 
+// ===== S9 — Garden (live design, no name labels) =====
+let bubbleTimer = null;
+let bubbleIdx = 0;
+
+function buildGarden(){
+  const container = document.getElementById("seedsContainer");
+  container.innerHTML = "";
+  document.getElementById("gardenSub").textContent = entries.length + "개의 흔적이 정원에 자라고 있어요";
+
+  const body = document.getElementById("gardenBody");
+  // Wait a tick to ensure layout
+  requestAnimationFrame(() => {
+    const W = body.clientWidth;
+    const H = body.clientHeight;
+    const positions = getPositions(entries.length, W, H);
+
+    entries.forEach((e, i) => {
+      const pos = positions[i];
+      let qimgIdx = 0;
+      if(e.q && e.q.includes('-')){
+        qimgIdx = (parseInt(e.q.split('-')[1])-1) % QSRCS.length;
+      }
+      const seed = document.createElement("div");
+      seed.className = "seed";
+      seed.style.left = pos.x + "px";
+      seed.style.top  = pos.y + "px";
+      seed.innerHTML = `<div class="seed-img"><img src="${QSRCS[qimgIdx]}" alt=""/></div>`;
+      seed.onclick = () => showBubbleAt(e, pos.x, pos.y - 50);
+      container.appendChild(seed);
+    });
+
+    // Auto-cycle answers every 5s
+    if(bubbleTimer) clearInterval(bubbleTimer);
+    bubbleIdx = 0;
+    showBubbleAuto();
+    bubbleTimer = setInterval(() => {
+      bubbleIdx = (bubbleIdx + 1) % entries.length;
+      showBubbleAuto();
+    }, 5000);
+  });
+}
+
+function getPositions(n, W, H){
+  const positions = [];
+  const cols = Math.ceil(Math.sqrt(n * 1.4));
+  const rows = Math.ceil(n / cols);
+  const cw = W / cols, ch = H / rows;
+  for(let i = 0; i < n; i++){
+    const col = i % cols, row = Math.floor(i / cols);
+    const jx = (Math.random() - .5) * cw * 0.3;
+    const jy = (Math.random() - .5) * ch * 0.3;
+    positions.push({x: cw*(col+.5)+jx, y: ch*(row+.5)+jy + 20});
+  }
+  return positions;
+}
+
+function showBubbleAuto(){
+  if(!entries.length) return;
+  const e = entries[bubbleIdx];
+  const seeds = document.querySelectorAll(".seed");
+  if(!seeds[bubbleIdx]) return;
+  const rect = seeds[bubbleIdx].getBoundingClientRect();
+  const bodyRect = document.getElementById("gardenBody").getBoundingClientRect();
+  showBubbleAt(e, rect.left - bodyRect.left + rect.width/2, rect.top - bodyRect.top);
+}
+
+function showBubbleAt(e, x, y){
+  const bub = document.getElementById("answerBubble");
+  const col = e.color || "#9aab9e";
+  const inner = document.getElementById("bubbleInner");
+  inner.style.background = col + "22";
+  inner.style.borderColor = col + "44";
+
+  // Build header: Question + Date (NO name)
+  let qText = "";
+  if(e.q && e.q.includes('-')){
+    const idx = parseInt(e.q.split('-')[1])-1;
+    const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
+    qText = obj ? obj.q : "";
+  }
+  const dateStr = e.date || "";
+  let headerHtml = `<div class="b-question">"${qText}"</div><div class="b-date">${dateStr}</div>`;
+
+  // Body
+  let bodyHtml = "";
+  if(e.video){
+    bodyHtml = '<video src="'+e.video+'" style="width:100%;aspect-ratio:16/9;border-radius:6px;display:block;margin-top:8px;" autoplay muted loop playsinline></video>';
+  } else if(e.photo){
+    bodyHtml = '<img src="'+e.photo+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;display:block;margin-top:8px;"/>';
+  } else if(e.voice){
+    let bars = "";
+    for(let i=0;i<28;i++){
+      const h = 8 + Math.abs(Math.sin(i*0.7+1)*20 + Math.cos(i*0.4)*14);
+      bars += '<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
+    }
+    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg></div>';
+  } else if(e.answer){
+    bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
+  }
+
+  inner.innerHTML = headerHtml + bodyHtml;
+
+  const bw = 240;
+  let lx = x - bw/2;
+  lx = Math.max(10, Math.min(lx, document.getElementById("gardenBody").clientWidth - bw - 10));
+  bub.style.left = lx + "px";
+  bub.style.top  = Math.max(10, y - 20) + "px";
+  bub.classList.add("show");
+}
+
 // ===== Reset =====
 function resetAndGo(){
+  if(bubbleTimer) clearInterval(bubbleTimer);
   S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null};
   go("s1");
 }
