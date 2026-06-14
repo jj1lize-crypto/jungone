@@ -991,5 +991,40 @@ function resetAll(){
   clearInterval(bubbleTimer);
 }
 </script>
+
+<!-- ===== TRIAL NOTICE MODAL ===== -->
+<div class="modal-backdrop" id="trialNoticeModal" onclick="closeTrialNotice(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-title">A small note before you start.</div>
+    <div class="modal-sub" style="text-align:left;line-height:1.7;color:#5A4F3D;font-size:14px;font-style:normal;margin-top:6px;">
+      This is a trial run.<br>
+      <b>Traces planted in the garden are not saved yet.</b><br><br>
+      Please try the experience and send<br>
+      your feedback directly to the artist.<br><br>
+      <span style="font-style:italic;color:#7A6E54;display:block;line-height:1.9;">
+— Instagram <a href="https://www.instagram.com/z1lize/" target="_blank" style="color:#5A4F3D;text-decoration:underline;text-underline-offset:3px;">@z1lize</a><br>
+— Email <a href="mailto:jj1lize@gmail.com" style="color:#5A4F3D;text-decoration:underline;text-underline-offset:3px;">jj1lize@gmail.com</a><br>
+— WhatsApp · KakaoTalk
+</span>
+    </div>
+    <div class="modal-buttons" style="margin-top:18px;">
+      <button class="btn" onclick="closeTrialNotice()">Got it — start</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function closeTrialNotice(e){
+  if(e && e.target.id !== "trialNoticeModal" && !e.target.classList.contains("btn")) return;
+  document.getElementById("trialNoticeModal").classList.remove("show");
+}
+window.addEventListener("load", function(){
+  setTimeout(function(){
+    var m = document.getElementById("trialNoticeModal");
+    if(m) m.classList.add("show");
+  }, 700);
+});
+</script>
+
 </body>
 </html>
