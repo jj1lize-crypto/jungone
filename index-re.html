@@ -639,28 +639,14 @@ body{
 
 /* Garden — Screen 9 (vine-rooted, organic, 3 layers) */
 .screen.dark-bg{
-  background:#030604;
+  background:#000;
   color:#f5f0e8;
   position:relative;
 }
 /* Subtle moss tint over the bg to keep it dark+green even on bright shots */
-.screen.dark-bg::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg, rgba(3,6,4,0.18) 0%, transparent 30%, rgba(3,6,4,0.40) 100%);
-  pointer-events:none;
-  z-index:1;
-}
+.screen.dark-bg::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%, rgba(20,30,22,0.18) 0%, transparent 70%);pointer-events:none;z-index:1;}
 /* Soft vignette */
-.screen.dark-bg::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);
-  pointer-events:none;
-  z-index:2;
-}
+.screen.dark-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);pointer-events:none;z-index:2;}
 
 .screen.dark-bg .garden-header{padding:36px 32px 8px;flex-shrink:0;position:relative;z-index:5;}
 .garden-title{
@@ -1283,6 +1269,69 @@ body.display-mode .display-hint{font-size:16px;bottom:48px;}
 body.display-mode .screen.dark-bg{padding:0;}
 body.display-mode .garden-body{margin:14px 60px 110px;}
 
+
+/* ===== Stars + Fireflies — quiet nocturnal sparkle ===== */
+.sparkle-layer{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:1;
+}
+.sparkle-layer.foreground{z-index:25;}
+
+/* Small twinkling stars (background) */
+.star{
+  position:absolute;
+  width:2px;
+  height:2px;
+  border-radius:50%;
+  background:#f5f1e0;
+  box-shadow:0 0 4px rgba(255,248,200,0.5);
+  opacity:0.4;
+  animation:twinkle ease-in-out infinite;
+}
+.star.tiny{width:1px;height:1px;box-shadow:0 0 3px rgba(245,241,224,0.4);}
+.star.bright{
+  width:3px;height:3px;
+  background:#fffbe6;
+  box-shadow:0 0 8px rgba(255,248,200,0.7), 0 0 14px rgba(255,235,150,0.3);
+  opacity:0.6;
+}
+@keyframes twinkle{
+  0%,100%{opacity:0.2;transform:scale(0.8);}
+  50%   {opacity:0.9;transform:scale(1.2);}
+}
+
+/* Fireflies — slow drifting glow */
+.firefly{
+  position:absolute;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:rgba(255,240,160,0.95);
+  box-shadow:
+    0 0 8px  rgba(255,235,140,0.85),
+    0 0 16px rgba(255,225,120,0.55),
+    0 0 28px rgba(255,210,100,0.30);
+  opacity:0;
+  animation:firefly-drift ease-in-out infinite, firefly-glow ease-in-out infinite;
+}
+@keyframes firefly-drift{
+  0%   {transform:translate(0, 0);}
+  20%  {transform:translate(40px, -25px);}
+  40%  {transform:translate(-15px, -55px);}
+  60%  {transform:translate(35px, -75px);}
+  80%  {transform:translate(-25px, -40px);}
+  100% {transform:translate(0, 0);}
+}
+@keyframes firefly-glow{
+  0%,100%{opacity:0;}
+  15%    {opacity:0.9;}
+  50%    {opacity:0.4;}
+  85%    {opacity:1;}
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -1428,23 +1477,21 @@ body.display-mode .garden-body{margin:14px 60px 110px;}
 
   <!-- ===== SCREEN 9 — GARDEN ===== -->
   <section class="screen dark-bg" id="s9">
-    <!-- Fallback: full pre-rendered garden image, visible if JS or vine fails -->
-    <img class="garden-fallback" id="gardenFallback"
-         src="smp-full.png" alt="JUNG ONE: The Garden"
-         onerror="this.style.display='none';"/>
-    <noscript>
-      <img class="garden-fallback noscript-img" src="smp-full.png" alt="정원: The Garden"/>
-    </noscript>
 
     <div class="garden-header">
       <div class="garden-title">정원: The Garden</div>
       <div class="garden-sub" id="gardenSub">가족의 흔적이 정원에 자라고 있어요</div>
     </div>
+    <!-- Background stars (behind plants) -->
+    <div class="sparkle-layer" id="starsLayer"></div>
+
     <div class="garden-body" id="gardenBody">
       <div class="seeds-container" id="seedsContainer"></div>
       <div class="answer-bubble" id="answerBubble">
         <div class="bubble-inner" id="bubbleInner"></div>
       </div>
+      <!-- Foreground fireflies (in front of plants) -->
+      <div class="sparkle-layer foreground" id="firefliesLayer"></div>
     </div>
     <div class="bottom">
       <button class="btn btn-outline" style="border-color:#3a3028;color:#d4c9b0;background:transparent;" onclick="resetAndGo()">또 가꾸러 가볼까요?</button>
@@ -1517,6 +1564,7 @@ const TSRCS = {
 
 // 12 question images — recycled across topics
 const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
+const SMP_PLANTS = Array.from({length:30}, (_,i)=> BASE + "smp-plant" + (i+1) + ".png");
 
 // 6 Actions — "이렇게 들어주세요" (how to listen)
 const ANAMES = {
@@ -2064,11 +2112,52 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// ===== Sparkle layer (stars + fireflies) =====
+let sparklesBuilt = false;
+function buildSparkles(){
+  if(sparklesBuilt) return;
+  sparklesBuilt = true;
+
+  // ---- Background stars (60 tiny dots) ----
+  const stars = document.getElementById("starsLayer");
+  if(stars){
+    stars.innerHTML = "";
+    for(let i = 0; i < 60; i++){
+      const s = document.createElement("div");
+      const r = Math.random();
+      s.className = "star" + (r < 0.5 ? " tiny" : (r > 0.88 ? " bright" : ""));
+      s.style.left = (Math.random() * 100) + "%";
+      s.style.top  = (Math.random() * 100) + "%";
+      s.style.animationDelay = (Math.random() * 4) + "s";
+      s.style.animationDuration = (2.5 + Math.random() * 3.5) + "s";
+      stars.appendChild(s);
+    }
+  }
+
+  // ---- Foreground fireflies (12 drifting glows) ----
+  const flies = document.getElementById("firefliesLayer");
+  if(flies){
+    flies.innerHTML = "";
+    for(let i = 0; i < 12; i++){
+      const f = document.createElement("div");
+      f.className = "firefly";
+      f.style.left = (8 + Math.random() * 84) + "%";
+      f.style.top  = (12 + Math.random() * 76) + "%";
+      f.style.animationDelay = (Math.random() * 6) + "s, " + (Math.random() * 4) + "s";
+      const drift = 14 + Math.random() * 14;
+      const glow  = 3.5 + Math.random() * 3;
+      f.style.animationDuration = drift + "s, " + glow + "s";
+      flies.appendChild(f);
+    }
+  }
+}
+
 // ===== S9 — Garden (live design, no name labels) =====
 let bubbleTimer = null;
 let bubbleIdx = 0;
 
 function buildGarden(){
+  buildSparkles();
   const container = document.getElementById("seedsContainer");
   container.innerHTML = "";
   document.getElementById("gardenSub").textContent = entries.length + "개의 흔적이 정원에 자라고 있어요";
@@ -2092,10 +2181,16 @@ function buildGarden(){
         positionsByKey[cacheKey] = pos;
       }
 
-      let qimgIdx = 0;
+      // Plant image: prefer SMP_PLANTS pool (30 organic plants);
+      // fall back to QSRCS if smp-plant file missing
+      let imgIdx = (i % SMP_PLANTS.length);
       if(e.q && e.q.includes('-')){
-        qimgIdx = (parseInt(e.q.split('-')[1])-1) % QSRCS.length;
+        // Spread across the SMP pool by question number for variety
+        const qnum = parseInt(e.q.split('-')[1]) - 1;
+        imgIdx = (qnum * 3 + i) % SMP_PLANTS.length;
       }
+      const plantSrc = SMP_PLANTS[imgIdx];
+      const fallbackSrc = QSRCS[(imgIdx) % QSRCS.length];
       const seed = document.createElement("div");
       // Layer: 0 = background (faintest), 1 = middle, 2 = trace (clearest)
       // Distribute roughly: 25% bg, 45% mid, 30% trace
@@ -2114,8 +2209,8 @@ function buildGarden(){
       }
       seed.style.left = pos.x + "px";
       seed.style.top  = pos.y + "px";
-      seed.innerHTML = `<div class="seed-img"><img src="${QSRCS[qimgIdx]}" alt=""/></div>`;
-      seed.onclick = () => showBubbleAt(e, pos.x, pos.y - 50);
+      seed.innerHTML = `<div class="seed-img"><img src="${plantSrc}" onerror="this.onerror=null;this.src='${fallbackSrc}';" alt=""/></div>`;
+      seed.onclick = () => showBubbleAt(e, pos.x, pos.y - 50, false);
       container.appendChild(seed);
     });
 
@@ -2187,13 +2282,15 @@ function showBubbleAuto(){
   if(!seeds[bubbleIdx]) return;
   const rect = seeds[bubbleIdx].getBoundingClientRect();
   const bodyRect = document.getElementById("gardenBody").getBoundingClientRect();
-  showBubbleAt(e, rect.left - bodyRect.left + rect.width/2, rect.top - bodyRect.top);
+  // Auto cycle: SILENT — pass isAuto=true so audio doesn't play
+  showBubbleAt(e, rect.left - bodyRect.left + rect.width/2, rect.top - bodyRect.top, true);
 }
 
-function showBubbleAt(e, x, y){
-  // Stop any previously playing audio
+function showBubbleAt(e, x, y, isAuto){
+  // Stop any previously playing audio (always — switching plants stops sound)
   if(window._curAudio){
     window._curAudio.pause();
+    window._curAudio.currentTime = 0;
     window._curAudio = null;
   }
   const bub = document.getElementById("answerBubble");
@@ -2224,10 +2321,18 @@ function showBubbleAt(e, x, y){
       const h = 8 + Math.abs(Math.sin(i*0.7+1)*20 + Math.cos(i*0.4)*14);
       bars += '<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
     }
-    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">▶ playing</div></div>';
-    const audio = new Audio(e.voice);
-    audio.play().catch(function(){});
-    window._curAudio = audio;
+    const label = isAuto ? "voice trace" : "▶ playing";
+    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">'+label+'</div></div>';
+    // Only play sound on direct user click — NOT during the silent auto-cycle
+    if(!isAuto){
+      const audio = new Audio(e.voice);
+      // Auto-stop when finished
+      audio.onended = function(){
+        if(window._curAudio === audio){ window._curAudio = null; }
+      };
+      audio.play().catch(function(){});
+      window._curAudio = audio;
+    }
   } else if(e.answer){
     bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
   }
@@ -2243,22 +2348,6 @@ function showBubbleAt(e, x, y){
 }
 
 
-// ===== Last-resort fallback if anything breaks rendering =====
-window.addEventListener("error", function(){
-  const fb = document.getElementById("gardenFallback");
-  if(fb){ fb.classList.remove("hidden"); fb.style.opacity = "1"; }
-});
-// Safety: if garden is active but no seeds painted after 6s, show fallback
-setInterval(function(){
-  const s9 = document.getElementById("s9");
-  if(!s9 || !s9.classList.contains("active")) return;
-  const seeds = document.querySelectorAll("#seedsContainer .seed");
-  const fb = document.getElementById("gardenFallback");
-  if(seeds.length === 0 && fb){
-    fb.classList.remove("hidden");
-    fb.style.opacity = "1";
-  }
-}, 6000);
 
 // ===== Reset =====
 function resetAndGo(){
