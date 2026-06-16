@@ -1230,6 +1230,23 @@ body.display-mode .bubble-inner .b-answer{font-size:20px;}
 }
 body.display-mode .display-hint{font-size:16px;bottom:48px;}
 
+
+/* ===== Fallback garden image (smp-full.png) — shown if JS / vine fail ===== */
+.garden-fallback{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  z-index:0;
+  opacity:1;
+  transition:opacity 1.2s ease;
+  pointer-events:none;
+}
+.garden-fallback.hidden{opacity:0;}
+.noscript-img{position:fixed;inset:0;z-index:9999;}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -1375,6 +1392,14 @@ body.display-mode .display-hint{font-size:16px;bottom:48px;}
 
   <!-- ===== SCREEN 9 — GARDEN ===== -->
   <section class="screen dark-bg" id="s9">
+    <!-- Fallback: full pre-rendered garden image, visible if JS or vine fails -->
+    <img class="garden-fallback" id="gardenFallback"
+         src="smp-full.png" alt="JUNG ONE: The Garden"
+         onerror="this.style.display='none';"/>
+    <noscript>
+      <img class="garden-fallback noscript-img" src="smp-full.png" alt="정원: The Garden"/>
+    </noscript>
+
     <div class="garden-header">
       <div class="garden-title">정원: The Garden</div>
       <div class="garden-sub" id="gardenSub">가족의 흔적이 정원에 자라고 있어요</div>
@@ -2068,6 +2093,9 @@ function buildGarden(){
         showBubbleAuto();
       }, cycle);
     }
+    // Garden rendered — fade out the fallback image.
+    const fb = document.getElementById("gardenFallback");
+    if(fb) fb.classList.add("hidden");
   });
 }
 
@@ -2180,6 +2208,24 @@ function showBubbleAt(e, x, y){
   bub.style.top  = Math.max(10, y - 20) + "px";
   bub.classList.add("show");
 }
+
+
+// ===== Last-resort fallback if anything breaks rendering =====
+window.addEventListener("error", function(){
+  const fb = document.getElementById("gardenFallback");
+  if(fb){ fb.classList.remove("hidden"); fb.style.opacity = "1"; }
+});
+// Safety: if garden is active but no seeds painted after 6s, show fallback
+setInterval(function(){
+  const s9 = document.getElementById("s9");
+  if(!s9 || !s9.classList.contains("active")) return;
+  const seeds = document.querySelectorAll("#seedsContainer .seed");
+  const fb = document.getElementById("gardenFallback");
+  if(seeds.length === 0 && fb){
+    fb.classList.remove("hidden");
+    fb.style.opacity = "1";
+  }
+}, 6000);
 
 // ===== Reset =====
 function resetAndGo(){
