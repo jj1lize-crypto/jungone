@@ -1453,6 +1453,192 @@ body:has(.screen.dark-bg.active) .lang-toggle:hover{
   .lang-toggle{top:14px;right:14px;font-size:11px;padding:5px 12px;}
 }
 
+
+/* ===== Full-viewport layout — no scrolling, all content + buttons fit ===== */
+html, body{height:100%;overflow:hidden;}
+.app{
+  width:100%;
+  height:100dvh;  /* dynamic viewport — accurate on mobile */
+  min-height:100vh;  /* fallback */
+  position:relative;
+  background:#F4EFE7;
+  overflow:hidden;
+}
+.screen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  height:100dvh;
+  min-height:100vh;
+  padding:36px 24px 110px;
+  position:relative;
+  overflow:hidden;
+}
+.screen.active{display:flex;}
+.screen.dark-bg{
+  background:#000;
+  color:#f5f0e8;
+  align-items:stretch;
+  padding:0;
+  width:100%;
+  margin:0;
+}
+.screen.dark-bg > *{max-width:none;}
+
+/* Content stretch (so cards + buttons fit) */
+.screen .empty-space{flex:1;min-height:8px;}
+
+/* ===== S2: Topic grid — 2x2, cards almost fill viewport ===== */
+#s2 .topic-row{
+  display:grid !important;
+  grid-template-columns:repeat(2, 1fr);
+  grid-template-rows:repeat(2, 1fr);
+  gap:10px;
+  width:100%;
+  max-width:520px;
+  flex:1;
+  min-height:0;
+  margin:8px auto 4px;
+}
+.topic-card{
+  position:relative;
+  overflow:hidden;
+  border-radius:6px;
+  background:transparent;
+  border:1.5px solid transparent;
+  cursor:pointer;
+  padding:0;
+  width:100%;
+  height:100%;
+  transition:transform .2s, border-color .2s;
+}
+.topic-card .tc-front{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:1;
+}
+.topic-card .tc-plants{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+}
+.topic-card .tc-plant{
+  position:absolute;
+  width:32%;
+  height:auto;
+  object-fit:contain;
+}
+.topic-card .tc-p1{left:8%;top:10%;width:30%;transform:rotate(-6deg);}
+.topic-card .tc-p2{right:6%;top:32%;width:38%;transform:rotate(4deg);}
+.topic-card .tc-p3{left:18%;bottom:14%;width:34%;transform:rotate(-2deg);}
+.topic-card .tc-label{
+  position:absolute;
+  bottom:8px;
+  left:0;
+  right:0;
+  text-align:center;
+  z-index:3;
+  font-size:13px;
+  font-weight:500;
+  color:#1a1612;
+  text-shadow:0 1px 4px rgba(255,255,255,0.6);
+  padding:0 6px;
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+}
+.topic-card.on{
+  border-color:#1a1612;
+  transform:scale(0.98);
+}
+.topic-card.on::after{
+  content:"✓";
+  position:absolute;
+  top:6px; right:6px;
+  width:22px; height:22px;
+  border-radius:50%;
+  background:#1a1612;
+  color:#f5f0e8;
+  font-size:12px;
+  display:flex; align-items:center; justify-content:center;
+  z-index:4;
+}
+
+/* ===== S3: Question cards fit screen ===== */
+#s3 .qcard-row{
+  flex:1;
+  min-height:0;
+  align-items:center;
+}
+.qcard{
+  height:100%;
+  max-height:60vh;
+}
+
+/* ===== S6: Listening cards larger — works on all devices ===== */
+@media (min-width:600px){
+  /* Override the side-by-side narrow layout for bigger listen cards */
+  .conv-stage{
+    flex-direction:column !important;
+    align-items:center !important;
+    max-width:560px !important;
+    gap:14px !important;
+  }
+  .conv-stage .conv-card{
+    flex-shrink:0;
+    width:60% !important;
+    max-width:240px !important;
+  }
+  .conv-listen-row{
+    display:grid !important;
+    grid-template-columns:repeat(3, 1fr) !important;
+    flex-direction:row !important;
+    gap:8px !important;
+    width:100% !important;
+    max-width:520px !important;
+  }
+  .conv-listen-card{
+    aspect-ratio:1/1.15 !important;
+    height:auto !important;
+    flex-direction:column !important;
+    padding:0 !important;
+  }
+  .conv-listen-card img{
+    width:100% !important;
+    height:65% !important;
+    object-fit:cover !important;
+    margin-right:0 !important;
+  }
+  .conv-listen-card .lc-name{
+    width:100% !important;
+    text-align:center !important;
+    padding:4px 6px !important;
+    font-size:11.5px !important;
+    line-height:1.2 !important;
+    flex:none !important;
+  }
+}
+@media (min-width:1024px){
+  .conv-stage{max-width:640px !important;gap:18px !important;}
+  .conv-stage .conv-card{max-width:280px !important;}
+  .conv-listen-row{max-width:600px !important;gap:10px !important;}
+  .conv-listen-card .lc-name{font-size:13px !important;}
+}
+
+/* ===== Mobile garden: full bleed (kill any side padding) ===== */
+@media (max-width:600px){
+  body, html { width:100%; overflow-x:hidden; }
+  .screen.dark-bg{
+    width:100vw;
+    margin-left:calc(-50vw + 50%);  /* break out of any parent padding */
+    padding:0;
+  }
+  .screen.dark-bg .garden-header{padding:28px 20px 6px;}
+  .screen.dark-bg .garden-body{margin:10px 16px 90px;}
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -1692,6 +1878,27 @@ const OFFCARDS_BACK = {
   taste:  BASE + "offcardpk-back.png",
   safety: BASE + "offcardyw-back.png"
 };
+
+// Topic card fronts (S2 — used as the body of each topic tile + 3 random plants on top)
+const ONCARDS_FRONT = {
+  space:  BASE + "oncardbl-front.png",
+  body:   BASE + "oncardgn-front.png",
+  taste:  BASE + "oncardpk-front.png",
+  safety: BASE + "oncardyw-front.png"
+};
+
+// Helper: pick 3 random plants from oncard{color}1~6 for a topic tile
+function randomPlantsForTopic(topic){
+  const c = TOPIC_COLOR[topic];
+  if(!c) return [];
+  const all = [1,2,3,4,5,6];
+  // Shuffle and take 3
+  for(let i = all.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+  return all.slice(0,3).map(n => BASE + "oncard" + c + n + ".png");
+}
 
 // Listening cards (S6 — 6 listening style cards)
 const LISTEN_KEYS = ["a01","a02","a03","a04","a05","a06"];
@@ -2111,7 +2318,32 @@ function toggleLanguage(){
 function rebuildTopicCards(){ if(typeof go === "function") go("s2"); }
 function rebuildQuestionCards(){ if(S.topic && typeof go === "function") go("s3"); }
 function rebuildConvScreen(){ if(S.topic && S.question && typeof go === "function") go("s6"); }
-function rebuildInvitePreview(){ if(typeof go === "function") go("s7b"); }
+function rebuildInvitePreview(){
+  // Re-populate the dynamic parts of the invitation card
+  if(S.topic && S.question && typeof createInvitation === "function"){
+    // Save current display, repopulate, but stay on s7b
+    const wasActive = document.getElementById("s7b").classList.contains("active");
+    if(wasActive){
+      // Just refresh the texts/images, don't re-navigate
+      const t = S.topic, idx = S.questionIdx;
+      const ccImgT = document.getElementById("icpImgT");
+      if(ccImgT) ccImgT.src = OFFCARDS_BACK[t];
+      const ccImgQ = document.getElementById("icpImgQ");
+      if(ccImgQ) ccImgQ.src = qcardSrc(t, idx);
+      const qData = QDATA[t][idx];
+      if(qData){
+        const qEl = document.getElementById("icpQ");
+        const sEl = document.getElementById("icpSub");
+        if(qEl) qEl.textContent = qData.q;
+        if(sEl) sEl.textContent = qData.f || "";
+      }
+      const nameEl = document.getElementById("icpListenName");
+      if(nameEl && S.listenCard) nameEl.textContent = "'" + ANAMES[S.listenCard] + "'";
+      const msgEl = document.getElementById("icpListenMsg");
+      if(msgEl && S.listenCard) msgEl.textContent = INVITE_MSG[S.listenCard] || ADESC[S.listenCard];
+    }
+  }
+}
 
 
 // ===== Original data block continues below for backward-compatibility =====
@@ -2194,12 +2426,27 @@ function go(id){
 function buildTopicGrid(){
   const row = document.getElementById("topicRow");
   row.innerHTML = "";
-  S.topic = null;
-  document.getElementById("btnS2").disabled = true;
+  document.getElementById("btnS2").disabled = (S.topic === null);
+  // Cache random plant arrangement per topic
+  if(!S.topicPlants) S.topicPlants = {};
   Object.keys(TNAMES).forEach(key => {
+    if(!S.topicPlants[key]){
+      S.topicPlants[key] = randomPlantsForTopic(key);
+    }
     const c = document.createElement("button");
     c.className = "topic-card";
-    c.innerHTML = `<img src="${TSRCS[key]}" alt=""/>`;
+    if(S.topic === key) c.classList.add("on");
+    // Structure: front-bg image + 3 plants overlay positioned organically + topic name
+    const plants = S.topicPlants[key];
+    c.innerHTML = `
+      <img class="tc-front" src="${ONCARDS_FRONT[key]}" alt=""/>
+      <div class="tc-plants">
+        <img class="tc-plant tc-p1" src="${plants[0]}" alt=""/>
+        <img class="tc-plant tc-p2" src="${plants[1]}" alt=""/>
+        <img class="tc-plant tc-p3" src="${plants[2]}" alt=""/>
+      </div>
+      <div class="tc-label">${TNAMES[key]}</div>
+    `;
     c.onclick = () => {
       row.querySelectorAll(".topic-card").forEach(x=>x.classList.remove("on"));
       c.classList.add("on");
