@@ -1639,6 +1639,46 @@ html, body{height:100%;overflow:hidden;}
   .screen.dark-bg .garden-body{margin:10px 16px 90px;}
 }
 
+
+/* ===== S2 Topic card — single image ===== */
+.topic-card .tc-img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:1;
+}
+/* Hide remnants from old design (no-op if missing) */
+.topic-card .tc-front,
+.topic-card .tc-plants,
+.topic-card .tc-label{display:none;}
+
+/* ===== S3 Question card — front bg + plant overlay (no cropping) ===== */
+.qcard{
+  position:relative;
+  overflow:hidden;
+}
+.qcard .qc-front{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:1;
+}
+.qcard .qc-plant{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:10%;
+  z-index:2;
+}
+/* Hide any old <img> directly under .qcard that's not qc-front/qc-plant */
+.qcard > img:not(.qc-front):not(.qc-plant){display:none;}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -1675,7 +1715,7 @@ html, body{height:100%;overflow:hidden;}
     <div class="topic-row" id="topicRow"></div>
     <div class="empty-space"></div>
     <div class="bottom">
-      <button class="btn" id="btnS2" disabled onclick="go('s3')">다음 →</button>
+      <button class="btn" id="btnS2" data-i18n="btn_next" disabled onclick="go('s3')">다음 →</button>
       <button class="btn-back" onclick="go('s1')" data-i18n="btn_back">← 뒤로</button>
     </div>
   </section>
@@ -1691,7 +1731,7 @@ html, body{height:100%;overflow:hidden;}
     <div class="qcard-row" id="qcardRow"></div>
     <div class="empty-space"></div>
     <div class="bottom">
-      <button class="btn" id="btnS3" disabled onclick="go('s6')">다음 →</button>
+      <button class="btn" id="btnS3" data-i18n="btn_next" disabled onclick="go('s6')">다음 →</button>
       <button class="btn-back" onclick="go('s2')" data-i18n="btn_back">← 뒤로</button>
     </div>
   </section>
@@ -2427,26 +2467,12 @@ function buildTopicGrid(){
   const row = document.getElementById("topicRow");
   row.innerHTML = "";
   document.getElementById("btnS2").disabled = (S.topic === null);
-  // Cache random plant arrangement per topic
-  if(!S.topicPlants) S.topicPlants = {};
   Object.keys(TNAMES).forEach(key => {
-    if(!S.topicPlants[key]){
-      S.topicPlants[key] = randomPlantsForTopic(key);
-    }
     const c = document.createElement("button");
     c.className = "topic-card";
     if(S.topic === key) c.classList.add("on");
-    // Structure: front-bg image + 3 plants overlay positioned organically + topic name
-    const plants = S.topicPlants[key];
-    c.innerHTML = `
-      <img class="tc-front" src="${ONCARDS_FRONT[key]}" alt=""/>
-      <div class="tc-plants">
-        <img class="tc-plant tc-p1" src="${plants[0]}" alt=""/>
-        <img class="tc-plant tc-p2" src="${plants[1]}" alt=""/>
-        <img class="tc-plant tc-p3" src="${plants[2]}" alt=""/>
-      </div>
-      <div class="tc-label">${TNAMES[key]}</div>
-    `;
+    // Single oncard{color}-topic.png image
+    c.innerHTML = `<img class="tc-img" src="${TSRCS[key]}" alt=""/>`;
     c.onclick = () => {
       row.querySelectorAll(".topic-card").forEach(x=>x.classList.remove("on"));
       c.classList.add("on");
@@ -2481,7 +2507,10 @@ function buildQuestionChoices(){
     const c = document.createElement("button");
     c.className = "qcard";
     if(previouslySelected === idx) c.classList.add("on");
-    c.innerHTML = `<img src="${qcardSrc(S.topic, idx)}" alt=""/>`;
+    const color = TOPIC_COLOR[S.topic];
+    const frontSrc = BASE + "oncard" + color + "-front.png";
+    const plantSrc = qcardSrc(S.topic, idx);
+    c.innerHTML = `<img class="qc-front" src="${frontSrc}" alt=""/><img class="qc-plant" src="${plantSrc}" alt=""/>`;
     c.onclick = () => {
       row.querySelectorAll(".qcard").forEach(x=>x.classList.remove("on"));
       c.classList.add("on");
