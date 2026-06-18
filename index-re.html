@@ -2074,8 +2074,9 @@ function setLanguage(lang){
     const demoLen = DEMO.length;
     entries = newDemo.concat(entries.slice(demoLen));
     DEMO = newDemo;
-    positionsByKey = {};  // re-render positions for swapped DEMO content
-    seenKeys = new Set();
+    // Re-render positions for swapped DEMO content (clear maps without reassign)
+    for(const k in positionsByKey) delete positionsByKey[k];
+    seenKeys.clear();
   } else {
     DEMO = newDemo;
   }
