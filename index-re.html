@@ -269,8 +269,7 @@ body{
 }
 .topic-card{
   position:relative;
-  aspect-ratio:1/1.7;
-  background:#0e0c09;
+  background:transparent;  /* show natural transparency around contained image */
   border:none;
   padding:0;
   cursor:pointer;
@@ -280,8 +279,9 @@ body{
 }
 .topic-card img{
   width:100%;height:100%;
-  object-fit:cover;
+  object-fit:contain;  /* show full image, no crop */
   display:block;
+  padding:4%;
 }
 .topic-card.on{
   outline:2.5px solid #111;
@@ -294,14 +294,16 @@ body{
 .qcard-row{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:10px;
+  gap:18px;
   margin-bottom:20px;
 }
 .qcard{
   position:relative;
   aspect-ratio:1/1.55;
-  background:#0e0c09;
+  background:transparent;
   border:none;
+  box-shadow:none;
+  outline:none;
   padding:0;
   cursor:pointer;
   border-radius:3px;
@@ -313,15 +315,12 @@ body{
   width:100%;height:100%;
   object-fit:contain;
   padding:10%;
-  opacity:.85;
-  mix-blend-mode:screen;
-  filter:sepia(0.18);
 }
 .qcard.on{
-  outline:2.5px solid #111;
-  outline-offset:-2px;
-  transform:translateY(-4px);
-  box-shadow:0 8px 18px rgba(17,17,17,0.22);
+  /* Soft selected state — no border, no overlap */
+  transform:scale(0.97);
+  opacity:0.92;
+  filter:brightness(0.85);
 }
 
 /* Read question — Screen 4 (large faded card) */
@@ -1571,10 +1570,11 @@ html, body{height:100%;overflow:hidden;}
   flex:1;
   min-height:0;
   align-items:center;
+  max-height:60vh;
 }
 .qcard{
-  height:100%;
-  max-height:60vh;
+  height:auto;
+  max-height:100%;
 }
 
 /* ===== S6: Listening cards larger — works on all devices ===== */
@@ -1659,12 +1659,20 @@ html, body{height:100%;overflow:hidden;}
   position:relative;
   overflow:hidden;
 }
+.qcard .qc-front,
+.qcard .qc-plant{
+  /* Override .qcard img defaults so layered images render cleanly */
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
 .qcard .qc-front{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
   object-fit:cover;
+  padding:0 !important;
   z-index:1;
 }
 .qcard .qc-plant{
