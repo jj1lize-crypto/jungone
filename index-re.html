@@ -269,7 +269,7 @@ body{
 }
 .topic-card{
   position:relative;
-  aspect-ratio:1/1 !important;  /* show full image (1:1) */
+  aspect-ratio:1/1.4 !important;  /* tall rectangle — fits image natural proportion */
   background:transparent;
   border:none;
   padding:0;
@@ -280,9 +280,9 @@ body{
 }
 .topic-card img{
   width:100%;height:100%;
-  object-fit:contain;  /* show full image, no crop */
+  object-fit:cover;  /* fills the card naturally with the image */
   display:block;
-  padding:4%;
+  padding:0;
 }
 .topic-card.on{
   outline:2.5px solid #111;
@@ -779,19 +779,24 @@ body{
 
 /* Garden plants — bigger sizes; per-plant variation set via inline style */
 .seed.layer-bg{z-index:3;}
-.seed.layer-bg .seed-img{width:180px;}
+.seed.layer-bg .seed-img{width:240px;}
 .seed.layer-bg .seed-img img{
   filter:sepia(0.3) saturate(1.3) hue-rotate(-12deg) brightness(1.0);
 }
 .seed.layer-mid{z-index:6;}
-.seed.layer-mid .seed-img{width:150px;}
+.seed.layer-mid .seed-img{width:220px;}
 .seed.layer-mid .seed-img img{
   filter:sepia(0.25) saturate(1.4) brightness(1.05);
 }
 .seed.layer-trace{z-index:10;}
-.seed.layer-trace .seed-img{width:140px;}
+.seed.layer-trace .seed-img{width:200px;}
 .seed.layer-trace .seed-img img{
   filter:sepia(0.2) saturate(1.6) brightness(1.15) contrast(1.05);
+}
+@media (min-width:1024px){
+  .seed.layer-bg .seed-img{width:340px;}
+  .seed.layer-mid .seed-img{width:320px;}
+  .seed.layer-trace .seed-img{width:280px;}
 }
 /* Disable the global mask so plant PNGs (already transparent) render naturally */
 .seed-img img{mix-blend-mode:normal !important; -webkit-mask-image:none !important; mask-image:none !important;}
@@ -1686,7 +1691,7 @@ html, body{height:100%;overflow:hidden;}
   width:100%;
   height:100%;
   object-fit:contain;
-  padding:10%;
+  padding:2%;  /* near-full bleed — plant fills the card */
   z-index:2;
 }
 /* Hide any old <img> directly under .qcard that's not qc-front/qc-plant */
@@ -1712,11 +1717,13 @@ html, body{height:100%;overflow:hidden;}
   inset:auto !important;
   width:100% !important;
   height:70% !important;
-  object-fit:cover !important;
-  opacity:0.92 !important;
+  object-fit:contain !important;  /* no cropping */
+  opacity:1 !important;
   mix-blend-mode:normal !important;
   filter:none !important;
   margin:0 !important;
+  padding:6% !important;  /* breathing room from card edges */
+  background:#1a1612;
 }
 .conv-listen-card .lc-name{
   position:relative !important;
@@ -1772,17 +1779,28 @@ html, body{height:100%;overflow:hidden;}
 }
 
 
-/* ===== Larger invite card with tighter text ===== */
+/* ===== Larger invite card — readable text, no clipping ===== */
+.invite-card-preview{
+  max-width:480px !important;
+  width:94% !important;
+  aspect-ratio:5/7 !important;
+}
+.icp-content{padding:7% 7% 8% !important;}
+.icp-mark{font-size:13px !important; letter-spacing:.18em;}
+.icp-question{font-size:20px !important; line-height:1.5 !important;}
+.icp-sub{font-size:14px !important; line-height:1.6 !important;}
+.icp-divider{margin:14px 0 !important;}
+.icp-listen-line{font-size:14px !important; line-height:1.55 !important;}
+.icp-listen-msg{font-size:15px !important; line-height:1.55 !important; font-style:italic;}
 @media (min-width:600px){
-  .invite-card-preview{max-width:480px !important;}
-  .icp-question{font-size:18px !important; line-height:1.45 !important;}
-  .icp-sub{font-size:13px !important;}
-  .icp-listen-line{font-size:13px !important;}
-  .icp-listen-msg{font-size:14px !important; font-style:italic;}
+  .invite-card-preview{max-width:520px !important;}
+  .icp-question{font-size:22px !important;}
+  .icp-listen-msg{font-size:16px !important;}
 }
 @media (min-width:1024px){
-  .invite-card-preview{max-width:540px !important;}
-  .icp-question{font-size:22px !important;}
+  .invite-card-preview{max-width:580px !important;}
+  .icp-question{font-size:24px !important;}
+  .icp-listen-msg{font-size:18px !important;}
 }
 
 /* Misc */
@@ -2427,9 +2445,7 @@ function setLanguage(lang){
     const demoLen = DEMO.length;
     entries = newDemo.concat(entries.slice(demoLen));
     DEMO = newDemo;
-    // Re-render positions for swapped DEMO content (clear maps without reassign)
-    for(const k in positionsByKey) delete positionsByKey[k];
-    seenKeys.clear();
+    // Keep positions stable across language toggle — only DEMO names/text change.
   } else {
     DEMO = newDemo;
   }
@@ -3100,10 +3116,10 @@ function getPositions(n, W, H){
       x = cx + Math.cos(ang) * rad;
       y = cy + Math.sin(ang) * rad * 0.85;
     }
-    // Per-plant variation
-    const rot = (r(i + 1200) - 0.5) * 36;      // -18° ~ +18°
-    const scale = 0.55 + r(i + 1300) * 0.95;   // 0.55x ~ 1.5x
-    const opacity = 0.55 + r(i + 1400) * 0.45; // 0.55 ~ 1.0
+    // Per-plant variation — gentle, so plants don't visibly resize across views
+    const rot = (r(i + 1200) - 0.5) * 24;     // -12° ~ +12°
+    const scale = 0.95 + r(i + 1300) * 0.20;  // 0.95x ~ 1.15x (subtle)
+    const opacity = 0.85 + r(i + 1400) * 0.15; // 0.85 ~ 1.0 (subtle)
     positions.push({x, y, layer, rot, scale, opacity});
   }
   return positions;
