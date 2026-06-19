@@ -727,9 +727,9 @@ body{
   position:relative;
 }
 /* Subtle moss tint over the bg to keep it dark+green even on bright shots */
-.screen.dark-bg::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%, rgba(20,30,22,0.18) 0%, transparent 70%);pointer-events:none;z-index:1;}
+.screen.dark-bg::before{display:none;}
 /* Soft vignette */
-.screen.dark-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);pointer-events:none;z-index:2;}
+.screen.dark-bg::after{display:none;}
 
 .screen.dark-bg .garden-header{padding:36px 32px 8px;flex-shrink:0;position:relative;z-index:5;}
 .garden-title{
@@ -1948,6 +1948,58 @@ html, body{height:100%;overflow:hidden;}
   #s6{padding-bottom:200px !important;}
   #s7b{padding-bottom:230px !important;}
 }
+
+/* Optional: Display-mode garden as fixed 16:9 canvas (consistent across TV/laptop/iPad) */
+body.display-mode #s9 .garden-body{
+  position:relative;
+}
+@media (min-aspect-ratio:14/9){
+  body.display-mode #s9 .garden-body{
+    aspect-ratio:16/9;
+    max-height:100dvh;
+    width:auto;
+    margin:0 auto;
+  }
+}
+
+
+/* ===== GARDEN: fixed 1920×1080 canvas, auto-scaled to viewport ===== */
+.garden-body{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+.garden-stage{
+  /* logical canvas — all positions and sizes use 1920×1080 coordinates */
+  position:absolute;
+  width:1920px;
+  height:1080px;
+  left:50%;
+  top:50%;
+  transform-origin:center center;
+  /* transform set by JS to scale to fit viewport */
+}
+.garden-stage .sparkle-layer{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+.garden-stage .sparkle-layer.foreground{z-index:25;}
+.garden-stage .seeds-container{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* OVERRIDE — plant sizes in the canvas use fixed pixels (1920×1080 logical) */
+.garden-stage .seed.layer-bg .seed-img{width:620px !important;}
+.garden-stage .seed.layer-mid .seed-img{width:540px !important;}
+.garden-stage .seed.layer-trace .seed-img{width:460px !important;}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -2101,16 +2153,19 @@ html, body{height:100%;overflow:hidden;}
       <div class="garden-title" data-i18n="garden_title">정원: The Garden</div>
       <div class="garden-sub" id="gardenSub">가족의 흔적이 정원에 자라고 있어요</div>
     </div>
-    <!-- Background stars (behind plants) -->
-    <div class="sparkle-layer" id="starsLayer"></div>
-
     <div class="garden-body" id="gardenBody">
-      <div class="seeds-container" id="seedsContainer"></div>
+      <!-- Fixed 1920×1080 logical canvas — auto-scales to viewport so all devices show the same layout -->
+      <div class="garden-stage" id="gardenStage">
+        <!-- Background stars (behind plants) -->
+        <div class="sparkle-layer" id="starsLayer"></div>
+        <div class="seeds-container" id="seedsContainer"></div>
+        <!-- Foreground fireflies (in front of plants) -->
+        <div class="sparkle-layer foreground" id="firefliesLayer"></div>
+      </div>
+      <!-- Bubble stays at viewport scale (not in the canvas) for readable text -->
       <div class="answer-bubble" id="answerBubble">
         <div class="bubble-inner" id="bubbleInner"></div>
       </div>
-      <!-- Foreground fireflies (in front of plants) -->
-      <div class="sparkle-layer foreground" id="firefliesLayer"></div>
     </div>
     <div class="bottom">
       <button class="btn btn-outline" style="border-color:#3a3028;color:#d4c9b0;background:transparent;" onclick="resetAndGo()" data-i18n="garden_reset">또 가꾸러 가볼까요?</button>
@@ -3090,6 +3145,7 @@ function enterDisplayMode(){
   document.body.classList.add("display-mode");
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("s9").classList.add("active");
+  setTimeout(fitGardenStage, 50);
   // Hide the reset button in display mode (it's the big shared screen)
   const btn = document.querySelector("#s9 .bottom");
   if(btn) btn.style.display = "none";
@@ -3109,24 +3165,44 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+// ===== Fit the fixed 1920×1080 stage to viewport (consistent across devices) =====
+function fitGardenStage(){
+  const stage = document.getElementById("gardenStage");
+  if(!stage) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  // Scale so the 1920×1080 canvas fits inside viewport (letterbox/pillarbox if needed)
+  const scale = Math.min(w / 1920, h / 1080);
+  stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+window.addEventListener("resize", fitGardenStage);
+window.addEventListener("orientationchange", fitGardenStage);
+
 // ===== Sparkle layer (stars + fireflies) =====
 let sparklesBuilt = false;
 function buildSparkles(){
   if(sparklesBuilt) return;
   sparklesBuilt = true;
 
-  // ---- Background stars (60 tiny dots) ----
+  // ---- Background stars (60 tiny dots) — DETERMINISTIC ----
+  // Same star pattern on every device (seed-based pseudo-random)
+  function srand(seed){const x = Math.sin(seed * 12.9898) * 43758.5453; return x - Math.floor(x);}
   const stars = document.getElementById("starsLayer");
   if(stars){
     stars.innerHTML = "";
     for(let i = 0; i < 60; i++){
       const s = document.createElement("div");
-      const r = Math.random();
-      s.className = "star" + (r < 0.5 ? " tiny" : (r > 0.88 ? " bright" : ""));
-      s.style.left = (Math.random() * 100) + "%";
-      s.style.top  = (Math.random() * 100) + "%";
-      s.style.animationDelay = (Math.random() * 4) + "s";
-      s.style.animationDuration = (2.5 + Math.random() * 3.5) + "s";
+      const r1 = srand(i + 1);
+      const r2 = srand(i + 100);
+      const r3 = srand(i + 200);
+      const r4 = srand(i + 300);
+      const r5 = srand(i + 400);
+      s.className = "star" + (r1 < 0.5 ? " tiny" : (r1 > 0.88 ? " bright" : ""));
+      s.style.left = (r2 * 100) + "%";
+      s.style.top  = (r3 * 100) + "%";
+      s.style.animationDelay = (r4 * 4) + "s";
+      s.style.animationDuration = (2.5 + r5 * 3.5) + "s";
       stars.appendChild(s);
     }
   }
@@ -3138,11 +3214,11 @@ function buildSparkles(){
     for(let i = 0; i < 12; i++){
       const f = document.createElement("div");
       f.className = "firefly";
-      f.style.left = (8 + Math.random() * 84) + "%";
-      f.style.top  = (12 + Math.random() * 76) + "%";
-      f.style.animationDelay = (Math.random() * 6) + "s, " + (Math.random() * 4) + "s";
-      const drift = 14 + Math.random() * 14;
-      const glow  = 3.5 + Math.random() * 3;
+      f.style.left = (8 + srand(i + 501) * 84) + "%";
+      f.style.top  = (12 + srand(i + 502) * 76) + "%";
+      f.style.animationDelay = (srand(i + 503) * 6) + "s, " + (srand(i + 504) * 4) + "s";
+      const drift = 14 + srand(i + 505) * 14;
+      const glow  = 3.5 + srand(i + 506) * 3;
       f.style.animationDuration = drift + "s, " + glow + "s";
       flies.appendChild(f);
     }
@@ -3161,8 +3237,11 @@ function buildGarden(){
 
   const body = document.getElementById("gardenBody");
   requestAnimationFrame(() => {
-    const W = body.clientWidth;
-    const H = body.clientHeight;
+    // Use FIXED logical canvas size — all devices get identical positions
+    const W = 1920;
+    const H = 1080;
+    // Ensure the scale is applied before drawing
+    fitGardenStage();
 
     // Show up to 10 plants — newest entries take priority
     const limit = 10;
