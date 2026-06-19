@@ -154,26 +154,28 @@ body{
 
 /* Intro — Screen 1 */
 .intro-title{
-  font-size:32px;
+  font-size:clamp(24px, 5.5vw, 56px);
   font-weight:700;
   text-align:center;
-  margin-top:72px;
-  margin-bottom:44px;
+  margin-top:clamp(20px, 7vh, 70px);
+  margin-bottom:clamp(18px, 4vh, 44px);
   letter-spacing:-.01em;
   color:#111;
-  line-height:1.25;
+  line-height:1.2;
 }
 .intro-prose{
   display:flex;
   flex-direction:column;
-  gap:24px;
+  gap:clamp(8px, 1.8vh, 24px);
   text-align:center;
-  max-width:340px;
+  max-width:clamp(300px, 60vw, 620px);
   margin:0 auto;
+  flex:1;
+  justify-content:center;
 }
 .intro-prose p{
-  font-size:17px;
-  line-height:1.75;
+  font-size:clamp(13px, 2.1vw, 22px);
+  line-height:1.6;
   color:#1A1A1A;
   font-weight:400;
 }
@@ -779,24 +781,24 @@ body{
 
 /* Garden plants — bigger sizes; per-plant variation set via inline style */
 .seed.layer-bg{z-index:3;}
-.seed.layer-bg .seed-img{width:240px;}
+.seed.layer-bg .seed-img{width:340px;}
 .seed.layer-bg .seed-img img{
   filter:sepia(0.3) saturate(1.3) hue-rotate(-12deg) brightness(1.0);
 }
 .seed.layer-mid{z-index:6;}
-.seed.layer-mid .seed-img{width:220px;}
+.seed.layer-mid .seed-img{width:320px;}
 .seed.layer-mid .seed-img img{
   filter:sepia(0.25) saturate(1.4) brightness(1.05);
 }
 .seed.layer-trace{z-index:10;}
-.seed.layer-trace .seed-img{width:200px;}
+.seed.layer-trace .seed-img{width:280px;}
 .seed.layer-trace .seed-img img{
   filter:sepia(0.2) saturate(1.6) brightness(1.15) contrast(1.05);
 }
 @media (min-width:1024px){
-  .seed.layer-bg .seed-img{width:340px;}
-  .seed.layer-mid .seed-img{width:320px;}
-  .seed.layer-trace .seed-img{width:280px;}
+  .seed.layer-bg .seed-img{width:460px;}
+  .seed.layer-mid .seed-img{width:420px;}
+  .seed.layer-trace .seed-img{width:380px;}
 }
 /* Disable the global mask so plant PNGs (already transparent) render naturally */
 .seed-img img{mix-blend-mode:normal !important; -webkit-mask-image:none !important; mask-image:none !important;}
@@ -1187,22 +1189,24 @@ body.display-mode .bubble-inner .b-answer{font-size:22px;}
 }
 .icp-bg{position:absolute;inset:0;}
 .icp-img-t{
-  position:absolute;inset:0;
-  width:100%;height:100%;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
   object-fit:cover;
-  opacity:0.45;
-  mix-blend-mode:screen;
+  opacity:1;
+  mix-blend-mode:normal;
 }
 .icp-img-q{
   position:absolute;
-  top:14%;left:50%;
-  transform:translateX(-50%);
-  width:54%;
-  height:38%;
+  inset:0;
+  width:100%;
+  height:100%;
   object-fit:contain;
-  opacity:0.78;
-  mix-blend-mode:screen;
-  filter:sepia(0.3);
+  padding:6%;
+  opacity:0.95;
+  mix-blend-mode:normal;
+  filter:none;
 }
 .icp-content{
   position:absolute;
@@ -1753,48 +1757,46 @@ html, body{height:100%;overflow:hidden;}
 }
 .conv-listen-card.on::after{display:none;}
 
-/* Stage layout — sized so 6 listen cards never touch the bottom button */
+/* Stage layout — listen cards big & legible */
 .conv-stage{
   flex-direction:column !important;
   align-items:center !important;
-  gap:14px !important;
+  gap:18px !important;
   width:100%;
-  margin-bottom:40px !important;   /* gap from bottom button */
-  max-height:calc(100dvh - 240px); /* leave room for heading + .bottom */
+  margin-bottom:30px !important;
+  /* no max-height — let cards be the size they need */
 }
 .conv-stage .conv-card{
-  width:50% !important;
-  max-width:180px !important;
+  width:40% !important;
+  max-width:140px !important;     /* keep main card small */
   flex-shrink:0;
 }
 .conv-listen-row{
   display:grid !important;
   grid-template-columns:repeat(3, 1fr) !important;
   flex-direction:row !important;
-  gap:10px !important;
+  gap:12px !important;
   width:100% !important;
-  max-width:420px !important;
-  max-height:200px;       /* cards fit in this height */
-  align-items:center;
+  max-width:540px !important;
 }
 .conv-listen-card{
   width:100%;
-  max-height:100%;
+  /* aspect-ratio is set above; let it size itself */
 }
 @media (min-width:1024px){
   .conv-stage{
-    max-width:680px !important;
-    gap:22px !important;
-    max-height:calc(100dvh - 280px);
+    max-width:880px !important;
+    gap:26px !important;
   }
-  .conv-stage .conv-card{max-width:220px !important;}
+  .conv-stage .conv-card{max-width:170px !important;}
   .conv-listen-row{
-    max-width:540px !important;
-    max-height:240px;
-    gap:14px !important;
+    max-width:780px !important;
+    gap:18px !important;
   }
-  .conv-listen-card .lc-name{font-size:13px !important;}
+  .conv-listen-card .lc-name{font-size:14px !important;}
 }
+/* Allow gentle vertical scroll on s6 when card sizes need it */
+#s6{overflow-y:auto !important;}
 
 
 /* ===== Invite card — large readable text ===== */
@@ -1821,6 +1823,30 @@ html, body{height:100%;overflow:hidden;}
   .icp-question{font-size:34px !important;}
   .icp-sub{font-size:20px !important;}
   .icp-listen-msg{font-size:24px !important;}
+}
+
+
+/* ===== S1 Intro — fluid sizing so it fits viewport (mobile→laptop) ===== */
+#s1{
+  display:none;
+  padding:24px 24px 130px;
+  overflow:hidden;
+}
+#s1.active{display:flex;}
+#s1 .intro-title{
+  flex-shrink:0;
+}
+/* Allow gentle scroll only if even with fluid sizes it overflows on tiny screens */
+@media (max-height:500px){
+  #s1{overflow-y:auto;}
+  #s1 .intro-title{margin-top:14px; margin-bottom:14px;}
+  #s1 .intro-prose{gap:8px;}
+  #s1 .intro-prose p{font-size:12.5px; line-height:1.45;}
+}
+@media (min-width:1280px){
+  #s1 .intro-prose{max-width:680px;}
+  #s1 .intro-prose p{font-size:24px;}
+  #s1 .intro-title{font-size:60px;}
 }
 
 /* Misc */
@@ -3039,11 +3065,15 @@ function buildGarden(){
     const W = body.clientWidth;
     const H = body.clientHeight;
 
+    // Show only half (rounded up) of entries — newest take priority
+    const half = Math.max(3, Math.ceil(entries.length / 2));
+    const visibleEntries = entries.length > half ? entries.slice(-half) : entries;
+
     // Decide layer for each entry deterministically by index
     // (so positions stay stable when entries are added)
-    const positions = getPositions(entries.length, W, H);
+    const positions = getPositions(visibleEntries.length, W, H);
 
-    entries.forEach((e, i) => {
+    visibleEntries.forEach((e, i) => {
       const cacheKey = e._key || ("demo-" + i);
       let pos;
       if(positionsByKey[cacheKey]){
@@ -3122,19 +3152,18 @@ function getPositions(n, W, H){
       else if(edge === 2) { x = W * (0.10 + 0.80 * ofs); y = H * (0.05 + 0.18 * r(i + 400)); }
       else                { x = W * (0.10 + 0.80 * ofs); y = H * (0.78 + 0.18 * r(i + 500)); }
     } else if(layer === 1){
-      // Middle — distributed but biased toward middle bands
-      x = W * (0.15 + 0.70 * r(i + 600));
-      y = H * (0.20 + 0.62 * r(i + 700));
-      // Slight cluster bias to avoid evenness
-      x += (r(i + 800) - 0.5) * 60;
-      y += (r(i + 900) - 0.5) * 50;
+      // Middle — tighter cluster, more overlap
+      x = W * (0.20 + 0.60 * r(i + 600));
+      y = H * (0.25 + 0.55 * r(i + 700));
+      x += (r(i + 800) - 0.5) * 50;
+      y += (r(i + 900) - 0.5) * 40;
     } else {
-      // Trace — central node area (where the vine intersects)
+      // Trace — central node area, drawn closer
       const cx = W * 0.5, cy = H * 0.5;
       const ang = r(i + 1000) * Math.PI * 2;
-      const rad = (0.18 + 0.22 * r(i + 1100)) * Math.min(W, H);
+      const rad = (0.12 + 0.18 * r(i + 1100)) * Math.min(W, H);
       x = cx + Math.cos(ang) * rad;
-      y = cy + Math.sin(ang) * rad * 0.85;
+      y = cy + Math.sin(ang) * rad * 0.8;
     }
     // Per-plant variation — gentle, so plants don't visibly resize across views
     const rot = (r(i + 1200) - 0.5) * 24;     // -12° ~ +12°
