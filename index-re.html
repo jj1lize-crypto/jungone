@@ -182,14 +182,15 @@ body{
 
 /* Bottom button area */
 .bottom{
-  position:absolute;
+  position:fixed;        /* always visible at viewport bottom */
   bottom:0;
   left:50%;
   transform:translateX(-50%);
   width:100%;
   max-width:576px;
-  padding:0 28px 32px;
+  padding:16px 28px 32px;
   background:linear-gradient(180deg,rgba(244,239,231,0) 0%,rgba(244,239,231,0.95) 30%,rgba(244,239,231,1) 100%);
+  z-index:100;
 }
 .screen.dark-bg .bottom{
   background:linear-gradient(180deg,rgba(14,12,9,0) 0%,rgba(14,12,9,0.95) 30%,rgba(14,12,9,1) 100%);
@@ -197,7 +198,7 @@ body{
   left:0;
   right:0;
   transform:none;
-  padding:0 0 36px;
+  padding:16px 0 36px;
 }
 .screen.dark-bg .bottom > *{
   max-width:340px;
@@ -1826,22 +1827,32 @@ html, body{height:100%;overflow:hidden;}
 }
 
 
-/* ===== S1 Intro — fluid sizing so it fits viewport (mobile→laptop) ===== */
+/* ===== S1 Intro — fluid sizing + scroll safety + always-visible button ===== */
 #s1{
   display:none;
-  padding:24px 24px 130px;
-  overflow:hidden;
+  padding:20px 24px 140px;   /* bottom padding: clears the fixed button */
+  overflow-y:auto;            /* scroll if needed, button always visible */
+  -webkit-overflow-scrolling:touch;
 }
 #s1.active{display:flex;}
-#s1 .intro-title{
-  flex-shrink:0;
+#s1 .intro-title{flex-shrink:0;}
+/* Mobile: tighter to ensure all 5 verses + button visible */
+@media (max-width:600px){
+  #s1{padding:16px 20px 140px;}
+  #s1 .intro-title{
+    font-size:22px !important;
+    margin-top:10px !important;
+    margin-bottom:14px !important;
+  }
+  #s1 .intro-prose{gap:6px !important;}
+  #s1 .intro-prose p{
+    font-size:12.5px !important;
+    line-height:1.5 !important;
+  }
 }
-/* Allow gentle scroll only if even with fluid sizes it overflows on tiny screens */
-@media (max-height:500px){
-  #s1{overflow-y:auto;}
-  #s1 .intro-title{margin-top:14px; margin-bottom:14px;}
-  #s1 .intro-prose{gap:8px;}
-  #s1 .intro-prose p{font-size:12.5px; line-height:1.45;}
+@media (max-width:380px){
+  #s1 .intro-title{font-size:20px !important;}
+  #s1 .intro-prose p{font-size:12px !important; line-height:1.45 !important;}
 }
 @media (min-width:1280px){
   #s1 .intro-prose{max-width:680px;}
