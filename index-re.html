@@ -3626,6 +3626,292 @@ body.display-mode .app {
 }
 
 
+
+/* ============================================================
+   INVITE — card positioned just above the "이미지로 저장하기" button
+   Text styles match the listening modal (lm-name-big / lm-desc-big)
+   ============================================================ */
+
+/* Card positioning — push to bottom of the screen content area */
+#s7b{
+  display:none;
+  flex-direction:column !important;
+  padding:0 !important;
+}
+#s7b.active{display:flex !important;}
+.invite-tip{
+  text-align:center !important;
+  font-size:13px !important;
+  line-height:1.5 !important;
+  color:var(--muted) !important;
+  font-style:italic !important;
+  margin:20px var(--page-padding) 8px !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  flex:0 0 auto !important;
+}
+.invite-card-wrap{
+  flex:1 !important;
+  display:flex !important;
+  align-items:flex-end !important;       /* bottom-anchored */
+  justify-content:center !important;
+  padding:8px var(--page-padding) 12px !important;
+  min-height:0 !important;
+}
+.invite-card-preview{
+  width:78% !important;
+  max-width:320px !important;
+  aspect-ratio:5/7 !important;
+  max-height:calc(100svh - 320px) !important;
+  position:relative !important;
+}
+@media (max-width:380px){
+  .invite-card-preview{ max-width:280px !important; max-height:calc(100svh - 300px) !important; }
+}
+
+/* Text styles — exactly the same as listening modal lm-name-big / lm-desc-big */
+.icp-content{
+  position:relative !important;
+  z-index:5 !important;
+  padding:40px 22px 28px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  height:100% !important;
+}
+.icp-mark{
+  position:absolute !important;
+  top:14px !important;
+  left:0 !important; right:0 !important;
+  text-align:center !important;
+  z-index:6 !important;
+  font-size:11px !important;
+  letter-spacing:0.2em !important;
+  color:rgba(255,255,255,0.78) !important;
+  font-family:inherit !important;
+}
+.icp-heading-line{
+  font-family:inherit !important;
+  font-size:11px !important;
+  line-height:1.4 !important;
+  color:rgba(255,255,255,0.7) !important;
+  text-align:center !important;
+  letter-spacing:0.05em !important;
+  margin-bottom:10px !important;
+  font-weight:400 !important;
+}
+/* Main question — same as lm-name-big */
+.icp-question{
+  font-family:inherit !important;
+  font-size:20px !important;
+  font-weight:600 !important;
+  color:#fff !important;
+  text-align:center !important;
+  margin:0 0 8px 0 !important;
+  line-height:1.4 !important;
+  word-break:keep-all !important;
+}
+/* Sub question — same as lm-desc-big */
+.icp-sub{
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:400 !important;
+  color:rgba(255,255,255,0.92) !important;
+  line-height:1.65 !important;
+  text-align:center !important;
+  margin:0 0 8px 0 !important;
+  word-break:keep-all !important;
+  font-style:normal !important;
+}
+.icp-divider{
+  width:30% !important;
+  height:1px !important;
+  background:rgba(255,255,255,0.3) !important;
+  margin:10px 0 !important;
+}
+/* Listen line + msg — same body style as lm-desc-big */
+.icp-listen-line{
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:400 !important;
+  color:rgba(255,255,255,0.92) !important;
+  line-height:1.65 !important;
+  text-align:center !important;
+  margin:0 0 4px 0 !important;
+  font-style:normal !important;
+}
+.icp-listen-msg{
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:400 !important;
+  color:rgba(255,255,255,0.92) !important;
+  line-height:1.65 !important;
+  text-align:center !important;
+  margin:0 !important;
+  font-style:normal !important;
+  word-break:keep-all !important;
+}
+
+
+/* ============================================================
+   INVITE — Restore Hanji v1 original style
+   ============================================================ */
+.invite-tip{
+  text-align:center !important;
+  font-size:13.5px !important;
+  color:#5A4F3D !important;
+  margin:6px var(--page-padding) 14px !important;
+  font-style:italic !important;
+  min-height:20px !important;
+  line-height:1.5 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  font-family:inherit !important;
+}
+.invite-card-wrap{
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  flex:1 !important;
+  margin-bottom:18px !important;
+  padding:0 var(--page-padding) !important;
+  min-height:0 !important;
+}
+.invite-card-preview{
+  position:relative !important;
+  width:92% !important;
+  max-width:440px !important;
+  aspect-ratio:5/7 !important;
+  max-height:calc(100svh - 280px) !important;
+  background:#0e0c09 !important;
+  border-radius:6px !important;
+  overflow:hidden !important;
+  box-shadow:0 10px 30px rgba(14,12,9,0.22) !important;
+  border:none !important;
+}
+.icp-bg{position:absolute !important; inset:0 !important; z-index:1 !important;}
+.icp-img-t{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+  padding:0 !important;
+  z-index:1 !important;
+}
+.icp-img-q{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  padding:6% !important;
+  opacity:0.95 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+  z-index:2 !important;
+}
+.icp-content{
+  position:absolute !important;
+  inset:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  padding:18px 20px 22px !important;
+  color:#f5f0e8 !important;
+  background:linear-gradient(180deg,rgba(14,12,9,0.1) 0%,rgba(14,12,9,0.4) 38%,rgba(14,12,9,0.88) 70%,rgba(14,12,9,0.95) 100%) !important;
+  z-index:5 !important;
+  text-align:center !important;
+  height:100% !important;
+}
+.icp-mark{
+  position:static !important;
+  font-size:10.5px !important;
+  letter-spacing:.22em !important;
+  color:#d4c9b8 !important;
+  text-transform:uppercase !important;
+  text-align:center !important;
+  margin:0 0 auto 0 !important;
+  font-family:inherit !important;
+  font-weight:400 !important;
+  top:auto !important; left:auto !important; right:auto !important;
+}
+.icp-heading-line{
+  font-family:inherit !important;
+  font-size:11px !important;
+  line-height:1.4 !important;
+  color:rgba(245,240,232,0.7) !important;
+  text-align:center !important;
+  letter-spacing:0.05em !important;
+  margin-bottom:6px !important;
+  font-weight:400 !important;
+}
+.icp-question{
+  font-family:inherit !important;
+  font-size:15px !important;
+  font-weight:500 !important;
+  line-height:1.45 !important;
+  margin:12px 0 0 0 !important;
+  text-align:center !important;
+  text-shadow:0 1px 6px rgba(0,0,0,0.5) !important;
+  color:#f5f0e8 !important;
+  font-style:normal !important;
+  word-break:keep-all !important;
+}
+.icp-sub{
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:400 !important;
+  line-height:1.5 !important;
+  margin:6px 0 0 0 !important;
+  color:#e8dfd0 !important;
+  font-style:italic !important;
+  text-align:center !important;
+  text-shadow:0 1px 4px rgba(0,0,0,0.4) !important;
+  word-break:keep-all !important;
+}
+.icp-divider{
+  width:36px !important;
+  height:1px !important;
+  background:rgba(245,240,232,0.4) !important;
+  margin:14px auto 12px !important;
+}
+.icp-listen-line{
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:400 !important;
+  line-height:1.55 !important;
+  color:#e8dfd0 !important;
+  text-align:center !important;
+  text-shadow:0 1px 4px rgba(0,0,0,0.4) !important;
+  margin:0 !important;
+  font-style:normal !important;
+}
+.icp-listen-name{
+  font-weight:600 !important;
+  color:#fff !important;
+  font-style:normal !important;
+}
+.icp-listen-msg{
+  font-family:inherit !important;
+  font-size:12.5px !important;
+  font-weight:400 !important;
+  line-height:1.5 !important;
+  margin:6px 0 0 0 !important;
+  color:#fff !important;
+  text-align:center !important;
+  font-style:italic !important;
+  text-shadow:0 1px 5px rgba(0,0,0,0.5) !important;
+  word-break:keep-all !important;
+}
+/* Hide the dark ::after overlay we added earlier (gradient already on .icp-content) */
+.icp-bg::after{ display:none !important; }
+
 </style>
 </head>
 <body>
