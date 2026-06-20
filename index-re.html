@@ -304,31 +304,33 @@ body{
   margin-left:auto;
   margin-right:auto;
   align-content:center;
+  width:100%;
 }
 .qcard{
   position:relative;
-  aspect-ratio:1/1.4 !important;
+  aspect-ratio:1/1.4 !important;   /* identical to .topic-card */
   background:transparent;
   border:none;
-  box-shadow:none;
-  outline:none;
   padding:0;
   cursor:pointer;
   border-radius:3px;
   overflow:hidden;
   transition:transform .18s, box-shadow .18s;
 }
-.qcard img{
+/* Default img inside qcard — same cover behavior as topic-card */
+.qcard > img{
   position:absolute;inset:0;
   width:100%;height:100%;
-  object-fit:contain;
-  padding:10%;
+  object-fit:cover;
+  padding:0;
+  display:block;
 }
+/* Selected state — same outline + check mark as .topic-card.on */
 .qcard.on{
-  /* Soft selected state — no border, no overlap */
-  transform:scale(0.97);
-  opacity:0.92;
-  filter:brightness(0.85);
+  outline:2.5px solid #111;
+  outline-offset:-2px;
+  transform:translateY(-4px);
+  box-shadow:0 8px 18px rgba(17,17,17,0.18);
 }
 
 /* Read question — Screen 4 (large faded card) */
@@ -1679,30 +1681,25 @@ html, body{height:100%;overflow:hidden;}
 }
 .qcard .qc-front,
 .qcard .qc-plant{
-  /* Override .qcard img defaults so layered images render cleanly */
   opacity:1 !important;
   mix-blend-mode:normal !important;
   filter:none !important;
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  padding:0 !important;
+  display:block !important;
 }
 .qcard .qc-front{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  padding:0 !important;
-  z-index:1;
+  object-fit:cover !important;  /* background fills card */
+  z-index:1 !important;
 }
 .qcard .qc-plant{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  padding:0;
-  transform:scale(1.35);  /* scale up so plant fills the tall card */
-  transform-origin:center;
-  z-index:2;
+  object-fit:contain !important;   /* keep plant aspect */
+  transform:scale(2.2) !important; /* even bigger — plant fills the card visually */
+  transform-origin:center !important;
+  z-index:2 !important;
 }
 /* Hide any old <img> directly under .qcard that's not qc-front/qc-plant */
 .qcard > img:not(.qc-front):not(.qc-plant){display:none;}
@@ -2215,6 +2212,22 @@ body.display-mode #s9 .garden-body{
   min-height:0;
 }
 
+
+/* Selected check mark on qcard — identical to .topic-card.on::after */
+.qcard.on::after{
+  content:"✓";
+  position:absolute;
+  top:6px; right:6px;
+  width:22px; height:22px;
+  border-radius:50%;
+  background:#1a1612;
+  color:#f5f0e8;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:4;
+}
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
