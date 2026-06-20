@@ -171,8 +171,9 @@ body{
   max-width:clamp(320px, 65vw, 680px);
   margin:0 auto;
   flex:1;
-  justify-content:center;
+  justify-content:flex-end;       /* push prose toward bottom */
   align-items:center;
+  padding-bottom:6vh;
 }
 .intro-prose p{
   font-size:clamp(17px, 2.6vw, 28px);  /* bigger — elder-friendly */
@@ -1700,8 +1701,8 @@ html, body{height:100%;overflow:hidden;}
   z-index:1 !important;
 }
 .qcard .qc-plant{
-  object-fit:contain !important;   /* keep plant aspect */
-  transform:scale(1.45) !important; /* large but not cropped */
+  object-fit:contain !important;
+  transform:scale(1.15) !important;  /* visible but no cropping */
   transform-origin:center !important;
   z-index:2 !important;
 }
@@ -2397,12 +2398,12 @@ body.display-mode #s9 .garden-body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;     /* logo + button block centered in viewport */
-  gap:48px;
-  padding:60px 24px;
+  justify-content:flex-start;   /* anchored toward top */
+  padding-top:20vh;             /* logo sits in upper portion */
+  gap:54px;
 }
 .cover-logo{
-  width:clamp(176px, 32vw, 368px);   /* 20% smaller */
+  width:clamp(130px, 22vw, 240px);  /* significantly smaller */
   height:auto;
   filter:drop-shadow(0 8px 24px rgba(0,0,0,0.55));
 }
@@ -2456,6 +2457,128 @@ body.display-mode #s9 .garden-body{
   top:50% !important;
   margin:0 !important;
 }
+
+/* S6 — main card top-centered, 6 listen cards in 3x2 grid below */
+.conv-stage{
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:18px !important;
+  width:100% !important;
+  max-width:520px !important;
+  margin:0 auto !important;
+}
+.conv-stage .conv-card{
+  flex:0 0 auto !important;
+  width:55% !important;
+  max-width:200px !important;
+  aspect-ratio:5/7 !important;
+}
+.conv-listen-row{
+  display:grid !important;
+  grid-template-columns:repeat(3, 1fr) !important;
+  grid-template-rows:repeat(2, 1fr) !important;
+  flex-direction:row !important;
+  gap:10px !important;
+  width:100% !important;
+  max-width:480px !important;
+}
+@media (min-width:600px){
+  .conv-stage{max-width:560px !important;}
+  .conv-stage .conv-card{max-width:220px !important;}
+  .conv-listen-row{max-width:540px !important;gap:14px !important;}
+}
+@media (min-width:1024px){
+  .conv-stage{max-width:640px !important;}
+  .conv-stage .conv-card{max-width:250px !important;}
+  .conv-listen-row{max-width:600px !important;gap:16px !important;}
+  .conv-listen-card .lc-name{font-size:14px !important;}
+}
+/* Hide the small italic sub on the main conv-card */
+.conv-card .rc-sub{display:none !important;}
+.conv-card .rc-aside{display:none !important;}
+
+
+/* Listen modal — pure listencard-back-empty as backdrop, no black anywhere */
+.listen-modal{align-items:center;justify-content:center;background:rgba(0,0,0,0.6) !important;}
+.listen-modal-card{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  max-width:380px !important;
+  width:90% !important;
+}
+.lm-img-wrap{
+  position:relative !important;
+  background:transparent !important;
+  overflow:hidden;
+  border-radius:12px;
+  aspect-ratio:1/1.2;
+}
+.lm-img-wrap .lm-back{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  z-index:1;
+}
+.lm-img-wrap #lmImg{
+  position:absolute !important;
+  inset:0 !important;
+  width:95% !important;
+  height:95% !important;
+  margin:2.5% !important;
+  display:block !important;
+  object-fit:contain !important;
+  z-index:2 !important;
+  background:transparent !important;
+}
+.lm-info{
+  background:rgba(245,240,232,0.96) !important;
+  padding:16px !important;
+  border-radius:0 0 12px 12px;
+  margin-top:-12px;
+  position:relative;
+  z-index:3;
+}
+
+/* Invite — card sits just above the bottom buttons, not floating in middle */
+#s7b{
+  justify-content:flex-end !important;
+  align-items:center !important;
+  padding-bottom:170px !important;   /* clears bottom buttons + tip */
+}
+.invite-card-wrap{
+  flex:0 0 auto !important;
+  padding:50px 16px 0 !important;
+}
+.invite-card-preview{
+  max-height:calc(100dvh - 240px) !important;
+}
+@media (max-width:600px){
+  #s7b{padding-bottom:200px !important;}
+  .invite-card-preview{max-height:calc(100dvh - 270px) !important;}
+}
+
+/* Add the "답을 떠올린 뒤" line BEFORE the question on the invite card */
+.icp-heading-line{
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+  font-size:11px;
+  line-height:1.4;
+  color:rgba(245,240,232,0.7);
+  text-align:center;
+  letter-spacing:.05em;
+  margin-bottom:10px;
+}
+@media (min-width:600px){
+  .icp-heading-line{font-size:12px;}
+}
+@media (min-width:1024px){
+  .icp-heading-line{font-size:13px;}
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -2566,6 +2689,7 @@ body.display-mode #s9 .garden-body{
         </div>
         <div class="icp-content">
           <div class="icp-mark" data-i18n="s7b_mark">정원 초대장</div>
+          <div class="icp-heading-line" data-i18n="s6_heading">답을 떠올린 뒤,<br>듣고 싶은 방식을 골라주세요</div>
           <div class="icp-question" id="icpQ"></div>
           <div class="icp-sub" id="icpSub"></div>
           <div class="icp-divider"></div>
@@ -2574,7 +2698,7 @@ body.display-mode #s9 .garden-body{
         </div>
       </div>
     </div>
-    <div class="invite-tip" id="inviteTip" data-i18n="s7b_tip">이 카드를 가족에게 보내주세요.</div>
+    <div class="invite-tip" id="inviteTip" data-i18n="s7b_tip">이 카드를 가족에게 보내 대화에 초대해보세요.</div>
     <div class="empty-space"></div>
     <div class="bottom">
       <button class="btn btn-outline" onclick="downloadInvitation()" data-i18n="s7b_save">이미지로 저장하기</button>
@@ -2998,7 +3122,7 @@ const I18N = {
     s7b_listen_period: ".",
     s7b_save: "이미지로 저장하기",
     s7b_plant: "정원에 심기 →",
-    s7b_tip: "이 카드를 가족에게 보내주세요.",
+    s7b_tip: "이 카드를 가족에게 보내 대화에 초대해보세요.",
     s7b_saving: "이미지 만드는 중…",
     s7b_saved_ok: "✓ 저장되었어요. 가족에게 이미지를 보내주세요.",
     s7b_save_fail: "저장에 실패했어요. 스크린샷으로 저장해 주세요.",
@@ -3053,7 +3177,7 @@ const I18N = {
     s7b_listen_period: ".",
     s7b_save: "Save as image",
     s7b_plant: "Plant in garden →",
-    s7b_tip: "Send this card to your family.",
+    s7b_tip: "Send this card to your family and invite them in.",
     s7b_saving: "Creating image…",
     s7b_saved_ok: "✓ Saved. Send the image to your family.",
     s7b_save_fail: "Save failed. Please screenshot instead.",
@@ -3813,16 +3937,13 @@ function getPositions(n, W, H){
       else if(edge === 2) { x = W * (0.10 + 0.80 * ofs); y = H * (0.05 + 0.18 * r(i + 400)); }
       else                { x = W * (0.10 + 0.80 * ofs); y = H * (0.78 + 0.18 * r(i + 500)); }
     } else if(layer === 1){
-      // Middle — distributed across, with inner padding so plants don't crop
-      x = W * (0.18 + 0.64 * r(i + 600));
-      y = H * (0.22 + 0.56 * r(i + 700));
+      // Middle — spread across the FULL canvas
+      x = W * (0.08 + 0.84 * r(i + 600));
+      y = H * (0.10 + 0.80 * r(i + 700));
     } else {
-      // Trace — central but kept inside
-      const cx = W * 0.5, cy = H * 0.5;
-      const ang = r(i + 1000) * Math.PI * 2;
-      const rad = (0.10 + 0.20 * r(i + 1100)) * Math.min(W, H);
-      x = cx + Math.cos(ang) * rad;
-      y = cy + Math.sin(ang) * rad * 0.85;
+      // Trace — also spread, not central
+      x = W * (0.12 + 0.76 * r(i + 1000));
+      y = H * (0.15 + 0.70 * r(i + 1100));
     }
     // Clamp positions so the WHOLE plant stays inside the 1920×1080 canvas
     const SAFE = 260;
