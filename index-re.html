@@ -2395,12 +2395,18 @@ body.display-mode #s9 .garden-body{
   z-index:3;
   width:100%;
   height:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;   /* anchored toward top */
-  padding-top:20vh;             /* logo sits in upper portion */
-  gap:54px;
+}
+.cover-logo{
+  position:absolute;
+  top:20vh;
+  left:50%;
+  transform:translateX(-50%);
+}
+.cover-enter{
+  position:absolute;
+  bottom:12vh;     /* anchored near the bottom */
+  left:50%;
+  transform:translateX(-50%);
 }
 .cover-logo{
   width:clamp(130px, 22vw, 240px);  /* significantly smaller */
@@ -2499,50 +2505,47 @@ body.display-mode #s9 .garden-body{
 .conv-card .rc-aside{display:none !important;}
 
 
-/* Listen modal — pure listencard-back-empty as backdrop, no black anywhere */
-.listen-modal{align-items:center;justify-content:center;background:rgba(0,0,0,0.6) !important;}
+/* Listen modal — revert to clean dark/black background */
+.listen-modal{align-items:center;justify-content:center;background:rgba(0,0,0,0.7) !important;}
 .listen-modal-card{
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
+  background:#0e0c09 !important;
+  border:1px solid rgba(245,240,232,0.15) !important;
+  box-shadow:0 12px 36px rgba(0,0,0,0.55) !important;
   padding:0 !important;
   max-width:380px !important;
   width:90% !important;
+  border-radius:12px;
+  overflow:hidden;
 }
 .lm-img-wrap{
   position:relative !important;
-  background:transparent !important;
+  background:#0e0c09 !important;
   overflow:hidden;
-  border-radius:12px;
-  aspect-ratio:1/1.2;
+  aspect-ratio:1/1;
 }
 .lm-img-wrap .lm-back{
-  position:absolute !important;
-  inset:0 !important;
-  width:100% !important;
-  height:100% !important;
-  object-fit:cover !important;
-  z-index:1;
+  display:none !important;
 }
 .lm-img-wrap #lmImg{
   position:absolute !important;
   inset:0 !important;
-  width:95% !important;
-  height:95% !important;
-  margin:2.5% !important;
+  width:88% !important;
+  height:88% !important;
+  margin:6% !important;
   display:block !important;
   object-fit:contain !important;
   z-index:2 !important;
   background:transparent !important;
 }
 .lm-info{
-  background:rgba(245,240,232,0.96) !important;
-  padding:16px !important;
-  border-radius:0 0 12px 12px;
-  margin-top:-12px;
+  background:#0e0c09 !important;
+  color:#f5f0e8 !important;
+  padding:18px 20px 22px !important;
   position:relative;
   z-index:3;
 }
+.lm-name-big{color:#f5f0e8 !important;}
+.lm-desc-big{color:rgba(245,240,232,0.85) !important;}
 
 /* Invite — card sits just above the bottom buttons, not floating in middle */
 #s7b{
