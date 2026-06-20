@@ -4535,6 +4535,30 @@ body:has(#s0.active) .lang-toggle{
 #s8 .upload-preview{ display:none !important; }
 #s8 .upload-preview.show{ display:block !important; }
 
+
+/* ===== Index re 05 — S1 intro logo (same as garden logo) ===== */
+#s1{
+  display:none;
+  flex-direction:column !important;
+}
+#s1.active{display:flex !important;}
+.intro-logo{
+  display:block !important;
+  margin:24px auto 8px !important;       /* same top spacing as garden header */
+  background:url("https://jj1lize-crypto.github.io/jungone/cover-logo.png") center/contain no-repeat !important;
+  width:140px !important;                /* same as garden logo */
+  height:48px !important;                /* same as garden logo */
+  flex:0 0 auto !important;
+}
+/* Keep prose vertically centered in the remaining space */
+#s1 .intro-prose{
+  flex:1 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+}
+
 </style>
 </head>
 <body>
@@ -4554,6 +4578,7 @@ body:has(#s0.active) .lang-toggle{
   </section>
 
   <section class="screen" id="s1">
+    <div class="intro-logo" aria-label="JUNG ONE: The Garden"></div>
     <div class="intro-prose">
       <p data-i18n="intro_p1">가족의 대화를<br>작은 정원처럼 가꿉니다.</p>
       <p data-i18n="intro_p2">고치거나 설득하기보다,<br>필요한 거리를 함께 맞추는 일.</p>
