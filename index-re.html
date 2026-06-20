@@ -3387,6 +3387,245 @@ body.display-mode .app {
   }
 }
 
+
+/* ============================================================
+   RESTORE HANJI STYLE for specific components
+   (conv-card S6 main card, invite-card S7b)
+   ============================================================ */
+
+/* ----- S6 main conv-card — Hanji-style layered card with text ----- */
+.conv-stage .conv-card{
+  position:relative !important;
+  width:60% !important;
+  max-width:220px !important;
+  aspect-ratio:5/7 !important;
+  border:none !important;
+  border-radius:6px !important;
+  overflow:hidden !important;
+  background:#0e0c09 !important;
+  flex:0 0 auto !important;
+  margin:0 auto;
+}
+.conv-card .rc-bg{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  z-index:1 !important;
+}
+.conv-card .rc-bg .img-t{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  z-index:1 !important;
+  opacity:1 !important;
+}
+.conv-card .rc-bg .img-q{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  padding:6% !important;
+  z-index:2 !important;
+  opacity:0.95 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
+/* Dark gradient overlay on top of plant, under text */
+.conv-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.85) 100%);
+  z-index:3;
+  pointer-events:none;
+}
+.conv-card .rc-text{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  padding:12px 14px 16px !important;
+  text-align:center !important;
+  z-index:4 !important;
+  color:#f5f0e8 !important;
+}
+.conv-card .rc-q{
+  display:block !important;
+  font-family:inherit !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+  font-weight:500 !important;
+  color:#f5f0e8 !important;
+  text-shadow:0 1px 4px rgba(0,0,0,0.6);
+  word-break:keep-all !important;
+}
+
+/* ----- S7B Invitation — Hanji layered card ----- */
+.invite-card-preview{
+  position:relative !important;
+  border:none !important;
+  border-radius:8px !important;
+  overflow:hidden !important;
+  background:#0e0c09 !important;
+}
+.icp-bg{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:1 !important;
+  border-radius:inherit;
+  overflow:hidden;
+}
+.icp-img-t{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  z-index:1 !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+.icp-img-q{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  padding:8% !important;
+  z-index:2 !important;
+  opacity:0.95 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
+/* Dark gradient overlay for readability */
+.icp-bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.85) 100%);
+  z-index:3;
+}
+.icp-content{
+  position:relative !important;
+  z-index:5 !important;
+  padding:40px 22px 28px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  height:100% !important;
+}
+.icp-mark{
+  position:absolute !important;
+  top:14px !important;
+  left:0 !important; right:0 !important;
+  text-align:center !important;
+  z-index:6 !important;
+  font-size:11px !important;
+  letter-spacing:0.2em !important;
+  color:rgba(245,240,232,0.78) !important;
+}
+.icp-heading-line{
+  font-family:inherit !important;
+  font-size:10px !important;
+  line-height:1.4 !important;
+  color:rgba(245,240,232,0.7) !important;
+  text-align:center !important;
+  letter-spacing:0.05em !important;
+  margin-bottom:10px !important;
+}
+.icp-question{
+  font-family:inherit !important;
+  font-size:16px !important;
+  line-height:1.45 !important;
+  color:#f5f0e8 !important;
+  font-weight:500 !important;
+  margin:0 0 6px 0 !important;
+  word-break:keep-all !important;
+}
+.icp-sub{
+  font-family:inherit !important;
+  font-size:12px !important;
+  line-height:1.55 !important;
+  color:rgba(245,240,232,0.85) !important;
+  margin:0 0 8px 0 !important;
+}
+.icp-divider{
+  width:30% !important;
+  height:1px !important;
+  background:rgba(245,240,232,0.3) !important;
+  margin:10px 0 !important;
+}
+.icp-listen-line{
+  font-family:inherit !important;
+  font-size:11px !important;
+  line-height:1.5 !important;
+  color:rgba(245,240,232,0.85) !important;
+  margin:0 0 4px 0 !important;
+}
+.icp-listen-msg{
+  font-family:inherit !important;
+  font-size:13px !important;
+  line-height:1.5 !important;
+  color:#f5f0e8 !important;
+  font-style:italic !important;
+  margin:0 !important;
+}
+
+/* ----- Listening MODAL — bigger icon (2.5x) ----- */
+.lm-img-wrap{
+  height:60% !important;
+  flex:0 0 60% !important;
+  position:relative !important;
+}
+.lm-img-wrap #lmImg{
+  position:absolute !important;
+  inset:0 !important;
+  width:90% !important;
+  height:95% !important;
+  margin:2.5% 5% !important;
+  object-fit:contain !important;
+  z-index:2 !important;
+  background:transparent !important;
+}
+.lm-info{
+  padding:14px 24px 20px !important;
+  flex:1 1 40% !important;
+}
+.lm-name-big{ font-size:20px !important; margin-bottom:8px !important; }
+.lm-desc-big{ font-size:13px !important; margin-bottom:14px !important; }
+.lm-select-btn{ min-height:44px !important; font-size:14px !important; }
+
+/* ----- Garden title → logo image ----- */
+#s9 .garden-header{
+  text-align:center !important;
+  padding:24px var(--page-padding) 8px !important;
+}
+.garden-title{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  margin:0 auto !important;
+  background:url("https://jj1lize-crypto.github.io/jungone/cover-logo.png") center/contain no-repeat !important;
+  width:140px !important;
+  height:48px !important;
+  font-size:0 !important;
+  color:transparent !important;
+  letter-spacing:0 !important;
+}
+.garden-sub{
+  text-align:center !important;
+  font-size:13px !important;
+  color:rgba(245,240,232,0.7) !important;
+  margin:6px 0 0 !important;
+}
+
+
 </style>
 </head>
 <body>
@@ -3454,9 +3693,9 @@ body.display-mode .app {
   <!-- ===== SCREEN 6 — CONVERSATION ===== -->
   <section class="screen" id="s6">
     <div class="progress">
-      <div class="step"><div class="bar"></div><div class="label" data-i18n="step_ask">묻기</div></div>
-      <div class="step"><div class="bar"></div><div class="label" data-i18n="step_read">읽기</div></div>
-      <div class="step active"><div class="bar"></div><div class="label" data-i18n="step_listen">듣기</div></div>
+      <div class="step complete"><div class="bar"></div><div class="label" data-i18n="step_ask">묻기</div></div>
+      <div class="step active"><div class="bar"></div><div class="label" data-i18n="step_read">읽기</div></div>
+      <div class="step"><div class="bar"></div><div class="label" data-i18n="step_listen">듣기</div></div>
       <div class="step"><div class="bar"></div><div class="label" data-i18n="step_keep">남기기</div></div>
     </div>
     <div class="s-title center" data-i18n="s6_heading">답을 떠올린 뒤,<br>듣고 싶은 방식을 골라주세요</div>
