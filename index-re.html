@@ -6,6 +6,11 @@
 <title>정원: The Garden</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://raw.githubusercontent.com">
+<link rel="preconnect" href="https://jj1lize-crypto.github.io">
+<link rel="dns-prefetch" href="https://jj1lize-crypto.github.io">
+<link rel="preload" as="image" href="https://jj1lize-crypto.github.io/jungone/cover-1920.png" fetchpriority="high">
+
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -4333,6 +4338,148 @@ body.display-mode .app {
 }
 #s7b .invite-tip br{display:inline !important;}
 
+
+/* ============================================================
+   BATCH FIXES (1-9)
+   ============================================================ */
+
+/* ---------- 1. App background image covers entire screen ---------- */
+.app{
+  background:
+    linear-gradient(rgba(243,238,228,.90), rgba(243,238,228,.90)),
+    url("https://jj1lize-crypto.github.io/jungone/cover-back-empty.png") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+}
+
+/* ---------- 3. Cover (main page only) — lang-toggle = cover-enter, both dark morphism ---------- */
+#s0 .lang-toggle,
+body:has(#s0.active) .lang-toggle{
+  background: rgba(20,20,18,0.42) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  color: #fff !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+.cover-enter{
+  background: rgba(20,20,18,0.42) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  color: #fff !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  box-shadow: none !important;
+}
+.cover-enter:hover{
+  background: rgba(20,20,18,0.6) !important;
+}
+
+/* ---------- 5. Listen modal — icon fills modal, no padding, no info bg ---------- */
+.modal.listen-modal.show .listen-modal-card,
+.listen-modal-card{
+  background:#0e0c09 !important;
+  aspect-ratio:auto !important;
+  height:auto !important;
+}
+.lm-img-wrap{
+  aspect-ratio:1/1 !important;
+  background:#0e0c09 !important;
+  position:relative !important;
+  width:100% !important;
+  overflow:hidden !important;
+}
+.lm-img-wrap .lm-back{display:none !important;}
+.lm-img-wrap #lmImg{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;          /* no padding — fills */
+  object-fit:cover !important;   /* fills the wrap fully */
+  z-index:2 !important;
+  background:transparent !important;
+}
+.lm-info{
+  background:transparent !important;   /* no background color */
+  color:#fff !important;
+  padding:16px 22px 12px !important;
+  text-align:center !important;
+}
+.lm-name-big{color:#fff !important;}
+.lm-desc-big{color:rgba(255,255,255,0.85) !important;}
+
+/* ---------- 6. invite-tip gets the s-title CSS ---------- */
+.invite-tip{
+  text-align:center !important;
+  margin:18px var(--page-padding) 16px !important;
+  font-size:clamp(15px, 4vw, 18px) !important;
+  font-weight:400 !important;
+  color:var(--ink) !important;
+  line-height:1.45 !important;
+  font-family:inherit !important;
+  font-style:normal !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  min-height:auto !important;
+}
+
+/* ---------- 7. S7b layout mirrors S6 (single column, natural flow) ---------- */
+#s7b{
+  display:none;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  padding:0 !important;
+  min-height:100svh !important;
+}
+#s7b.active{display:flex !important;}
+#s7b .invite-tip{ order:initial !important; flex:none !important; }
+#s7b .invite-card-wrap{
+  order:initial !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 var(--page-padding) !important;
+  min-height:0 !important;
+}
+#s7b .bottom{
+  order:initial !important;
+  margin-top:auto !important;
+  position:static !important;
+}
+
+/* ---------- 8. CARE & CONNECTION sub-line under 정원 초대장 ---------- */
+.icp-mark{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:3px !important;
+}
+.icp-mark-cat{
+  font-size:8.5px !important;
+  letter-spacing:0.24em !important;
+  color:rgba(245,240,232,0.6) !important;
+  text-transform:uppercase !important;
+  font-weight:400 !important;
+}
+
+/* ---------- 9. Garden stage fills garden-body height ---------- */
+.garden-stage{
+  width:100% !important;
+  height:100% !important;
+  left:0 !important;
+  top:0 !important;
+  transform:none !important;
+  position:absolute !important;
+  inset:0 !important;
+}
+
 </style>
 </head>
 <body>
@@ -4359,7 +4506,6 @@ body.display-mode .app {
       <p data-i18n="intro_p4">말문이 막히면<br>정원 카드를 펼쳐보세요.</p>
       <p data-i18n="intro_p5">말하지 않는 것도 대답이고,<br>남기지 않는 것도 선택입니다.</p>
     </div>
-    <div class="empty-space"></div>
     <div class="bottom">
       <button class="btn" data-i18n="intro_btn" onclick="go('s2')">정원 초대장 만들기 →</button>
     </div>
@@ -4374,7 +4520,6 @@ body.display-mode .app {
       <div class="step"><div class="bar"></div><div class="label" data-i18n="step_keep">남기기</div></div>
     </div>
     <div class="topic-row" id="topicRow"></div>
-    <div class="empty-space"></div>
     <div class="bottom">
       <button class="btn" id="btnS2" data-i18n="btn_next" disabled onclick="go('s3')">다음 →</button>
       <button class="btn-back" onclick="go('s1')" data-i18n="btn_back">← 뒤로</button>
@@ -4390,7 +4535,6 @@ body.display-mode .app {
       <div class="step"><div class="bar"></div><div class="label" data-i18n="step_keep">남기기</div></div>
     </div>
     <div class="qcard-row" id="qcardRow"></div>
-    <div class="empty-space"></div>
     <div class="bottom">
       <button class="btn" id="btnS3" data-i18n="btn_next" disabled onclick="go('s6')">다음 →</button>
       <button class="btn-back" onclick="go('s2')" data-i18n="btn_back">← 뒤로</button>
@@ -4419,7 +4563,6 @@ body.display-mode .app {
       </div>
       <div class="conv-listen-row" id="convListenRow"></div>
     </div>
-    <div class="empty-space"></div>
     <div class="bottom">
       <button class="btn" id="btnS6" data-i18n="s6_invite_btn" disabled onclick="createInvitation()">초대장 만들기 →</button>
       <button class="btn-back" onclick="go('s3')" data-i18n="btn_back">← 뒤로</button>
@@ -4433,7 +4576,7 @@ body.display-mode .app {
       <div class="step active"><div class="bar"></div><div class="label" data-i18n="step_listen">듣기</div></div>
       <div class="step"><div class="bar"></div><div class="label" data-i18n="step_keep">남기기</div></div>
     </div>
-    <div class="invite-tip" id="inviteTip" data-i18n="s7b_tip">정원 초대장을 보내,<br>대화를 시작해 보세요.</div>
+    <div class="s-title center invite-tip" id="inviteTip" data-i18n="s7b_tip">정원 초대장을 보내,<br>대화를 시작해 보세요.</div>
     <div class="invite-card-wrap">
       <div class="invite-card-preview" id="inviteCardPreview">
         <div class="icp-bg">
@@ -4441,7 +4584,7 @@ body.display-mode .app {
           <img class="icp-img-q" id="icpImgQ" src="" alt=""/>
         </div>
         <div class="icp-content">
-          <div class="icp-mark" data-i18n="s7b_mark">정원 초대장</div>
+          <div class="icp-mark"><span data-i18n="s7b_mark">정원 초대장</span><span class="icp-mark-cat" id="icpMarkCat">CARE & CONNECTION</span></div>
           <div class="icp-question" id="icpQ"></div>
           <div class="icp-sub" id="icpSub"></div>
           <div class="icp-divider"></div>
@@ -4478,7 +4621,6 @@ body.display-mode .app {
       <span class="file-name" id="fileName"></span>
       <button class="file-remove" onclick="clearFile()"><span data-i18n="s8_remove">× 파일 지우기</span></button>
     </div>
-    <div class="empty-space"></div>
     <div class="bottom">
       <button class="btn" onclick="plantWithTrace()" data-i18n="s7b_plant">정원에 심기 →</button>
       <button class="btn-back" onclick="go('s6')" data-i18n="btn_back">← 뒤로</button>
@@ -5429,6 +5571,9 @@ function createInvitation(){
   document.getElementById("icpSub").textContent = qData.f || "";
   document.getElementById("icpListenName").textContent = "'" + ANAMES[S.listenCard] + "'";
   document.getElementById("icpListenMsg").textContent = INVITE_MSG[S.listenCard] || ADESC[S.listenCard];
+  // Category sub-line under 정원 초대장 (topic name, uppercased)
+  const catEl = document.getElementById("icpMarkCat");
+  if(catEl) catEl.textContent = (TNAMES[t] || "").toUpperCase();
   go("s7b");
 }
 
@@ -5527,14 +5672,15 @@ window.addEventListener("DOMContentLoaded", () => {
 function fitGardenStage(){
   const stage = document.getElementById("gardenStage");
   if(!stage) return;
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  // Scale so the 1920×1080 canvas fits inside viewport (letterbox/pillarbox if needed)
-  const scale = Math.min(w / 1920, h / 1080);
-  stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  // Stage now fills .garden-body via CSS (inset:0). No transform scaling.
+  stage.style.transform = "none";
+  stage.style.left = "0";
+  stage.style.top = "0";
+  stage.style.width = "100%";
+  stage.style.height = "100%";
 }
-window.addEventListener("resize", fitGardenStage);
-window.addEventListener("orientationchange", fitGardenStage);
+window.addEventListener("resize", () => { fitGardenStage(); if(document.getElementById("s9").classList.contains("active")) buildGarden(); });
+window.addEventListener("orientationchange", () => { fitGardenStage(); if(document.getElementById("s9").classList.contains("active")) buildGarden(); });
 
 // ===== Sparkle layer (stars + fireflies) =====
 let sparklesBuilt = false;
@@ -5594,11 +5740,11 @@ function buildGarden(){
 
   const body = document.getElementById("gardenBody");
   requestAnimationFrame(() => {
-    // Use FIXED logical canvas size — all devices get identical positions
-    const W = 1920;
-    const H = 1080;
-    // Ensure the scale is applied before drawing
+    // Use the ACTUAL garden-body size so plants spread to fill the visible area
     fitGardenStage();
+    const stageEl = document.getElementById("gardenStage");
+    const W = (stageEl && stageEl.clientWidth)  || body.clientWidth  || 390;
+    const H = (stageEl && stageEl.clientHeight) || body.clientHeight || 700;
 
     // Show up to 10 plants — newest entries take priority
     const limit = 10;
@@ -5669,41 +5815,53 @@ function getPositions(n, W, H){
   // Deterministic pseudo-random per index (stable across reloads)
   function r(seed){ const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
 
-  for(let i = 0; i < n; i++){
-    // Assign layer: every 4th = bg, every other = mid, rest = trace
-    let layer;
-    const mod = i % 7;
-    if(mod === 0 || mod === 5) layer = 0;        // ~28% background
-    else if(mod === 2 || mod === 3 || mod === 6) layer = 1;  // ~43% middle
-    else layer = 2;                              // ~29% trace
+  // Approx plant footprint (px) by layer — used for overlap testing
+  const layerSize = { 0: Math.min(W,H)*0.30, 1: Math.min(W,H)*0.26, 2: Math.min(W,H)*0.22 };
+  const PAD = 0.10;  // keep within 10%..90% of canvas
 
-    let x, y;
-    if(layer === 0){
-      // Background — spread to edges, can go slightly off-screen
-      const edge = i % 4;
-      const ofs = r(i + 100);
-      if(edge === 0)      { x = W * (0.05 + 0.20 * ofs); y = H * (0.10 + 0.80 * r(i + 200)); }
-      else if(edge === 1) { x = W * (0.75 + 0.20 * ofs); y = H * (0.10 + 0.80 * r(i + 300)); }
-      else if(edge === 2) { x = W * (0.10 + 0.80 * ofs); y = H * (0.05 + 0.18 * r(i + 400)); }
-      else                { x = W * (0.10 + 0.80 * ofs); y = H * (0.78 + 0.18 * r(i + 500)); }
-    } else if(layer === 1){
-      // Middle — spread across the FULL canvas
-      x = W * (0.08 + 0.84 * r(i + 600));
-      y = H * (0.10 + 0.80 * r(i + 700));
-    } else {
-      // Trace — also spread, not central
-      x = W * (0.12 + 0.76 * r(i + 1000));
-      y = H * (0.15 + 0.70 * r(i + 1100));
+  for(let i = 0; i < n; i++){
+    // Assign layer in a stable pattern
+    const mod = i % 7;
+    let layer;
+    if(mod === 0 || mod === 5) layer = 0;
+    else if(mod === 2 || mod === 3 || mod === 6) layer = 1;
+    else layer = 2;
+
+    const size = layerSize[layer];
+    let best = null, bestDist = -1;
+
+    // Try several candidate spots; pick the one furthest from existing plants
+    // (maximizes spacing → minimizes overlap, but allows mild overlap when crowded)
+    const tries = 14;
+    for(let t = 0; t < tries; t++){
+      const cx = W * (PAD + (1 - 2*PAD) * r(i*53 + t*7 + 11));
+      const cy = H * (PAD + (1 - 2*PAD) * r(i*97 + t*13 + 29));
+      let minDist = Infinity;
+      for(const p of positions){
+        const dx = p.x - cx, dy = p.y - cy;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        // Normalize by combined sizes so big plants need more space
+        const need = (size + (layerSize[p.layer]||size)) * 0.5;
+        const ratio = d / need;
+        if(ratio < minDist) minDist = ratio;
+      }
+      if(minDist > bestDist){ bestDist = minDist; best = {x: cx, y: cy}; }
+      // Good enough spacing (centers ≥ ~0.62 of combined half-size apart → <~50% overlap)
+      if(minDist >= 0.62) break;
     }
-    // Clamp positions so the WHOLE plant stays inside the 1920×1080 canvas
-    const SAFE = 260;
-    x = Math.max(SAFE, Math.min(W - SAFE, x));
-    y = Math.max(SAFE, Math.min(H - SAFE, y));
-    // Per-plant variation — gentle, so plants don't visibly resize across views
-    const rot = (r(i + 1200) - 0.5) * 24;     // -12° ~ +12°
-    const scale = 0.95 + r(i + 1300) * 0.20;  // 0.95x ~ 1.15x (subtle)
-    const opacity = 0.85 + r(i + 1400) * 0.15; // 0.85 ~ 1.0 (subtle)
-    positions.push({x, y, layer, rot, scale, opacity});
+
+    let x = best ? best.x : W*0.5;
+    let y = best ? best.y : H*0.5;
+    // Clamp so plant stays mostly inside
+    const half = size * 0.5;
+    x = Math.max(half*0.4, Math.min(W - half*0.4, x));
+    y = Math.max(half*0.4, Math.min(H - half*0.4, y));
+
+    // Per-plant gentle variation
+    const rot = (r(i + 1200) - 0.5) * 22;
+    const scale = 0.92 + r(i + 1300) * 0.24;
+    const opacity = 0.85 + r(i + 1400) * 0.15;
+    positions.push({x, y, layer, rot, scale, opacity, size});
   }
   return positions;
 }
@@ -5789,6 +5947,52 @@ function resetAndGo(){
   S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null};
   go("s1");
 }
+
+// ===== 4. Resolution-aware, non-blocking image loading =====
+(function(){
+  // Viewport bucket → pixel budget for decoded card images
+  function bucket(){
+    const w = Math.min(window.innerWidth, window.innerHeight);
+    if (w <= 380) return "s";     // small phones
+    if (w <= 480) return "m";     // typical phones
+    if (w <= 834) return "l";     // tablets
+    return "xl";                  // desktop / TV
+  }
+  const SIZES = { s: 160, m: 220, l: 300, xl: 420 };
+
+  function tuneImg(img){
+    if(!img || img.dataset.tuned) return;
+    img.dataset.tuned = "1";
+    img.loading = "lazy";
+    img.decoding = "async";
+    // Hint intrinsic size so the browser can rasterize at a sensible scale
+    const px = SIZES[bucket()];
+    if(!img.style.contentVisibility) img.style.contentVisibility = "auto";
+    // For card/plant images we don't need full-res decode; sizes attr helps if srcset added later
+    if(!img.getAttribute("sizes")) img.setAttribute("sizes", px + "px");
+  }
+
+  // Run on any imgs already present + observe future ones (cards built dynamically)
+  function tuneAll(){
+    document.querySelectorAll(".topic-card img, .qcard img, .conv-listen-card img, .conv-card img, .icp-bg img, .seed-img img").forEach(tuneImg);
+  }
+  if(document.readyState !== "loading") tuneAll();
+  else document.addEventListener("DOMContentLoaded", tuneAll);
+
+  // MutationObserver to tune cards rendered later
+  const mo = new MutationObserver(muts => {
+    for(const m of muts){
+      for(const node of m.addedNodes){
+        if(node.nodeType === 1){
+          if(node.tagName === "IMG") tuneImg(node);
+          node.querySelectorAll && node.querySelectorAll("img").forEach(tuneImg);
+        }
+      }
+    }
+  });
+  mo.observe(document.body, { childList: true, subtree: true });
+})();
+
 </script>
 
 </body>
