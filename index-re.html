@@ -297,13 +297,17 @@ body{
 /* Question card row — Screen 3 */
 .qcard-row{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:18px;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
   margin-bottom:20px;
+  max-width:380px;
+  margin-left:auto;
+  margin-right:auto;
+  align-content:center;
 }
 .qcard{
   position:relative;
-  aspect-ratio:1/1.55;
+  aspect-ratio:1/1.4 !important;
   background:transparent;
   border:none;
   box-shadow:none;
@@ -1431,22 +1435,22 @@ body.display-mode .garden-body{margin:14px 60px 110px;}
 /* ===== Language toggle button ===== */
 .lang-toggle{
   position:fixed;
-  top:18px;
-  right:18px;
+  top:6px;
+  right:8px;
   z-index:9999;
-  background:rgba(255,255,255,0.85);
-  border:1px solid rgba(26,22,18,0.18);
+  background:rgba(255,255,255,0.7);
+  border:1px solid rgba(26,22,18,0.15);
   color:#1a1612;
   font-family:'Crimson Pro','Noto Serif KR',serif;
-  font-size:12px;
+  font-size:10.5px;
   font-weight:500;
-  padding:6px 14px;
-  border-radius:16px;
+  padding:3px 9px;
+  border-radius:12px;
   cursor:pointer;
-  letter-spacing:.12em;
+  letter-spacing:.1em;
   transition:all .2s;
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
 }
 .lang-toggle:hover{
   background:#1a1612;
@@ -1465,7 +1469,7 @@ body:has(.screen.dark-bg.active) .lang-toggle:hover{
   border-color:#f5f0e8;
 }
 @media (max-width:600px){
-  .lang-toggle{top:14px;right:14px;font-size:11px;padding:5px 12px;}
+  .lang-toggle{top:4px;right:6px;font-size:10px;padding:3px 8px;}
 }
 
 
@@ -1507,10 +1511,9 @@ html, body{height:100%;overflow:hidden;}
 #s2 .topic-row{
   display:grid !important;
   grid-template-columns:repeat(2, 1fr);
-  /* No fixed rows — each row sizes by card's aspect-ratio */
-  gap:14px;
+  gap:10px;
   width:100%;
-  max-width:480px;
+  max-width:380px;     /* slightly smaller to clear the bottom button */
   margin:auto;
   align-content:center;
 }
@@ -2000,6 +2003,169 @@ body.display-mode #s9 .garden-body{
 .garden-stage .seed.layer-mid .seed-img{width:540px !important;}
 .garden-stage .seed.layer-trace .seed-img{width:460px !important;}
 
+
+@media (max-width:600px){
+  #s2 .topic-row{max-width:320px !important; gap:8px !important;}
+  .topic-card{aspect-ratio:1/1.3 !important;}
+}
+
+/* Listen card — layered: back image fills card, content image on top */
+.conv-listen-card{
+  background:transparent !important;
+  border:none !important;
+  overflow:hidden;
+}
+.conv-listen-card .lc-back{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  padding:0 !important;
+  z-index:1 !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+  background:transparent !important;
+}
+.conv-listen-card .lc-content{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  padding:8% !important;
+  z-index:2 !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+  background:transparent !important;
+}
+/* override the older single-img rules so the bg shows through */
+.conv-listen-card > img:not(.lc-back):not(.lc-content){display:none;}
+
+
+/* ===== Invite card — clean layout, no overlap ===== */
+.invite-card-preview{
+  max-width:380px !important;
+  width:88% !important;
+  aspect-ratio:5/7 !important;
+}
+.icp-bg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+}
+.icp-content{
+  position:relative;
+  z-index:2;
+  padding:50px 22px 24px !important;  /* top space for mark, no overlap with plant */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center !important;
+  word-break:keep-all !important;
+  hyphens:none !important;
+}
+.icp-mark{
+  position:absolute;
+  top:14px; left:0; right:0;
+  text-align:center;
+  font-size:11px !important;
+  letter-spacing:.22em;
+  color:rgba(245,240,232,0.78);
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+  z-index:3;
+}
+/* Main + sub question — same font family, different sizes only */
+.icp-question, .icp-sub{
+  font-family:'Crimson Pro','Noto Serif KR',serif !important;
+  font-weight:500 !important;
+  color:#f5f0e8 !important;
+  text-align:center !important;
+  word-break:keep-all !important;
+  hyphens:none !important;
+  margin:0 0 8px 0 !important;
+}
+.icp-question{font-size:17px !important; line-height:1.45 !important;}
+.icp-sub{font-size:13px !important; line-height:1.55 !important; opacity:0.85;}
+.icp-divider{
+  width:30%;
+  height:1px;
+  background:rgba(245,240,232,0.3);
+  margin:12px 0 !important;
+}
+.icp-listen-line, .icp-listen-msg{
+  font-family:'Crimson Pro','Noto Serif KR',serif !important;
+  color:#f5f0e8 !important;
+  text-align:center !important;
+  word-break:keep-all !important;
+}
+.icp-listen-line{font-size:12px !important; line-height:1.5 !important; opacity:0.85; margin:4px 0 6px;}
+.icp-listen-msg{font-size:14px !important; line-height:1.5 !important; font-style:italic;}
+
+@media (min-width:600px){
+  .invite-card-preview{max-width:420px !important;}
+  .icp-question{font-size:19px !important;}
+  .icp-sub{font-size:14px !important;}
+  .icp-listen-msg{font-size:15px !important;}
+}
+@media (min-width:1024px){
+  .invite-card-preview{max-width:460px !important;}
+  .icp-question{font-size:22px !important;}
+  .icp-sub{font-size:16px !important;}
+  .icp-listen-msg{font-size:17px !important;}
+}
+/* Make sure card doesn't bleed under bottom button */
+@media (max-width:600px){
+  #s7b{padding-bottom:230px !important;}
+}
+
+/* S3 question cards — identical to S2 topic cards */
+@media (max-width:600px){
+  .qcard-row{max-width:320px !important; gap:8px !important;}
+  .qcard{aspect-ratio:1/1.3 !important;}
+}
+
+/* Invite card never overlaps the bottom buttons */
+.invite-card-wrap{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  padding:8px 0;
+  min-height:0;
+}
+.invite-card-preview{
+  max-height:calc(100dvh - 320px) !important;  /* leave room for buttons + tip */
+  /* width follows aspect-ratio (5/7) from the existing max-height cap */
+}
+@media (max-width:600px){
+  .invite-card-preview{
+    max-width:300px !important;
+    width:80% !important;
+    max-height:calc(100dvh - 280px) !important;
+  }
+  #s7b{padding-bottom:270px !important;}
+  .invite-tip{font-size:11px !important; padding:4px 8px !important;}
+}
+@media (min-width:600px){
+  .invite-card-preview{max-height:calc(100dvh - 340px) !important;}
+}
+@media (min-width:1024px){
+  .invite-card-preview{max-height:calc(100dvh - 380px) !important;}
+}
+
+/* Invisible placeholders so 2 question cards match 4 topic cards' grid positions */
+.qcard-placeholder{
+  aspect-ratio:1/1.4;
+  visibility:hidden;
+  pointer-events:none;
+}
+@media (max-width:600px){
+  .qcard-placeholder{aspect-ratio:1/1.3;}
+}
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -2104,7 +2270,7 @@ body.display-mode #s9 .garden-body{
           <div class="icp-question" id="icpQ"></div>
           <div class="icp-sub" id="icpSub"></div>
           <div class="icp-divider"></div>
-          <div class="icp-listen-line"><span data-i18n="s7b_listen_a">초대하신 분이 </span><span class="icp-listen-name" id="icpListenName"></span><span data-i18n="s7b_listen_b">을(를)<br>선택했어요.</span></div>
+          <div class="icp-listen-line"><span data-i18n="s7b_listen_intro">Today's listening mode is </span><span class="icp-listen-name" id="icpListenName"></span><span data-i18n="s7b_listen_period">.</span></div>
           <div class="icp-listen-msg" id="icpListenMsg"></div>
         </div>
       </div>
@@ -2523,12 +2689,12 @@ const I18N = {
     s8_remove: "× 파일 지우기",
     s8_plant: "정원에 심기 →",
     garden_title: "정원: The Garden",
-    garden_sub_tpl: "{n}개의 흔적이 정원에 자라고 있어요",
+    garden_sub_tpl: "{n}개의 식물",
     garden_reset: "또 가꾸러 가볼까요?",
     garden_hint: "가족이 흔적을 심으면, 여기에 자라납니다.",
     s7b_mark: "정원 초대장",
-    s7b_listen_a: "초대하신 분이 ",
-    s7b_listen_b: "을(를)<br>선택했어요.",
+    s7b_listen_intro: "오늘의 듣기 방식은 ",
+    s7b_listen_period: ".",
     s7b_save: "이미지로 저장하기",
     s7b_plant: "정원에 심기 →",
     s7b_tip: "이 카드를 가족에게 보내주세요.",
@@ -2577,12 +2743,12 @@ const I18N = {
     s8_remove: "× Remove file",
     s8_plant: "Plant in garden →",
     garden_title: "JUNG ONE: The Garden",
-    garden_sub_tpl: "{n} traces growing in the garden",
+    garden_sub_tpl: "{n} plants growing",
     garden_reset: "Tend again?",
     garden_hint: "When family plants a trace, it grows here.",
     s7b_mark: "Garden invitation",
-    s7b_listen_a: "Your inviter chose ",
-    s7b_listen_b: "<br>as how to listen today.",
+    s7b_listen_intro: "Today's listening mode is ",
+    s7b_listen_period: ".",
     s7b_save: "Save as image",
     s7b_plant: "Plant in garden →",
     s7b_tip: "Send this card to your family.",
@@ -2818,7 +2984,7 @@ function buildQuestionChoices(){
       const j = Math.floor(Math.random()*(i+1));
       [indices[i],indices[j]] = [indices[j],indices[i]];
     }
-    S.qChoicesByTopic[S.topic] = indices.slice(0,3);
+    S.qChoicesByTopic[S.topic] = indices.slice(0,2);
   }
   S.qChoices = S.qChoicesByTopic[S.topic];
 
@@ -2842,6 +3008,15 @@ function buildQuestionChoices(){
     };
     row.appendChild(c);
   });
+
+  // Add 2 invisible placeholders so the 2 cards sit in the EXACT same
+  // grid positions as the top row of S2's 4-card layout
+  for(let i = 0; i < 2; i++){
+    const ph = document.createElement("div");
+    ph.className = "qcard-placeholder";
+    ph.setAttribute("aria-hidden", "true");
+    row.appendChild(ph);
+  }
 
   // Enable Next if previously selected card is in current choices
   if(previouslySelected !== null && S.qChoices.includes(previouslySelected)){
@@ -2883,7 +3058,7 @@ function buildConvListen(){
     c.className = "conv-listen-card";
     if(S.listenCard === key) c.classList.add("on");
     c.onclick = () => openListenModal(key);
-    c.innerHTML = `<img src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
+    c.innerHTML = `<img class="lc-back" src="${BASE}listencard-front.png" alt=""/><img class="lc-content" src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
     row.appendChild(c);
   });
   updateInviteBtn();
@@ -3093,10 +3268,15 @@ function downloadInvitation(){
     backgroundColor: "#0e0c09",
     scale: scale,
     useCORS: true,
-    allowTaint: true,
+    allowTaint: false,        /* avoid tainting canvas */
     logging: false,
-    imageTimeout: 0,
-    foreignObjectRendering: false
+    imageTimeout: 15000,
+    foreignObjectRendering: false,
+    onclone: (clonedDoc) => {
+      // Force images to load fresh in clone
+      const imgs = clonedDoc.querySelectorAll("#inviteCardPreview img");
+      imgs.forEach(img => { img.crossOrigin = "anonymous"; });
+    }
   }).then(canvas => {
     const link = document.createElement("a");
     link.download = t("download_filename");
