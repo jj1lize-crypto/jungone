@@ -4518,6 +4518,23 @@ body:has(#s0.active) .lang-toggle{
 }
 #s8 .trace-textarea{ margin-top:40px !important; }
 
+
+/* ===== Index re 03 — S8 strong center fit ===== */
+#s8 .trace-textarea,
+#s8 .upload-box,
+#s8 .upload-preview,
+#s8 .trace-counter,
+#s8 .divider{
+  box-sizing:border-box !important;
+  width:calc(100% - 2 * var(--page-padding)) !important;
+  max-width:calc(100% - 2 * var(--page-padding)) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+#s8 .divider{ display:flex !important; }
+#s8 .upload-preview{ display:none !important; }
+#s8 .upload-preview.show{ display:block !important; }
+
 </style>
 </head>
 <body>
@@ -5758,7 +5775,7 @@ function buildSparkles(){
       f.style.left = (2 + srand(i + 501) * 96) + "%";
       f.style.top  = (2 + srand(i + 502) * 96) + "%";
       f.style.animationDelay = (srand(i + 503) * 6) + "s, " + (srand(i + 504) * 4) + "s";
-      const drift = 14 + srand(i + 505) * 14;
+      const drift = 30 + srand(i + 505) * 24;   // 30s–54s (much slower drift)
       const glow  = 3.5 + srand(i + 506) * 3;
       f.style.animationDuration = drift + "s, " + glow + "s";
       flies.appendChild(f);
