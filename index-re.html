@@ -4032,6 +4032,307 @@ body.display-mode .app {
   order:2 !important;
 }
 
+
+/* ============================================================
+   FIX — conv-card text bottom + listen modal button works
+   ============================================================ */
+
+/* S6 main conv-card — main question + sub question at the BOTTOM of the card */
+#s6 .conv-card{
+  position:relative !important;
+  background:#0e0c09 !important;
+  overflow:hidden !important;
+}
+#s6 .conv-card .rc-bg{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:1 !important;
+}
+#s6 .conv-card .rc-bg .img-t{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+  z-index:1 !important;
+  padding:0 !important;
+}
+#s6 .conv-card .rc-bg .img-q{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  padding:8% 8% 32% !important;     /* leave room at bottom for text */
+  opacity:0.95 !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+  z-index:2 !important;
+}
+#s6 .conv-card .rc-text{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  top:auto !important;
+  width:auto !important;
+  height:auto !important;
+  padding:12px 12px 14px !important;
+  z-index:4 !important;
+  text-align:center !important;
+  color:#f5f0e8 !important;
+  background:linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.92) 100%) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:4px !important;
+}
+#s6 .conv-card .rc-q{
+  display:block !important;
+  font-family:inherit !important;
+  font-size:12.5px !important;
+  font-weight:500 !important;
+  line-height:1.35 !important;
+  color:#f5f0e8 !important;
+  text-shadow:0 1px 4px rgba(0,0,0,0.7) !important;
+  margin:0 !important;
+  text-align:center !important;
+  word-break:keep-all !important;
+}
+#s6 .conv-card .rc-sub{
+  display:block !important;
+  font-family:inherit !important;
+  font-size:10.5px !important;
+  font-weight:400 !important;
+  line-height:1.4 !important;
+  color:#e8dfd0 !important;
+  font-style:italic !important;
+  text-shadow:0 1px 3px rgba(0,0,0,0.6) !important;
+  margin:0 !important;
+  text-align:center !important;
+  word-break:keep-all !important;
+}
+#s6 .conv-card .rc-aside{display:none !important;}
+
+/* Conv-card slightly larger to fit both texts comfortably */
+.conv-stage .conv-card{
+  width:60% !important;
+  max-width:220px !important;
+  aspect-ratio:5/7 !important;
+}
+
+/* ============================================================
+   LISTEN MODAL — button works (no absolute positioning that misses clicks)
+   ============================================================ */
+.listen-modal-card{
+  width:min(84vw, 340px) !important;
+  max-width:340px !important;
+  aspect-ratio:auto !important;       /* let it size to its content */
+  height:auto !important;
+  max-height:90vh !important;
+  padding:0 !important;
+  background:#0e0c09 !important;       /* Hanji black box style */
+  color:#fff !important;
+  position:relative !important;
+  border:1px solid rgba(245,240,232,0.15) !important;
+  border-radius:8px !important;
+  overflow:hidden !important;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+}
+/* Use listen-card back as IMAGE WRAP background (not the whole card) */
+.lm-img-wrap{
+  position:relative !important;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:1/1.05 !important;
+  flex:0 0 auto !important;
+  background:#0e0c09 url("https://jj1lize-crypto.github.io/jungone/listencard-back-empty.png") center/cover no-repeat !important;
+  overflow:hidden;
+}
+.lm-img-wrap .lm-back{display:none !important;}
+.lm-img-wrap #lmImg{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:8% !important;
+  box-sizing:border-box !important;
+  object-fit:contain !important;
+  z-index:2 !important;
+  background:transparent !important;
+}
+.lm-info{
+  position:relative !important;
+  width:100% !important;
+  height:auto !important;
+  flex:0 0 auto !important;
+  background:#0e0c09 !important;
+  color:#fff !important;
+  padding:16px 22px 12px !important;
+  text-align:center !important;
+}
+.lm-name-big{ font-size:18px !important; font-weight:600 !important; margin-bottom:8px !important; color:#fff !important;}
+.lm-desc-big{ font-size:13px !important; color:rgba(255,255,255,0.85) !important; line-height:1.55 !important; margin-bottom:0 !important;}
+/* Select button — Hanji v1 style, INSIDE the card naturally */
+.lm-select-btn{
+  position:relative !important;
+  display:block !important;
+  width:calc(100% - 32px) !important;
+  max-width:none !important;
+  margin:8px 16px 16px !important;
+  min-height:46px !important;
+  border:none !important;
+  border-radius:6px !important;
+  background:var(--paper) !important;
+  color:var(--ink) !important;
+  font-family:inherit !important;
+  font-size:15px !important;
+  font-weight:500 !important;
+  cursor:pointer !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  top:auto !important;
+  transform:none !important;
+  z-index:auto !important;
+}
+.lm-select-btn:hover{ opacity:0.9; }
+
+
+/* ============================================================
+   FINAL — S7b bottom actions anchored at the page bottom
+   Override all previous padding-bottom hacks and fixed positioning.
+   ============================================================ */
+
+/* Cancel any leftover padding-bottom from earlier layouts */
+#s7b{padding-bottom:0 !important;}
+@media (max-width:600px){
+  #s7b{padding-bottom:0 !important;}
+}
+
+/* Force flex column on the screen so .bottom can sit at the very end */
+#s7b{
+  display:none;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+  align-items:stretch !important;
+  padding:0 !important;
+  min-height:100svh !important;
+}
+#s7b.active{display:flex !important;}
+
+/* Tip — top (right under the progress bar) */
+#s7b .invite-tip{
+  flex:0 0 auto !important;
+  order:1 !important;
+  margin:14px var(--page-padding) 8px !important;
+}
+
+/* Card wrap — fills middle, card anchored to its bottom */
+#s7b .invite-card-wrap{
+  flex:1 1 auto !important;
+  order:2 !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  justify-content:center !important;
+  padding:8px var(--page-padding) 8px !important;
+  min-height:0 !important;
+}
+
+/* Bottom action area — natural last child, fully visible at the page bottom */
+#s7b .bottom{
+  flex:0 0 auto !important;
+  order:3 !important;
+  position:static !important;
+  margin-top:auto !important;
+  padding:14px var(--page-padding) calc(24px + env(safe-area-inset-bottom)) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+  background:transparent !important;
+  width:100% !important;
+  max-width:none !important;
+  left:auto !important;
+  transform:none !important;
+}
+
+/* Each button — equal width, equal style stack */
+#s7b .bottom > .btn,
+#s7b .bottom > .btn-outline{
+  width:100% !important;
+  margin:0 !important;
+  min-height:54px !important;
+  font-size:16px !important;
+}
+#s7b .bottom > .btn-back{
+  width:auto !important;
+  margin:6px auto 0 !important;
+  align-self:center !important;
+  min-height:auto !important;
+}
+
+/* Drop the empty-space spacer that was sitting between card and buttons */
+#s7b .empty-space{display:none !important;}
+
+
+/* ============================================================
+   FIX — Invite tip styled exactly like S6's "답을 떠올린 뒤" heading
+   ============================================================ */
+#s7b .invite-tip{
+  text-align:center !important;
+  margin:18px var(--page-padding) 16px !important;   /* same as .s-title */
+  font-size:clamp(15px, 4vw, 18px) !important;       /* same as .s-title */
+  font-weight:400 !important;                        /* same as .s-title */
+  color:var(--ink) !important;                       /* same as .s-title */
+  line-height:1.45 !important;                       /* same as .s-title */
+  font-family:inherit !important;
+  font-style:normal !important;                      /* NOT italic */
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  min-height:auto !important;
+  flex:0 0 auto !important;
+  order:1 !important;
+}
+
+
+/* ============================================================
+   FIX — Invite tip sits between the progress bar and the card,
+   not pressed against the progress bar
+   ============================================================ */
+#s7b .invite-tip{
+  margin-top:42px !important;
+  margin-bottom:22px !important;
+  margin-left:var(--page-padding) !important;
+  margin-right:var(--page-padding) !important;
+}
+@media (max-width:480px){
+  #s7b .invite-tip{
+    margin-top:38px !important;
+    margin-bottom:18px !important;
+  }
+}
+
+
+/* ============================================================
+   FIX — Invite tip truly centered in viewport
+   ============================================================ */
+#s7b .invite-tip{
+  display:block !important;
+  width:auto !important;
+  align-self:stretch !important;
+  text-align:center !important;
+  margin-left:var(--page-padding) !important;
+  margin-right:var(--page-padding) !important;
+}
+#s7b .invite-tip br{display:inline !important;}
+
 </style>
 </head>
 <body>
@@ -4132,7 +4433,7 @@ body.display-mode .app {
       <div class="step active"><div class="bar"></div><div class="label" data-i18n="step_listen">듣기</div></div>
       <div class="step"><div class="bar"></div><div class="label" data-i18n="step_keep">남기기</div></div>
     </div>
-    <div class="invite-tip" id="inviteTip" data-i18n="s7b_tip">이 카드를 가족에게 보내 대화에 초대해보세요.</div>
+    <div class="invite-tip" id="inviteTip" data-i18n="s7b_tip">정원 초대장을 보내,<br>대화를 시작해 보세요.</div>
     <div class="invite-card-wrap">
       <div class="invite-card-preview" id="inviteCardPreview">
         <div class="icp-bg">
@@ -4141,7 +4442,6 @@ body.display-mode .app {
         </div>
         <div class="icp-content">
           <div class="icp-mark" data-i18n="s7b_mark">정원 초대장</div>
-          <div class="icp-heading-line" data-i18n="s6_heading">답을 떠올린 뒤,<br>듣고 싶은 방식을 골라주세요</div>
           <div class="icp-question" id="icpQ"></div>
           <div class="icp-sub" id="icpSub"></div>
           <div class="icp-divider"></div>
@@ -4572,7 +4872,7 @@ const I18N = {
     s7b_listen_period: ".",
     s7b_save: "이미지로 저장하기",
     s7b_plant: "정원에 심기 →",
-    s7b_tip: "이 카드를 가족에게 보내 대화에 초대해보세요.",
+    s7b_tip: "정원 초대장을 보내,<br>대화를 시작해 보세요.",
     s7b_saving: "이미지 만드는 중…",
     s7b_saved_ok: "✓ 저장되었어요. 가족에게 이미지를 보내주세요.",
     s7b_save_fail: "저장에 실패했어요. 스크린샷으로 저장해 주세요.",
@@ -4627,7 +4927,7 @@ const I18N = {
     s7b_listen_period: ".",
     s7b_save: "Save as image",
     s7b_plant: "Plant in garden →",
-    s7b_tip: "Send this card to your family and invite them in.",
+    s7b_tip: "Send a garden invitation,<br>start a conversation.",
     s7b_saving: "Creating image…",
     s7b_saved_ok: "✓ Saved. Send the image to your family.",
     s7b_save_fail: "Save failed. Please screenshot instead.",
