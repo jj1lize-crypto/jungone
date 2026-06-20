@@ -2008,9 +2008,9 @@ body.display-mode #s9 .garden-body{
 
 /* OVERRIDE — plant sizes in the canvas use FIXED pixels (1920×1080 logical),
    never vw — so plants don't get clipped on small viewports */
-.garden-stage .seed.layer-bg .seed-img{width:520px !important;}
-.garden-stage .seed.layer-mid .seed-img{width:460px !important;}
-.garden-stage .seed.layer-trace .seed-img{width:400px !important;}
+.garden-stage .seed.layer-bg .seed-img{width:clamp(120px, 30vw, 360px) !important;}
+.garden-stage .seed.layer-mid .seed-img{width:clamp(105px, 26vw, 320px) !important;}
+.garden-stage .seed.layer-trace .seed-img{width:clamp(90px, 22vw, 280px) !important;}
 
 
 @media (max-width:600px){
@@ -4480,6 +4480,44 @@ body:has(#s0.active) .lang-toggle{
   inset:0 !important;
 }
 
+
+/* ===== Index re 03 — Listen modal icon slightly smaller ===== */
+.lm-img-wrap{
+  aspect-ratio:1/0.92 !important;   /* shorter than before */
+}
+.lm-img-wrap #lmImg{
+  width:86% !important;
+  height:86% !important;
+  margin:7% !important;
+  padding:0 !important;
+  object-fit:contain !important;     /* show full icon, smaller */
+}
+
+
+/* ===== Index re 03 — S8 content lower, clear of EN/KR toggle ===== */
+#s8{ padding:0 !important; }
+#s8 .trace-textarea{
+  margin-top:30px !important;   /* gap below the toggle/top */
+}
+#s8 .progress{
+  margin-bottom:6px !important;
+}
+/* If there's no progress visible at very top, give explicit top spacing */
+#s8 > .trace-textarea:first-child{
+  margin-top:56px !important;
+}
+
+
+#s8 .trace-textarea,
+#s8 .trace-counter,
+#s8 .divider,
+#s8 .upload-box,
+#s8 .upload-preview{
+  margin-left:var(--page-padding) !important;
+  margin-right:var(--page-padding) !important;
+}
+#s8 .trace-textarea{ margin-top:40px !important; }
+
 </style>
 </head>
 <body>
@@ -5006,7 +5044,7 @@ const I18N = {
     s8_remove: "× 파일 지우기",
     s8_plant: "정원에 심기 →",
     garden_title: "정원: The Garden",
-    garden_sub_tpl: "{n}개의 식물",
+    garden_sub_tpl: "Z1의 {n}개의 식물",
     garden_reset: "또 가꾸러 가볼까요?",
     garden_hint: "가족이 흔적을 심으면, 여기에 자라납니다.",
     s7b_mark: "정원 초대장",
@@ -5061,7 +5099,7 @@ const I18N = {
     s8_remove: "× Remove file",
     s8_plant: "Plant in garden →",
     garden_title: "JUNG ONE: The Garden",
-    garden_sub_tpl: "{n} plants growing",
+    garden_sub_tpl: "Z1's {n} plants",
     garden_reset: "Tend again?",
     garden_hint: "When family plants a trace, it grows here.",
     s7b_mark: "Garden invitation",
@@ -5816,7 +5854,7 @@ function getPositions(n, W, H){
   function r(seed){ const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
 
   // Approx plant footprint (px) by layer — used for overlap testing
-  const layerSize = { 0: Math.min(W,H)*0.30, 1: Math.min(W,H)*0.26, 2: Math.min(W,H)*0.22 };
+  const layerSize = { 0: Math.min(W,H)*0.22, 1: Math.min(W,H)*0.19, 2: Math.min(W,H)*0.16 };
   const PAD = 0.10;  // keep within 10%..90% of canvas
 
   for(let i = 0; i < n; i++){
