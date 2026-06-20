@@ -1587,14 +1587,17 @@ html, body{height:100%;overflow:hidden;}
 
 /* ===== S3: Question cards fit screen ===== */
 #s3 .qcard-row{
-  flex:1;
-  min-height:0;
-  align-items:center;
-  max-height:60vh;
+  display:grid !important;
+  grid-template-columns:repeat(2, 1fr);
+  gap:10px;
+  width:100%;
+  max-width:380px;     /* identical to #s2 .topic-row */
+  margin:auto;
+  align-content:center;
 }
 .qcard{
-  height:auto;
-  max-height:100%;
+  width:100%;
+  /* aspect-ratio (1/1.4) drives the card height — no max-height clamp */
 }
 
 /* ===== S6: Listening cards larger — works on all devices ===== */
@@ -1997,10 +2000,11 @@ body.display-mode #s9 .garden-body{
   height:100%;
 }
 
-/* OVERRIDE — plant sizes in the canvas use fixed pixels (1920×1080 logical) */
-.garden-stage .seed.layer-bg .seed-img{width:620px !important;}
-.garden-stage .seed.layer-mid .seed-img{width:540px !important;}
-.garden-stage .seed.layer-trace .seed-img{width:460px !important;}
+/* OVERRIDE — plant sizes in the canvas use FIXED pixels (1920×1080 logical),
+   never vw — so plants don't get clipped on small viewports */
+.garden-stage .seed.layer-bg .seed-img{width:520px !important;}
+.garden-stage .seed.layer-mid .seed-img{width:460px !important;}
+.garden-stage .seed.layer-trace .seed-img{width:400px !important;}
 
 
 @media (max-width:600px){
@@ -2120,11 +2124,6 @@ body.display-mode #s9 .garden-body{
   #s7b{padding-bottom:230px !important;}
 }
 
-/* S3 question cards — identical to S2 topic cards */
-@media (max-width:600px){
-  .qcard-row{max-width:320px !important; gap:8px !important;}
-  .qcard{aspect-ratio:1/1.3 !important;}
-}
 
 /* Invite card never overlaps the bottom buttons */
 .invite-card-wrap{
@@ -2168,11 +2167,11 @@ body.display-mode #s9 .garden-body{
 
 /* Listen card icon higher up; name strip stays at bottom */
 .conv-listen-card .lc-content{
-  top:0 !important;
+  top:6% !important;
   bottom:auto !important;
-  height:70% !important;       /* icon occupies top 70% */
-  padding:8% 12% 4% !important; /* extra bottom-room from name strip */
-  object-position:center top !important;
+  height:74% !important;        /* icon bigger, ends above name strip */
+  padding:2% 4% !important;     /* less padding so icon shows larger */
+  object-position:center center !important;
 }
 .conv-listen-card .lc-name{
   top:auto !important;
@@ -2228,6 +2227,193 @@ body.display-mode #s9 .garden-body{
   justify-content:center;
   z-index:4;
 }
+
+@media (max-width:600px){
+  #s3 .qcard-row{max-width:320px !important; gap:8px !important;}
+  .qcard{aspect-ratio:1/1.3 !important;}
+}
+
+/* Listen modal — layered image (back fills card, icon big and centered) */
+.lm-img-wrap{
+  position:relative !important;
+  background:transparent !important;
+  overflow:hidden;
+}
+.lm-img-wrap .lm-back{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  z-index:1;
+}
+.lm-img-wrap #lmImg{
+  position:relative !important;
+  width:78% !important;
+  height:78% !important;
+  margin:11% auto !important;
+  display:block !important;
+  object-fit:contain !important;
+  z-index:2 !important;
+  background:transparent !important;
+}
+
+/* Invite card — full sanity layout */
+#s7b{
+  display:none;
+  justify-content:center !important;
+  align-items:center !important;
+  text-align:center !important;
+}
+#s7b.active{display:flex;}
+.invite-card-wrap{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  padding:60px 8px 12px;
+  min-height:0;
+}
+.invite-card-preview{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.icp-bg{
+  position:absolute !important;
+  inset:0 !important;
+  z-index:1 !important;
+  border-radius:inherit;
+  overflow:hidden;
+}
+.icp-bg img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+}
+.icp-img-t{ object-fit:cover !important; z-index:1 !important; }
+.icp-img-q{ object-fit:contain !important; padding:6% !important; z-index:2 !important; }
+/* Dark overlay (the layer that was sitting on top of plant) — push it BELOW content but ABOVE images */
+.icp-overlay, .icp-bg::after{
+  position:absolute !important;
+  inset:0 !important;
+  background:linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.75) 100%) !important;
+  z-index:3 !important;
+  pointer-events:none;
+}
+.icp-content{
+  position:relative !important;
+  z-index:5 !important;       /* text always on TOP */
+  text-align:center !important;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;     /* fully centered */
+  padding:50px 22px 30px !important;
+}
+.icp-mark{
+  position:absolute !important;
+  top:14px; left:0; right:0;
+  z-index:6 !important;
+}
+
+
+.invite-card-preview .icp-bg::after{
+  content:"";
+}
+
+/* ===== Subtle texture on background (cover-back-empty.png) ===== */
+.app::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:url("https://jj1lize-crypto.github.io/jungone/cover-back-empty.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  opacity:0.25;
+  pointer-events:none;
+  z-index:0;
+  mix-blend-mode:multiply;
+}
+.screen{position:relative; z-index:1;}
+/* Garden screen overrides — texture stays off so the black sky is pure */
+.screen.dark-bg::before, body:has(.screen.dark-bg.active) .app::before{display:none;}
+
+
+/* ===== S0 Cover screen ===== */
+#s0{
+  position:relative;
+  padding:0 !important;
+  overflow:hidden;
+}
+.cover-bg{
+  position:absolute;
+  inset:0;
+  background-image:url("https://jj1lize-crypto.github.io/jungone/cover-1920.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  z-index:1;
+}
+.cover-vignette{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(
+    ellipse at center,
+    rgba(0,0,0,0.0) 25%,
+    rgba(0,0,0,0.35) 60%,
+    rgba(0,0,0,0.85) 100%
+  );
+  z-index:2;
+  pointer-events:none;
+}
+.cover-center{
+  position:relative;
+  z-index:3;
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:40px;
+  padding:60px 24px;
+}
+.cover-logo{
+  width:clamp(220px, 40vw, 460px);
+  height:auto;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,0.55));
+}
+.cover-enter{
+  background:rgba(245,240,232,0.96) !important;
+  color:#1a1612 !important;
+  border:none;
+  font-size:clamp(14px, 1.8vw, 18px) !important;
+  padding:14px 32px !important;
+  border-radius:30px;
+  letter-spacing:.04em;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  transition:transform .15s, background .15s;
+}
+.cover-enter:hover{
+  background:#fff !important;
+  transform:translateY(-1px);
+}
+/* No fixed bottom button or progress bar on cover */
+#s0 .bottom{display:none;}
+@media (max-width:600px){
+  .cover-center{gap:28px;}
+  .cover-logo{width:clamp(180px, 60vw, 320px);}
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -2238,8 +2424,17 @@ body.display-mode #s9 .garden-body{
 <div class="app" id="app">
 
   <!-- ===== SCREEN 1 — INTRO ===== -->
-  <section class="screen active" id="s1">
-    <div class="intro-title" data-i18n="intro_title">정원: The Garden</div>
+  <!-- ===== SCREEN 0 — COVER (logo + enter button) ===== -->
+  <section class="screen active" id="s0">
+    <div class="cover-bg" aria-hidden="true"></div>
+    <div class="cover-vignette" aria-hidden="true"></div>
+    <div class="cover-center">
+      <img class="cover-logo" src="https://jj1lize-crypto.github.io/jungone/cover-logo.png" alt="JungOne · The Garden"/>
+      <button class="cover-enter btn" onclick="go('s1')" data-i18n="cover_enter">정원 들어가기 →</button>
+    </div>
+  </section>
+
+  <section class="screen" id="s1">
     <div class="intro-prose">
       <p data-i18n="intro_p1">가족의 대화를<br>작은 정원처럼 가꿉니다.</p>
       <p data-i18n="intro_p2">고치거나 설득하기보다,<br>필요한 거리를 함께 맞추는 일.</p>
@@ -2406,6 +2601,7 @@ body.display-mode #s9 .garden-body{
 <div class="modal listen-modal" id="listenModal" onclick="closeListenModal()">
   <div class="listen-modal-card" onclick="event.stopPropagation();">
     <div class="lm-img-wrap">
+      <img class="lm-back" id="lmBack" src="" alt=""/>
       <img id="lmImg" src="" alt=""/>
     </div>
     <div class="lm-info">
@@ -2569,7 +2765,7 @@ const ADESC_BY_LANG = {
   ko: {
   a01: "지금은 해결책이 필요하지 않아요. 그냥 들어주세요.",
   a02: "걱정은 고맙지만, 질문이 많으면 부담이 될 수 있어요.",
-  a03: "비슷한 경험을 하신다면, 조언이나 비교가 아닌 간략하게 공유해 주시기 바랍니다.",
+  a03: "비슷한 경험을 하셨다면, 조언은 빼고 간략하게 공유만 해 주세요.",
   a04: "지금은 조언보다 들어주는 것이 필요해요. 도움이 필요하면 제가 물어볼게요.",
   a05: "비교하거나 바로잡기보다, 먼저 있는 그대로 들어주세요.",
   a06: "오늘은 여기까지만 나누고 싶어요. 나중에 준비되면 다시 이야기할게요."
@@ -2577,7 +2773,7 @@ const ADESC_BY_LANG = {
   en: {
   a01: "I don't need a solution right now. Just listen.",
   a02: "I appreciate your care, but too many questions starts to feel heavy.",
-  a03: "If you've had a similar experience, share it briefly — not as advice or comparison.",
+  a03: "If you've felt something similar, please share it briefly — no advice needed.",
   a04: "Right now I need listening, not advice. I'll ask if I need help.",
   a05: "Before comparing or correcting, just hear it as it is.",
   a06: "I'd like to stop here for today. We can come back to it when I'm ready."
@@ -2702,7 +2898,7 @@ const INVITE_MSG_BY_LANG = {
     a03: "비슷한 경험을 짧게 나눠주세요.",
     a04: "조언보다 듣기가 필요해요.",
     a05: "판단 없이 있는 그대로 들어주세요.",
-    a06: "오늘은 여기까지 함께해요."
+    a06: "오늘은 이정도만 말할게요."
   },
   en: {
     a01: "Please just listen with respect.",
@@ -2710,7 +2906,7 @@ const INVITE_MSG_BY_LANG = {
     a03: "Share briefly, don't compare.",
     a04: "Listening matters more than advice.",
     a05: "Listen without judgement, as it is.",
-    a06: "Let's pause here for today."
+    a06: "This is enough for today, thank you."
   }
 };
 
@@ -2726,6 +2922,7 @@ let INVITE_MSG = INVITE_MSG_BY_LANG[CURRENT_LANG];
 // ===== I18N for UI strings =====
 const I18N = {
   ko: {
+    cover_enter: "정원 들어가기 →",
     intro_title: "정원: The Garden",
     intro_p1: "가족의 대화를<br>작은 정원처럼 가꿉니다.",
     intro_p2: "고치거나 설득하기보다,<br>필요한 거리를 함께 맞추는 일.",
@@ -2780,6 +2977,7 @@ const I18N = {
     download_filename: "jungone-초대장.png"
   },
   en: {
+    cover_enter: "Enter the Garden →",
     intro_title: "JUNG ONE: The Garden",
     intro_p1: "Tending family conversations<br>like a small garden.",
     intro_p2: "Rather than fixing or convincing,<br>finding the right distance together.",
@@ -3120,7 +3318,7 @@ function buildConvListen(){
     c.className = "conv-listen-card";
     if(S.listenCard === key) c.classList.add("on");
     c.onclick = () => openListenModal(key);
-    c.innerHTML = `<img class="lc-back" src="${BASE}listencard-front.png" alt=""/><img class="lc-content" src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
+    c.innerHTML = `<img class="lc-back" src="${BASE}listencard-front-empty.png" alt=""/><img class="lc-content" src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
     row.appendChild(c);
   });
   updateInviteBtn();
@@ -3129,6 +3327,7 @@ function buildConvListen(){
 let _currentModalKey = null;
 function openListenModal(key){
   _currentModalKey = key;
+  document.getElementById("lmBack").src = BASE + "listencard-back-empty.png";
   document.getElementById("lmImg").src = ASRCS[key];
   document.getElementById("lmName").textContent = ANAMES[key];
   document.getElementById("lmDesc").textContent = ADESC[key];
@@ -3456,8 +3655,8 @@ function buildSparkles(){
     for(let i = 0; i < 22; i++){  // more fireflies, spread across whole canvas
       const f = document.createElement("div");
       f.className = "firefly";
-      f.style.left = (8 + srand(i + 501) * 84) + "%";
-      f.style.top  = (12 + srand(i + 502) * 76) + "%";
+      f.style.left = (2 + srand(i + 501) * 96) + "%";
+      f.style.top  = (2 + srand(i + 502) * 96) + "%";
       f.style.animationDelay = (srand(i + 503) * 6) + "s, " + (srand(i + 504) * 4) + "s";
       const drift = 14 + srand(i + 505) * 14;
       const glow  = 3.5 + srand(i + 506) * 3;
@@ -3583,8 +3782,8 @@ function getPositions(n, W, H){
       x = cx + Math.cos(ang) * rad;
       y = cy + Math.sin(ang) * rad * 0.85;
     }
-    // Clamp to keep plant fully inside canvas (account for ~half plant size)
-    const SAFE = 280;
+    // Clamp positions so the WHOLE plant stays inside the 1920×1080 canvas
+    const SAFE = 260;
     x = Math.max(SAFE, Math.min(W - SAFE, x));
     y = Math.max(SAFE, Math.min(H - SAFE, y));
     // Per-plant variation — gentle, so plants don't visibly resize across views
