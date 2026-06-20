@@ -1699,7 +1699,9 @@ html, body{height:100%;overflow:hidden;}
   width:100%;
   height:100%;
   object-fit:contain;
-  padding:0;  /* full bleed — plant fills entire card */
+  padding:0;
+  transform:scale(1.35);  /* scale up so plant fills the tall card */
+  transform-origin:center;
   z-index:2;
 }
 /* Hide any old <img> directly under .qcard that's not qc-front/qc-plant */
@@ -2166,6 +2168,53 @@ body.display-mode #s9 .garden-body{
 @media (max-width:600px){
   .qcard-placeholder{aspect-ratio:1/1.3;}
 }
+
+/* Listen card icon higher up; name strip stays at bottom */
+.conv-listen-card .lc-content{
+  top:0 !important;
+  bottom:auto !important;
+  height:70% !important;       /* icon occupies top 70% */
+  padding:8% 12% 4% !important; /* extra bottom-room from name strip */
+  object-position:center top !important;
+}
+.conv-listen-card .lc-name{
+  top:auto !important;
+  bottom:0 !important;
+  height:auto !important;
+  padding:8px 6px 10px !important;
+  font-size:11.5px !important;
+  line-height:1.25 !important;
+  background:linear-gradient(180deg, rgba(26,22,18,0) 0%, rgba(26,22,18,0.85) 60%, rgba(26,22,18,0.95) 100%) !important;
+}
+@media (min-width:1024px){
+  .conv-listen-card .lc-name{font-size:13.5px !important; padding:10px 6px 12px !important;}
+}
+
+
+/* Invite — vertically center in the available space, never overflow header */
+#s7b{
+  display:none;
+  justify-content:center !important;
+  align-items:center !important;
+}
+#s7b.active{display:flex;}
+#s7b .progress{
+  position:absolute;
+  top:18px; left:50%;
+  transform:translateX(-50%);
+  z-index:5;
+  margin-top:0 !important;
+}
+.invite-card-wrap{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  padding:60px 8px 12px;  /* top padding clears the progress bar */
+  min-height:0;
+}
+
 /* Misc */
 .empty-space{flex:1;min-height:20px;}
 </style>
@@ -2487,20 +2536,20 @@ const TNAMES_BY_LANG = {
 };
 const ANAMES_BY_LANG = {
   ko: {
-  a01: "들어만 주세요",
+  a01: "들어만 줘",
   a02: "질문은 하나만",
-  a03: "짧게 공유해주세요",
-  a04: "조언은 잠시 미뤄주세요",
-  a05: "판단은 잠시 멈춰주세요",
-  a06: "오늘은 여기까지만 나눌게요"
+  a03: "짧게 공유해줘",
+  a04: "조언은 잠시",
+  a05: "판단은 멈춰",
+  a06: "오늘은 여기까지"
 },
   en: {
   a01: "Just listen",
-  a02: "One question only",
+  a02: "One question",
   a03: "Share briefly",
   a04: "Hold the advice",
   a05: "Hold the judgment",
-  a06: "Let's stop here for today"
+  a06: "Stop for today"
 }
 };
 const ADESC_BY_LANG = {
@@ -2637,18 +2686,18 @@ const INVITE_MSG_BY_LANG = {
   ko: {
     a01: "의견을 존중하며 들어주세요.",
     a02: "한 번에 한 가지만 물어봐 주세요.",
-    a03: "비슷한 경험을 짧게 나눠 주세요.",
+    a03: "비슷한 경험을 짧게 나눠주세요.",
     a04: "조언보다 듣기가 필요해요.",
-    a05: "판단 없이 있는 그대로.",
+    a05: "판단 없이 있는 그대로 들어주세요.",
     a06: "오늘은 여기까지 함께해요."
   },
   en: {
-    a01: "Listen with respect.",
-    a02: "One thing at a time.",
-    a03: "Share, don't compare.",
-    a04: "Listening over advice.",
-    a05: "No judgement.",
-    a06: "Pause here today."
+    a01: "Please just listen with respect.",
+    a02: "Please ask one thing at a time.",
+    a03: "Share briefly, don't compare.",
+    a04: "Listening matters more than advice.",
+    a05: "Listen without judgement, as it is.",
+    a06: "Let's pause here for today."
   }
 };
 
@@ -2693,7 +2742,7 @@ const I18N = {
     garden_reset: "또 가꾸러 가볼까요?",
     garden_hint: "가족이 흔적을 심으면, 여기에 자라납니다.",
     s7b_mark: "정원 초대장",
-    s7b_listen_intro: "오늘의 듣기 방식은 ",
+    s7b_listen_intro: "오늘은 ",
     s7b_listen_period: ".",
     s7b_save: "이미지로 저장하기",
     s7b_plant: "정원에 심기 →",
@@ -2747,7 +2796,7 @@ const I18N = {
     garden_reset: "Tend again?",
     garden_hint: "When family plants a trace, it grows here.",
     s7b_mark: "Garden invitation",
-    s7b_listen_intro: "Today's listening mode is ",
+    s7b_listen_intro: "Today is ",
     s7b_listen_period: ".",
     s7b_save: "Save as image",
     s7b_plant: "Plant in garden →",
@@ -3391,7 +3440,7 @@ function buildSparkles(){
   const flies = document.getElementById("firefliesLayer");
   if(flies){
     flies.innerHTML = "";
-    for(let i = 0; i < 12; i++){
+    for(let i = 0; i < 22; i++){  // more fireflies, spread across whole canvas
       const f = document.createElement("div");
       f.className = "firefly";
       f.style.left = (8 + srand(i + 501) * 84) + "%";
@@ -3510,19 +3559,21 @@ function getPositions(n, W, H){
       else if(edge === 2) { x = W * (0.10 + 0.80 * ofs); y = H * (0.05 + 0.18 * r(i + 400)); }
       else                { x = W * (0.10 + 0.80 * ofs); y = H * (0.78 + 0.18 * r(i + 500)); }
     } else if(layer === 1){
-      // Middle — tighter cluster, more overlap
-      x = W * (0.20 + 0.60 * r(i + 600));
-      y = H * (0.25 + 0.55 * r(i + 700));
-      x += (r(i + 800) - 0.5) * 50;
-      y += (r(i + 900) - 0.5) * 40;
+      // Middle — distributed across, with inner padding so plants don't crop
+      x = W * (0.18 + 0.64 * r(i + 600));
+      y = H * (0.22 + 0.56 * r(i + 700));
     } else {
-      // Trace — central node area, drawn closer
+      // Trace — central but kept inside
       const cx = W * 0.5, cy = H * 0.5;
       const ang = r(i + 1000) * Math.PI * 2;
-      const rad = (0.12 + 0.18 * r(i + 1100)) * Math.min(W, H);
+      const rad = (0.10 + 0.20 * r(i + 1100)) * Math.min(W, H);
       x = cx + Math.cos(ang) * rad;
-      y = cy + Math.sin(ang) * rad * 0.8;
+      y = cy + Math.sin(ang) * rad * 0.85;
     }
+    // Clamp to keep plant fully inside canvas (account for ~half plant size)
+    const SAFE = 280;
+    x = Math.max(SAFE, Math.min(W - SAFE, x));
+    y = Math.max(SAFE, Math.min(H - SAFE, y));
     // Per-plant variation — gentle, so plants don't visibly resize across views
     const rot = (r(i + 1200) - 0.5) * 24;     // -12° ~ +12°
     const scale = 0.95 + r(i + 1300) * 0.20;  // 0.95x ~ 1.15x (subtle)
