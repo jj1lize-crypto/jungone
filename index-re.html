@@ -2463,11 +2463,7 @@ body.display-mode #s9 .garden-body{
   left:0 !important;
   right:0 !important;
 }
-.garden-stage{
-  left:50% !important;
-  top:50% !important;
-  margin:0 !important;
-}
+/* (garden-stage centering removed — full-canvas mode fills the body) */
 
 /* S6 — main card top-centered, 6 listen cards in 3x2 grid below */
 .conv-stage{
@@ -5049,6 +5045,46 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
 .garden-body{
   position:relative !important;
   overflow:hidden !important;
+}
+
+
+/* ============================================================
+   Index re 08 — DEFINITIVE garden stage + seeds (full-canvas)
+   Placed last to override all earlier conflicting rules.
+   ============================================================ */
+.garden-body{ position:relative !important; overflow:hidden !important; }
+.garden-stage{
+  position:absolute !important;
+  inset:0 !important;
+  left:0 !important; top:0 !important; right:0 !important; bottom:0 !important;
+  width:100% !important; height:100% !important;
+  transform:none !important;
+  margin:0 !important;
+}
+.garden-stage .seeds-container,
+#seedsContainer{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important; height:100% !important;
+  pointer-events:none;
+  z-index:5 !important;
+}
+.seed-layer{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important; height:100% !important;
+  pointer-events:auto;
+  cursor:pointer;
+}
+.seed-layer-img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important; height:100% !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  display:block !important;
+  -webkit-mask-image:none !important; mask-image:none !important;
+  mix-blend-mode:normal !important; filter:none !important;
 }
 
 </style>
