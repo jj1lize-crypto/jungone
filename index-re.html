@@ -5167,21 +5167,17 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
 
 /* ----- Display idle instruction ----- */
 .ex-idle{
-  position:absolute; inset:0; z-index:120;
+  position:absolute; inset:0; z-index:40;
   display:flex; align-items:flex-end; justify-content:center;
   padding-bottom:12%;
   pointer-events:none;
 }
 .ex-idle-text{
-  position:relative;
   font-family:"Crimson Pro","Noto Serif KR",serif;
   font-size:clamp(16px,2.4vw,30px);
-  line-height:1.6; color:#ffffff !important; font-weight:600;
+  line-height:1.6; color:rgba(245,240,232,0.85);
   text-align:center; white-space:pre-line;
-  text-shadow:0 2px 16px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.8);
-  padding:16px 36px;
-  background:radial-gradient(ellipse at center, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%);
-  border-radius:40px;
+  text-shadow:0 2px 12px rgba(0,0,0,0.7);
 }
 
 /* In exhibition display, make sure NO public controls leak in */
@@ -5208,6 +5204,7 @@ html.html-mode-controller body #s8,
 html.html-mode-controller body #sf1,
 html.html-mode-controller body #sf2{ display:none !important; }
 html.html-mode-controller body #s9{ display:flex !important; }
+html.html-mode-controller body .lang-toggle{ display:none !important; }
 html.html-mode-controller body #s9 .bottom{ display:none !important; }
 /* The old button-grid controller root is no longer used */
 html.html-mode-controller body #exControllerRoot{ display:none !important; }
@@ -5591,23 +5588,23 @@ body.ex-display .garden-sub{
 /* KR/ENG toggle visible again in exhibition */
 body.ex-display .lang-toggle{ display:none !important; }
 /* but NOT on controller (controller has its own reset/conn UI) */
-body.ex-controller .lang-toggle{ display:flex !important; position:fixed !important; top:14px !important; right:14px !important; z-index:800 !important; }
-body.ex-controller #s9 .garden-header{ display:block !important; position:relative; z-index:6; text-align:center; padding:24px 20px 6px !important; }
-body.ex-controller .garden-title{ display:none !important; }
-body.ex-controller .ex-logo{ display:block; margin:0 auto 10px; height:clamp(38px,5vw,60px); width:auto; }
-body.ex-controller .garden-sub{ display:block !important; font-size:clamp(14px,2vw,19px); letter-spacing:.14em; text-transform:uppercase; color:rgba(245,240,232,0.82); text-shadow:0 1px 8px rgba(0,0,0,0.7); }
+body.ex-controller .lang-toggle{ display:none !important; }
+body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
 
-body.ex-display:not(.ex-controller) #exIdle{ display:none !important; }
-body.ex-controller #exIdle{ display:flex !important; z-index:120 !important; }
+body.ex-display #exIdle, body.ex-controller #exIdle{ display:none !important; }
 
 /* Tappable plants gently pulse white so visitors know they are interactive */
 @keyframes exTapPulse{
   0%,100%{ filter:none; }
   50%{ filter:drop-shadow(0 0 18px rgba(255,255,255,0.55)) brightness(1.15); }
 }
-body.ex-display .seed-layer.ex-tappable .seed-layer-img,
 body.ex-controller .seed-layer.ex-tappable .seed-layer-img{
-  animation: exTapPulse 3.2s ease-in-out infinite;
+  filter:drop-shadow(0 0 16px rgba(255,255,255,0.6)) brightness(1.12);
+  animation: exTapGlow 2.6s ease-in-out infinite;
+}
+@keyframes exTapGlow{
+  0%,100%{ filter:drop-shadow(0 0 10px rgba(255,255,255,0.35)) brightness(1.05); }
+  50%{ filter:drop-shadow(0 0 22px rgba(255,255,255,0.85)) drop-shadow(0 0 40px rgba(255,255,255,0.4)) brightness(1.2); }
 }
 /* Selected plant: stronger steady white highlight */
 body.ex-controller .seed-layer.selected .seed-layer-img{
@@ -7423,8 +7420,8 @@ function initExhibitionDisplay(){
 function updateExIdleText(){
   const el = document.querySelector("#exIdle .ex-idle-text");
   if(el) el.textContent = (CURRENT_LANG === "en")
-    ? "Tap a plant on the iPad\nto explore the trace it holds."
-    : "아이패드에서 식물을 눌러\n남겨진 흔적을 살펴보세요.";
+    ? "Choose a plant on the iPad\nto discover the trace it holds."
+    : "아이패드에서 식물을 골라\n남겨진 흔적을 만나보세요.";
 }
 
 // Curated garden: full-canvas overlay of visible exhibition plants
