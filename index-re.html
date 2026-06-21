@@ -4559,6 +4559,25 @@ body:has(#s0.active) .lang-toggle{
   align-items:center !important;
 }
 
+
+/* ===== Index re 06 — conv-card category label (top center) ===== */
+.conv-card .rc-cat{
+  position:absolute !important;
+  top:7% !important;
+  left:0 !important;
+  right:0 !important;
+  text-align:center !important;
+  z-index:5 !important;
+  font-family:inherit !important;
+  font-size:8.5px !important;
+  letter-spacing:0.22em !important;
+  color:rgba(245,240,232,0.82) !important;
+  text-transform:uppercase !important;
+  font-weight:400 !important;
+  text-shadow:0 1px 4px rgba(0,0,0,0.5) !important;
+  pointer-events:none !important;
+}
+
 </style>
 </head>
 <body>
@@ -4636,6 +4655,7 @@ body:has(#s0.active) .lang-toggle{
           <img class="img-t" id="ccImgT" src="" alt=""/>
           <img class="img-q" id="ccImgQ" src="" alt=""/>
         </div>
+        <div class="rc-cat" id="ccCat"></div>
         <div class="rc-text">
           <div class="rc-q" id="ccQ"></div>
           <div class="rc-sub" id="ccSub"></div>
@@ -4799,10 +4819,10 @@ function qcardSrc(topic, qIdx){  // qIdx 0-based
 
 // Card back (used when card is "selected" — appears as the conv-card background)
 const OFFCARDS_BACK = {
-  space:  BASE + "offcardbl-back.png",
-  body:   BASE + "offcardgn-back.png",
-  taste:  BASE + "offcardpk-back.png",
-  safety: BASE + "offcardyw-back.png"
+  space:  BASE + "offcardbl-back-empty.png",
+  body:   BASE + "offcardgn-back-empty.png",
+  taste:  BASE + "offcardpk-back-empty.png",
+  safety: BASE + "offcardyw-back-empty.png"
 };
 
 // Topic card fronts (S2 — used as the body of each topic tile + 3 random plants on top)
@@ -5438,11 +5458,20 @@ function buildReadCard(){
 
 
 // ===== S6 — Conversation =====
+const CONV_CAT = {
+  bl: "TASTE & JOY",
+  gn: "HOME & SPACE",
+  pk: "CARE & CONNECTION",
+  yw: "BODY & SENSES"
+};
 function buildConv(){
   const t = S.topic, idx = S.questionIdx;
   // Selected card = off-card back (color-matched) + chosen oncard on top
   document.getElementById("ccImgT").src = OFFCARDS_BACK[t];
   document.getElementById("ccImgQ").src = qcardSrc(t, idx);
+  const color = TOPIC_COLOR[t];
+  const catEl = document.getElementById("ccCat");
+  if(catEl) catEl.textContent = CONV_CAT[color] || "";
   const qData = QDATA[t][idx];
   document.getElementById("ccQ").textContent = qData.q;
   document.getElementById("ccSub").textContent = qData.f || "";
