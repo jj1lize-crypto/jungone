@@ -5555,12 +5555,12 @@ body.ex-display #s9 .garden-body::before{
   opacity:1;
   pointer-events:none;
 }
-/* guide image overlay — shows how the FULL garden would look (faint reference) */
+/* guide image — SHARP, like the plants are really planted */
 body.ex-display #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
   background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") center/contain no-repeat;
-  opacity:0.18;
+  opacity:1;
   pointer-events:none;
 }
 /* keep the real plant layers above the guide */
@@ -5590,9 +5590,25 @@ body.ex-display .lang-toggle{
   display:flex !important;
   position:fixed; top:14px; right:14px; z-index:600;
 }
-/* but NOT on controller (controller has its own reset/conn UI) */
-body.ex-controller .lang-toggle{ display:none !important; }
-body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
+/* Controller ALSO shows the KR/ENG toggle (top-right) + header (logo + count) */
+body.ex-controller .lang-toggle{
+  display:flex !important;
+  position:fixed; top:14px; right:14px; z-index:700;
+}
+body.ex-controller #s9 .garden-header{
+  display:block !important;
+  position:relative; z-index:6; text-align:center;
+  padding:24px 20px 6px !important;
+}
+body.ex-controller .garden-title{ display:none !important; }
+body.ex-controller .ex-logo{ display:block; margin:0 auto 8px; height:clamp(28px,4vw,46px); width:auto; }
+body.ex-controller .garden-sub{
+  display:block !important;
+  font-size:clamp(11px,1.6vw,14px); letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(245,240,232,0.72); text-shadow:0 1px 8px rgba(0,0,0,0.7);
+}
+/* Controller: hide the reset button (close by tapping the card instead) */
+body.ex-controller #exResetBtn{ display:none !important; }
 
 </style>
 </head>
