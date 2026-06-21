@@ -4968,6 +4968,25 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
 @media (max-height:720px){ #s8 .trace-card-top.is-single{ width:100px !important; } }
 @media (max-height:620px){ #s8 .trace-card-top.is-single{ width:78px !important; } }
 
+
+/* ============================================================
+   Index re 08 — Plant images: full (no crop), match 2160×3840 (9:16) ratio
+   ============================================================ */
+.garden-stage .seed-img,
+.seed-img{
+  aspect-ratio: 2160 / 3840 !important;   /* = 9/16, the actual asset ratio */
+  overflow: visible !important;
+}
+.garden-stage .seed-img img,
+.seed-img img{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;          /* show the WHOLE plant, never crop */
+  -webkit-mask-image: none !important;     /* drop the elliptical mask that clipped edges */
+  mask-image: none !important;
+  mix-blend-mode: normal !important;
+}
+
 </style>
 </head>
 <body>
