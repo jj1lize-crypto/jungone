@@ -5204,7 +5204,6 @@ html.html-mode-controller body #s8,
 html.html-mode-controller body #sf1,
 html.html-mode-controller body #sf2{ display:none !important; }
 html.html-mode-controller body #s9{ display:flex !important; }
-html.html-mode-controller body .lang-toggle{ display:none !important; }
 html.html-mode-controller body #s9 .bottom{ display:none !important; }
 /* The old button-grid controller root is no longer used */
 html.html-mode-controller body #exControllerRoot{ display:none !important; }
@@ -5588,8 +5587,21 @@ body.ex-display .garden-sub{
 /* KR/ENG toggle visible again in exhibition */
 body.ex-display .lang-toggle{ display:none !important; }
 /* but NOT on controller (controller has its own reset/conn UI) */
-body.ex-controller .lang-toggle{ display:none !important; }
-body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
+body.ex-controller .lang-toggle{
+  display:flex !important;
+  position:fixed !important; top:14px !important; right:14px !important; z-index:800 !important;
+}
+body.ex-controller #s9 .garden-header{
+  display:block !important; position:relative; z-index:6; text-align:center; padding:24px 20px 6px !important;
+}
+body.ex-controller .garden-title{ display:none !important; }
+body.ex-controller .ex-logo{ display:block; margin:0 auto 10px; height:clamp(38px,5vw,60px); width:auto; }
+body.ex-controller .garden-sub{
+  display:block !important; font-size:clamp(14px,2vw,19px); letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(245,240,232,0.82); text-shadow:0 1px 8px rgba(0,0,0,0.7);
+}
+/* controller shows the idle instruction at the bottom */
+body.ex-controller #exIdle{ display:flex !important; }
 
 body.ex-display #exIdle{ display:none !important; }
 
