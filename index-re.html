@@ -5174,14 +5174,13 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
 }
 .ex-idle-text{
   font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(16px,2.4vw,30px);
-  line-height:1.6; color:rgba(245,240,232,0.85);
-  text-align:center; white-space:pre-line;
-  text-shadow:0 2px 12px rgba(0,0,0,0.7);
+  font-size:clamp(11px,1.5vw,15px);
+  line-height:1.4; color:rgba(245,240,232,0.6);
+  text-align:center; white-space:nowrap;
+  text-shadow:0 1px 8px rgba(0,0,0,0.7);
 }
 
 /* In exhibition display, make sure NO public controls leak in */
-body.ex-display .lang-toggle,
 body.ex-display #s9 .bottom,
 body.ex-display .display-hint{ display:none !important; }
 
@@ -5204,7 +5203,6 @@ html.html-mode-controller body #s8,
 html.html-mode-controller body #sf1,
 html.html-mode-controller body #sf2{ display:none !important; }
 html.html-mode-controller body #s9{ display:flex !important; }
-html.html-mode-controller body .lang-toggle{ display:none !important; }
 html.html-mode-controller body #s9 .bottom{ display:none !important; }
 /* The old button-grid controller root is no longer used */
 html.html-mode-controller body #exControllerRoot{ display:none !important; }
@@ -5223,7 +5221,6 @@ html.html-mode-display body #sf2{ display:none !important; }
 /* Garden shows as the active screen */
 html.html-mode-display body #s9{ display:flex !important; }
 /* Hide public controls in display from the start */
-html.html-mode-display body .lang-toggle{ display:none !important; }
 html.html-mode-display body #s9 .bottom{ display:none !important; }
 
 
@@ -5259,7 +5256,7 @@ body.ex-display #exControllerRoot{ display:none !important; }
 .ex-conn.off .ex-conn-dot{ background:#e06a6a; }
 
 .ex-reset-btn{
-  position:fixed; top:12px; right:14px; z-index:600;
+  position:fixed; top:54px; right:14px; z-index:600;
   min-height:40px; padding:0 20px;
   border:1px solid rgba(245,240,232,0.5); border-radius:999px;
   background:rgba(14,12,9,0.6); color:#f5f0e8;
@@ -5544,23 +5541,26 @@ body.ex-controller .answer-bubble.ex-qcard-mode .bubble-inner{ pointer-events:au
 /* ============================================================
    Exhibition — original design restored (logo, count, guide bg, BGtv-night)
    ============================================================ */
-/* BGtv-night as the base background of the exhibition garden */
+/* BGtv-night (base) + BGtv-leaf (overlay) as the exhibition garden background */
 body.ex-display #s9.dark-bg{
   background:#000 !important;
 }
 body.ex-display #s9 .garden-body::before{
   content:"";
   position:absolute; inset:0; z-index:0;
-  background:url("https://jj1lize-crypto.github.io/jungone/BGtv-night.png") center/cover no-repeat;
+  /* leaf layer on top of night layer (first listed = front) */
+  background:
+    url("https://jj1lize-crypto.github.io/jungone/BGtv-leaf.png") center/cover no-repeat,
+    url("https://jj1lize-crypto.github.io/jungone/BGtv-night.png") center/cover no-repeat;
   opacity:1;
   pointer-events:none;
 }
-/* guide image overlay — shows how the FULL garden would look (faint reference) */
+/* guide image — sharp, like the plants are really there */
 body.ex-display #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
   background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") center/contain no-repeat;
-  opacity:0.18;
+  opacity:1;
   pointer-events:none;
 }
 /* keep the real plant layers above the guide */
@@ -5590,9 +5590,24 @@ body.ex-display .lang-toggle{
   display:flex !important;
   position:fixed; top:14px; right:14px; z-index:600;
 }
-/* but NOT on controller (controller has its own reset/conn UI) */
-body.ex-controller .lang-toggle{ display:none !important; }
-body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
+/* Controller ALSO shows header (logo + count + idle) and the lang toggle */
+body.ex-controller #s9 .garden-header{ display:block !important; position:relative; z-index:6; text-align:center; padding:24px 20px 6px !important; }
+body.ex-controller .garden-title{ display:none !important; }
+body.ex-controller .ex-logo{ display:block; margin:0 auto 8px; height:clamp(28px,4vw,46px); width:auto; }
+body.ex-controller .garden-sub{ display:block !important; font-size:clamp(11px,1.6vw,14px); letter-spacing:.14em; text-transform:uppercase; color:rgba(245,240,232,0.72); text-shadow:0 1px 8px rgba(0,0,0,0.7); }
+body.ex-controller .lang-toggle{ display:flex !important; position:fixed; top:14px; right:14px; z-index:600; }
+
+
+/* idle instruction line under the count (both modes) */
+.ex-idle-line{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(11px,1.5vw,15px);
+  line-height:1.4; color:rgba(245,240,232,0.6);
+  text-align:center; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
+  max-width:90vw; margin:6px auto 0;
+  text-shadow:0 1px 8px rgba(0,0,0,0.7);
+}
 
 </style>
 </head>
@@ -6347,6 +6362,8 @@ function setLanguage(lang){
     else if(id === "sf1") buildF2FCategory();
     else if(id === "sf2") buildF2FCards();
   }
+  // Exhibition modes: refresh header/idle/open panel in the new language
+  if(typeof refreshExhibitionLang === "function") refreshExhibitionLang();
 }
 
 
@@ -7341,16 +7358,31 @@ function buildExhibitionGardenShell(){
   if(btn) btn.style.display = "none";
   buildExhibitionGarden();
   setTimeout(fitGardenStage, 50);
-  // Restore original design: logo in header + plant count
+  exBuildHeader();           // logo + count + idle line (both modes)
+  // Idle instruction overlay (kept for layout; text now lives in header under count)
+  let idle = document.getElementById("exIdle");
+  if(!idle){
+    idle = document.createElement("div");
+    idle.id = "exIdle";
+    idle.className = "ex-idle";
+    document.getElementById("s9").appendChild(idle);
+  }
+  idle.innerHTML = '';
+  idle.style.display = "none";   // instruction moved into header
+}
+
+// Build header (logo + plant count + idle instruction line) for display & controller
+function exBuildHeader(){
   const header = document.querySelector("#s9 .garden-header");
-  if(header && !header.querySelector(".ex-logo")){
+  if(!header) return;
+  if(!header.querySelector(".ex-logo")){
     const logo = document.createElement("img");
     logo.className = "ex-logo";
-    logo.src = BASE + "cover-logo-wh.png";   // white logo on dark bg
+    logo.src = BASE + "cover-logo-wh.png";
     logo.alt = "JUNG ONE";
     header.insertBefore(logo, header.firstChild);
   }
-  // Plant count (how many planted)
+  // count
   const sub = document.getElementById("gardenSub");
   if(sub){
     const n = exVisiblePlants().length;
@@ -7358,7 +7390,32 @@ function buildExhibitionGardenShell(){
       ? (n + " traces growing in the garden")
       : ("정원에 " + n + "개의 흔적이 자라고 있어요");
   }
-  // Idle instruction overlay
+  // idle instruction line (one line, under count)
+  let line = header.querySelector(".ex-idle-line");
+  if(!line){
+    line = document.createElement("div");
+    line.className = "ex-idle-line";
+    header.appendChild(line);
+  }
+  line.textContent = (CURRENT_LANG === "en")
+    ? "Choose a plant on the iPad to discover the trace it holds."
+    : "아이패드에서 식물을 골라 남겨진 흔적을 만나보세요.";
+}
+
+// Refresh exhibition UI text when language toggles
+function refreshExhibitionLang(){
+  if(!document.body.classList.contains("ex-display") && !document.body.classList.contains("ex-controller")) return;
+  exBuildHeader();
+  // If a card/trace is currently open, re-render it in the new language
+  const bub = document.getElementById("answerBubble");
+  if(bub && bub.classList.contains("show") && exSelectedPlantId){
+    if(document.body.classList.contains("ex-controller")){
+      showControllerQuestion(exSelectedPlantId);
+    } else {
+      showExhibitionTrace(exSelectedPlantId);
+    }
+  }
+}
   let idle = document.getElementById("exIdle");
   if(!idle){
     idle = document.createElement("div");
