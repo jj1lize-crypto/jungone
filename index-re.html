@@ -4904,6 +4904,70 @@ body:has(#s0.active) .lang-toggle{
   #s8 .trace-card-top.is-single, .trace-card-top.is-single{ width:78px !important; }
 }
 
+
+/* ===== Index re 08 — garden stage fixed canvas (scaled by JS) ===== */
+.garden-stage{
+  position:absolute !important;
+  width:1920px !important;
+  height:1080px !important;
+  left:50% !important;
+  top:50% !important;
+  inset:auto !important;
+  transform-origin:center center !important;
+  /* transform set by fitGardenStage() */
+}
+.garden-body{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
+
+/* ============================================================
+   Index re 08 — FINAL fixed plant sizes (stage 1920×1080 space)
+   Overrides all clamp() + media-query sizes so plants never resize.
+   ============================================================ */
+.garden-stage .seed.layer-bg .seed-img{   width:300px !important; }
+.garden-stage .seed.layer-mid .seed-img{  width:260px !important; }
+.garden-stage .seed.layer-trace .seed-img{width:230px !important; }
+body.display-mode .garden-stage .seed.layer-bg .seed-img{   width:340px !important; }
+body.display-mode .garden-stage .seed.layer-mid .seed-img{  width:300px !important; }
+body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !important; }
+/* Kill the min-width:1024px override that shrinks plants on desktop */
+@media (min-width:1024px){
+  .garden-stage .seed.layer-bg .seed-img{   width:300px !important; }
+  .garden-stage .seed.layer-mid .seed-img{  width:260px !important; }
+  .garden-stage .seed.layer-trace .seed-img{width:230px !important; }
+}
+
+
+/* ===== Index re 08 — offline trace card: single bare image ===== */
+#s8 .trace-card-top.is-single{
+  background:transparent !important;
+  background-color:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  aspect-ratio:auto !important;
+  overflow:visible !important;
+  width:130px !important;
+  padding:0 !important;
+}
+#s8 .trace-card-top.is-single .tct-solo,
+.trace-card-top.is-single img.tct-solo{
+  display:block !important;
+  position:static !important;
+  width:100% !important;
+  height:auto !important;
+  object-fit:contain !important;
+  border:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+@media (max-height:720px){ #s8 .trace-card-top.is-single{ width:100px !important; } }
+@media (max-height:620px){ #s8 .trace-card-top.is-single{ width:78px !important; } }
+
 </style>
 </head>
 <body>
@@ -5778,11 +5842,8 @@ function resetTraceState(){
   if(box) box.style.display = "";
   const cardTop = document.getElementById("traceCardTop");
   if(cardTop){
-    const bg = cardTop.querySelector(".tct-bg");
-    const plant = cardTop.querySelector(".tct-plant");
-    if(bg){ bg.src = ""; bg.style.display = "none"; }
-    if(plant){ plant.src = ""; plant.style.display = "none"; }
     cardTop.style.display = "none";
+    cardTop.innerHTML = "";   // remove any image layers entirely
   }
 }
 
@@ -6159,30 +6220,23 @@ function s8GoBack(){
 }
 function buildTraceInput(){
   document.getElementById("traceText").value = "";
-  // Show the selected card at the top for BOTH paths
   const cardTop = document.getElementById("traceCardTop");
   if(cardTop){
-    const bg = cardTop.querySelector(".tct-bg");
-    const plant = cardTop.querySelector(".tct-plant");
-    // Always reset both layers first (prevents afar+f2f images overlapping)
-    if(bg){ bg.src = ""; bg.style.display = "none"; }
-    if(plant){ plant.src = ""; plant.style.display = "none"; }
-    cardTop.style.display = "none";
     if(S.source === "faceToFace" && S.f2fCard){
-      // Physical card — single complete image, NO frame around it
-      cardTop.classList.add("is-single");
+      // OFFLINE: just the single completed offcard image — one <img>, no layers, no frame
+      cardTop.className = "trace-card-top is-single";
       cardTop.style.display = "block";
-      if(bg){ bg.src = offCardImg(S.f2fCard); bg.style.display = "block"; }
-      if(plant) plant.style.display = "none";
+      cardTop.innerHTML = '<img class="tct-solo" src="' + offCardImg(S.f2fCard) + '" alt=""/>';
     } else if(S.source === "afar" && S.topic && (S.questionIdx !== null && S.questionIdx !== undefined)){
-      cardTop.classList.remove("is-single");
-      // Online question card — same composition as the conversation card:
-      // offcard{color}-back-empty (bg) + oncard{color}{n} (plant overlay)
+      // ONLINE: composed card = back-empty bg + plant overlay (two layers)
+      cardTop.className = "trace-card-top";
       cardTop.style.display = "block";
-      if(bg){ bg.src = OFFCARDS_BACK[S.topic]; bg.style.display = "block"; }
-      if(plant){ plant.src = qcardSrc(S.topic, S.questionIdx); plant.style.display = "block"; }
+      cardTop.innerHTML =
+        '<img class="tct-bg" src="' + OFFCARDS_BACK[S.topic] + '" alt=""/>' +
+        '<img class="tct-plant" src="' + qcardSrc(S.topic, S.questionIdx) + '" alt=""/>';
     } else {
       cardTop.style.display = "none";
+      cardTop.innerHTML = "";
     }
   }
   document.getElementById("traceCount").textContent = "0";
@@ -6326,16 +6380,21 @@ window.addEventListener("DOMContentLoaded", () => {
 // ===== Fit the fixed 1920×1080 stage to viewport (consistent across devices) =====
 function fitGardenStage(){
   const stage = document.getElementById("gardenStage");
-  if(!stage) return;
-  // Stage now fills .garden-body via CSS (inset:0). No transform scaling.
-  stage.style.transform = "none";
-  stage.style.left = "0";
-  stage.style.top = "0";
-  stage.style.width = "100%";
-  stage.style.height = "100%";
+  const body  = document.getElementById("gardenBody");
+  if(!stage || !body) return;
+  const w = body.clientWidth  || window.innerWidth;
+  const h = body.clientHeight || window.innerHeight;
+  // Fixed 1920×1080 canvas; scale to COVER the garden body (fill, may crop edges)
+  const scale = Math.max(w / 1920, h / 1080);
+  stage.style.width  = "1920px";
+  stage.style.height = "1080px";
+  stage.style.left = "50%";
+  stage.style.top  = "50%";
+  stage.style.transformOrigin = "center center";
+  stage.style.transform = "translate(-50%, -50%) scale(" + scale + ")";
 }
-window.addEventListener("resize", () => { fitGardenStage(); if(document.getElementById("s9").classList.contains("active")) buildGarden(); });
-window.addEventListener("orientationchange", () => { fitGardenStage(); if(document.getElementById("s9").classList.contains("active")) buildGarden(); });
+window.addEventListener("resize", () => { fitGardenStage(); });
+window.addEventListener("orientationchange", () => { fitGardenStage(); });
 
 // ===== Sparkle layer (stars + fireflies) =====
 let sparklesBuilt = false;
@@ -6408,9 +6467,10 @@ function buildGarden(){
   requestAnimationFrame(() => {
     // Use the ACTUAL garden-body size so plants spread to fill the visible area
     fitGardenStage();
-    const stageEl = document.getElementById("gardenStage");
-    const W = (stageEl && stageEl.clientWidth)  || body.clientWidth  || 390;
-    const H = (stageEl && stageEl.clientHeight) || body.clientHeight || 700;
+    // FIXED logical canvas — positions in 1920×1080 space, scaled by the stage
+    // transform, so plant size & position never change on viewport resize.
+    const W = 1920;
+    const H = 1080;
 
     // Show up to 10 plants — newest entries take priority
     const limit = 10;
