@@ -5294,7 +5294,7 @@ body.ex-display .garden-body{
   inset:0 !important;
   position:absolute !important;
 }
-body.ex-display .garden-header{ display:none !important; }   /* 제목/부제 숨김 → 정원만 */
+/* garden-header 다시 표시 (로고 + 카운트) */
 body.ex-display .garden-stage{ inset:0 !important; }
 body.ex-display #seedsContainer{ inset:0 !important; }
 body.ex-display .seed-layer{ inset:0 !important; }
@@ -5522,6 +5522,77 @@ body.ex-controller .answer-bubble{
 body.ex-controller .answer-bubble.ex-qcard-mode{ pointer-events:auto !important; }
 body.ex-controller .answer-bubble.ex-qcard-mode .bubble-inner{ pointer-events:auto !important; }
 .ex-qcard{ pointer-events:auto; }
+
+
+/* ===== Phase 3+ — "no trace here" notice ===== */
+.ex-notice{
+  position:fixed; left:50%; top:14%;
+  transform:translateX(-50%) translateY(-8px);
+  z-index:700; max-width:84vw;
+  padding:14px 28px; border-radius:16px;
+  background:rgba(20,26,20,0.92);
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(14px,2vw,18px); line-height:1.5; color:#f5f0e8;
+  text-align:center; word-break:keep-all;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s, transform .3s;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+.ex-notice.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+
+/* ============================================================
+   Exhibition — original design restored (logo, count, guide bg, BGtv-night)
+   ============================================================ */
+/* BGtv-night as the base background of the exhibition garden */
+body.ex-display #s9.dark-bg{
+  background:#000 !important;
+}
+body.ex-display #s9 .garden-body::before{
+  content:"";
+  position:absolute; inset:0; z-index:0;
+  background:url("https://jj1lize-crypto.github.io/jungone/BGtv-night.png") center/cover no-repeat;
+  opacity:1;
+  pointer-events:none;
+}
+/* guide image overlay — shows how the FULL garden would look (faint reference) */
+body.ex-display #s9 .garden-body::after{
+  content:"";
+  position:absolute; inset:0; z-index:1;
+  background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") center/contain no-repeat;
+  opacity:0.18;
+  pointer-events:none;
+}
+/* keep the real plant layers above the guide */
+body.ex-display #seedsContainer{ z-index:3 !important; }
+
+/* Header: logo + count, restored */
+body.ex-display .garden-header{
+  display:block !important;
+  position:relative; z-index:6;
+  text-align:center;
+  padding:24px 20px 6px !important;
+}
+body.ex-display .garden-title{ display:none !important; }  /* replaced by logo */
+body.ex-display .ex-logo{
+  display:block; margin:0 auto 8px;
+  height:clamp(28px,4vw,46px); width:auto;
+}
+body.ex-display .garden-sub{
+  display:block !important;
+  font-size:clamp(11px,1.6vw,14px);
+  letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(245,240,232,0.72);
+  text-shadow:0 1px 8px rgba(0,0,0,0.7);
+}
+/* KR/ENG toggle visible again in exhibition */
+body.ex-display .lang-toggle{
+  display:flex !important;
+  position:fixed; top:14px; right:14px; z-index:600;
+}
+/* but NOT on controller (controller has its own reset/conn UI) */
+body.ex-controller .lang-toggle{ display:none !important; }
+body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
 
 </style>
 </head>
@@ -7270,6 +7341,23 @@ function buildExhibitionGardenShell(){
   if(btn) btn.style.display = "none";
   buildExhibitionGarden();
   setTimeout(fitGardenStage, 50);
+  // Restore original design: logo in header + plant count
+  const header = document.querySelector("#s9 .garden-header");
+  if(header && !header.querySelector(".ex-logo")){
+    const logo = document.createElement("img");
+    logo.className = "ex-logo";
+    logo.src = BASE + "cover-logo-wh.png";   // white logo on dark bg
+    logo.alt = "JUNG ONE";
+    header.insertBefore(logo, header.firstChild);
+  }
+  // Plant count (how many planted)
+  const sub = document.getElementById("gardenSub");
+  if(sub){
+    const n = exVisiblePlants().length;
+    sub.textContent = (CURRENT_LANG === "en")
+      ? (n + " traces growing in the garden")
+      : ("정원에 " + n + "개의 흔적이 자라고 있어요");
+  }
   // Idle instruction overlay
   let idle = document.getElementById("exIdle");
   if(!idle){
@@ -7316,11 +7404,30 @@ function buildExhibitionGarden(){
     container.appendChild(seed);
   });
   // Default hit-test: show trace (used by display testing). Controller overrides this.
-  attachGardenHitTest(container, (plantId) => showExhibitionTrace(plantId));
+  attachGardenHitTest(container, (plantId) => showExhibitionTrace(plantId), () => exNoTraceNotice());
+}
+
+
+// Notice shown when a spot with no saved trace is tapped
+let exNoticeTimer = null;
+function exNoTraceNotice(){
+  let el = document.getElementById("exNotice");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "exNotice";
+    el.className = "ex-notice";
+    document.body.appendChild(el);
+  }
+  el.textContent = (CURRENT_LANG === "en")
+    ? "No trace yet. Shall we leave one?"
+    : "아직 남긴 흔적이 없어요. 흔적을 다시 남겨볼까요?";
+  el.classList.add("show");
+  if(exNoticeTimer) clearTimeout(exNoticeTimer);
+  exNoticeTimer = setTimeout(() => { el.classList.remove("show"); }, 2400);
 }
 
 // Alpha-based hit testing so overlapping full-canvas plants are individually clickable.
-function attachGardenHitTest(container, onHit){
+function attachGardenHitTest(container, onHit, onMiss){
   if(!container || container._hitBound) {} // allow re-bind on rebuild
   container._hitBound = true;
   container.onclick = function(ev){
@@ -7351,6 +7458,8 @@ function attachGardenHitTest(container, onHit){
         return;
       }
     }
+    // No plant matched — empty/unsaved spot
+    if(onMiss) onMiss();
   };
 }
 
@@ -7480,7 +7589,7 @@ function initExhibitionController(){
   const container = document.getElementById("seedsContainer");
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => seed.classList.add("ex-tappable"));
   // Override the default hit-test: controller tap → question + highlight + Firebase write
-  attachGardenHitTest(container, (plantId) => exControllerSelect(plantId));
+  attachGardenHitTest(container, (plantId) => exControllerSelect(plantId), () => exNoTraceNotice());
   initExhibitionLink("controller");   // controller role: connection indicator only, NO answer subscription
   injectControllerOverlay();
 }
