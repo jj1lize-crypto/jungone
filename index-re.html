@@ -6791,10 +6791,13 @@ function buildExhibitionGarden(){
     t("garden_sub_tpl", {n: plants.length});
   plants.forEach((e, i) => {
     const seed = document.createElement("div");
-    seed.className = "seed-layer";
+    seed.className = "seed-layer ex-tappable";
     seed.style.zIndex = String(10 + i);
     seed.dataset.plantId = e.plantId;
     seed.innerHTML = '<img class="seed-layer-img" src="' + e.plantImage + '" alt=""/>';
+    // Tapping a plant on the display shows its trace directly (also used for testing).
+    // In Phase 3 the iPad controller will trigger this remotely via Firebase.
+    seed.onclick = () => showExhibitionTrace(e.plantId);
     container.appendChild(seed);
   });
 }
@@ -6863,18 +6866,9 @@ function selectControllerPlant(plantId){
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
     s.classList.toggle("selected", s.dataset.plantId === plantId);
   });
-  // Phase 1: local confirmation only (TV link comes in Phase 3)
-  const e = exFindPlant(plantId);
-  const idle = document.getElementById("exIdle");
-  if(idle){
-    const el = idle.querySelector(".ex-idle-text");
-    if(el){
-      el.textContent = (CURRENT_LANG === "en")
-        ? "Selected. (TV link comes in a later phase.)"
-        : "선택됨. (TV 연결은 다음 단계에서 연결됩니다.)";
-    }
-    idle.style.display = "flex";
-  }
+  // Phase 1: show the trace locally so it can be tested on the controller too.
+  // (In Phase 3 this tap will instead tell the TV to show the trace.)
+  showExhibitionTrace(plantId);
 }
 
 function exControllerReset(){
