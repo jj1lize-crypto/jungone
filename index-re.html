@@ -5600,7 +5600,6 @@ body.ex-controller .garden-sub{
   display:block !important; font-size:clamp(14px,2vw,19px); letter-spacing:.14em; text-transform:uppercase;
   color:rgba(245,240,232,0.82); text-shadow:0 1px 8px rgba(0,0,0,0.7);
 }
-/* controller shows the idle instruction at the bottom */
 body.ex-controller #exIdle{ display:flex !important; }
 
 body.ex-display #exIdle{ display:none !important; }
@@ -7428,8 +7427,8 @@ function initExhibitionDisplay(){
 function updateExIdleText(){
   const el = document.querySelector("#exIdle .ex-idle-text");
   if(el) el.textContent = (CURRENT_LANG === "en")
-    ? "Choose a plant on the iPad\nto discover the trace it holds."
-    : "아이패드에서 식물을 골라\n남겨진 흔적을 만나보세요.";
+    ? "Tap a plant on the iPad\nto explore the trace it holds."
+    : "아이패드에서 식물을 눌러\n남겨진 흔적을 살펴보세요.";
 }
 
 // Curated garden: full-canvas overlay of visible exhibition plants
