@@ -5243,6 +5243,47 @@ body.ex-display #s8, body.ex-display #sf1, body.ex-display #sf2{ display:none !i
 body.ex-display #s9{ display:flex !important; }
 body.ex-display #exControllerRoot{ display:none !important; }
 
+
+/* ===== Phase 3 — controller overlay UI ===== */
+.ex-conn{
+  position:fixed; top:14px; left:14px; z-index:600;
+  display:flex; align-items:center; gap:8px;
+  padding:8px 14px; border-radius:999px;
+  background:rgba(14,12,9,0.7); backdrop-filter:blur(6px);
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:13px;
+  color:#f5f0e8; pointer-events:none;
+}
+.ex-conn-dot{ width:9px; height:9px; border-radius:50%; background:#caa; }
+.ex-conn.on  .ex-conn-dot{ background:#6fcf6f; box-shadow:0 0 8px #6fcf6f; }
+.ex-conn.wait .ex-conn-dot{ background:#e8c46a; }
+.ex-conn.off .ex-conn-dot{ background:#e06a6a; }
+
+.ex-reset-btn{
+  position:fixed; top:12px; right:14px; z-index:600;
+  min-height:40px; padding:0 20px;
+  border:1px solid rgba(245,240,232,0.5); border-radius:999px;
+  background:rgba(14,12,9,0.6); color:#f5f0e8;
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:14px;
+  cursor:pointer; backdrop-filter:blur(6px);
+}
+.ex-reset-btn:active{ background:rgba(14,12,9,0.85); }
+
+.ex-toast{
+  position:fixed; left:50%; bottom:5%; transform:translateX(-50%) translateY(10px);
+  z-index:600; max-width:80%;
+  padding:12px 22px; border-radius:10px;
+  background:rgba(20,30,20,0.92); color:#f5f0e8;
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:14px; text-align:center;
+  opacity:0; pointer-events:none; transition:opacity .25s, transform .25s;
+}
+.ex-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+.ex-toast.error{ background:rgba(60,24,24,0.94); }
+
+/* Only show these overlays in controller mode */
+body:not(.ex-controller) #exConn,
+body:not(.ex-controller) #exResetBtn,
+body:not(.ex-controller) #exToast{ display:none !important; }
+
 </style>
 </head>
 <body>
@@ -6110,6 +6151,182 @@ async function initFirebase(){
   }
 }
 
+
+// ============================================================
+// Phase 3 — Exhibition realtime link (iPad controller ↔ TV display)
+// Reuses the existing firebaseConfig + _fbReady. Separate ref from entries.
+// State path: /exhibition/jungone/rooms/{room}/current
+// ============================================================
+let EX_REF = null;            // realtime ref to this room's "current" state
+let exConnDisplayed = "connecting";  // controller connection indicator state
+let exLastApplied = { plantId: null, at: 0 };  // display de-dupe
+
+async function initExhibitionLink(role){
+  // role: "controller" | "display"
+  const ready = await (window._fbReady || Promise.resolve(false));
+  if(!ready || typeof firebase === "undefined"){
+    console.error("[Exhibition] Firebase SDK not available — link disabled");
+    if(role === "controller") setExConn("disconnected");
+    return;  // public/display still work; display just stays on full garden
+  }
+  try {
+    if(!firebase.apps.length){
+      firebase.initializeApp(firebaseConfig);
+    }
+    if(!fdb) fdb = firebase.database();
+    EX_REF = fdb.ref("exhibition/jungone/rooms/" + EX_ROOM + "/current");
+    console.log("[Exhibition] linked path:", "exhibition/jungone/rooms/" + EX_ROOM + "/current");
+
+    // Connection indicator (controller only) via .info/connected
+    if(role === "controller"){
+      setExConn("connecting");
+      fdb.ref(".info/connected").on("value", (snap) => {
+        setExConn(snap.val() === true ? "connected" : "disconnected");
+      });
+    }
+
+    if(role === "display"){
+      subscribeExhibitionState();
+    }
+  } catch(err){
+    console.error("[Exhibition] init failed:", err);
+    if(role === "controller") setExConn("disconnected");
+  }
+}
+
+// ---------- Controller: write selection ----------
+function exControllerSelect(plantId){
+  // Confirm the plant exists in curated data
+  const e = exFindPlant(plantId);
+  if(!e){ console.warn("[Exhibition] unknown plantId:", plantId); return; }
+  exSelectedPlantId = plantId;
+  // Visual selection on the controller garden
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
+    s.classList.toggle("selected", s.dataset.plantId === plantId);
+  });
+  if(!EX_REF){
+    // No link — fall back to local preview so the controller still demonstrates
+    showExhibitionTrace(plantId);
+    exToast(exMsg("link_fail"), true);
+    return;
+  }
+  const payload = {
+    selectedPlantId: plantId,
+    command: "showTrace",
+    selectedAt: Date.now(),
+    controllerSession: exSessionId()
+  };
+  EX_REF.set(payload)
+    .then(() => { exToast(exMsg("opened"), false); })
+    .catch((err) => { console.error("[Exhibition] write failed:", err); exToast(exMsg("link_fail"), true); });
+}
+
+function exControllerResetRemote(){
+  exSelectedPlantId = null;
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => s.classList.remove("selected"));
+  if(!EX_REF){ 
+    // local fallback: close any local preview
+    const bub = document.getElementById("answerBubble"); if(bub) bub.classList.remove("show");
+    const idle = document.getElementById("exIdle"); if(idle) idle.style.display = "flex";
+    return; 
+  }
+  EX_REF.set({ selectedPlantId: null, command: "idle", selectedAt: Date.now() })
+    .then(() => { exToast(exMsg("reset_done"), false); })
+    .catch((err) => { console.error("[Exhibition] reset write failed:", err); exToast(exMsg("link_fail"), true); });
+}
+
+function exSessionId(){
+  if(!window._exSession) window._exSession = "s-" + Math.random().toString(36).slice(2,8);
+  return window._exSession;
+}
+
+// ---------- Display: subscribe + react ----------
+function subscribeExhibitionState(){
+  if(!EX_REF) return;
+  EX_REF.on("value", (snap) => {
+    const st = snap.val();
+    if(!st){ exDisplayIdle(); return; }
+    const cmd = st.command;
+    const pid = st.selectedPlantId;
+    const at  = st.selectedAt || 0;
+
+    // Ignore stale state (older than 60s) on (re)load
+    if(Date.now() - at > 60000){
+      console.log("[Exhibition] stale state ignored");
+      exDisplayIdle();
+      return;
+    }
+    if(cmd === "showTrace" && pid){
+      const e = exFindPlant(pid);
+      if(!e){
+        console.warn("[Exhibition] invalid plantId from state:", pid);
+        exDisplayIdle();
+        return;
+      }
+      // React when plant OR timestamp changes (repeat taps reopen)
+      if(exLastApplied.plantId === pid && exLastApplied.at === at) return;
+      exLastApplied = { plantId: pid, at: at };
+      showExhibitionTrace(pid);   // existing function + 25s auto-close
+    } else {
+      // idle / null
+      exLastApplied = { plantId: null, at: at };
+      exDisplayIdle();
+    }
+  }, (err) => {
+    console.error("[Exhibition] subscribe error:", err);
+    // keep full garden visible on error
+  });
+}
+
+function exDisplayIdle(){
+  const bub = document.getElementById("answerBubble");
+  if(bub) bub.classList.remove("show");
+  const idle = document.getElementById("exIdle");
+  if(idle) idle.style.display = "flex";
+  if(exTraceTimer) clearTimeout(exTraceTimer);
+  // clear selection highlight on the display garden
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => s.classList.remove("selected"));
+}
+
+// ---------- Controller UI helpers ----------
+function setExConn(state){
+  exConnDisplayed = state;
+  const el = document.getElementById("exConn");
+  if(!el) return;
+  const dotCls = state === "connected" ? "on" : (state === "connecting" ? "wait" : "off");
+  el.className = "ex-conn " + dotCls;
+  el.querySelector(".ex-conn-text").textContent = exMsg("conn_" + state);
+}
+function exMsg(key){
+  const ko = {
+    opened: "TV에 흔적이 열렸습니다.",
+    reset_done: "정원으로 돌아갔습니다.",
+    link_fail: "TV와 연결할 수 없습니다. 연결 상태를 확인해주세요.",
+    conn_connected: "TV 연결됨",
+    conn_connecting: "연결 중",
+    conn_disconnected: "연결 끊김"
+  };
+  const en = {
+    opened: "The trace is now open on the TV.",
+    reset_done: "Returned to the garden.",
+    link_fail: "Unable to connect to the TV. Please check the connection.",
+    conn_connected: "TV connected",
+    conn_connecting: "Connecting",
+    conn_disconnected: "Disconnected"
+  };
+  return (CURRENT_LANG === "en" ? en : ko)[key] || "";
+}
+let exToastTimer = null;
+function exToast(text, isError){
+  let el = document.getElementById("exToast");
+  if(!el) return;
+  el.textContent = text;
+  el.className = "ex-toast show" + (isError ? " error" : "");
+  if(exToastTimer) clearTimeout(exToastTimer);
+  exToastTimer = setTimeout(() => { el.className = "ex-toast"; }, 3000);
+}
+
+
 let entries = [...DEMO];
 
 // State
@@ -6750,6 +6967,7 @@ function initPublicExperience(){
 function initExhibitionDisplay(){
   document.body.classList.add("display-mode");        // reuse TV garden styling
   document.body.classList.add("ex-display");
+  initExhibitionLink("display");   // Phase 3 — subscribe to controller state
   // Hide every normal screen, show only the garden
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const s9 = document.getElementById("s9");
@@ -6898,6 +7116,31 @@ window.previewExhibitionPlant = function(plantId){
   showExhibitionTrace(plantId);
 };
 
+
+// Phase 3 — controller-only overlay (connection indicator, reset, toast)
+function injectControllerOverlay(){
+  if(document.getElementById("exConn")) return;
+  const conn = document.createElement("div");
+  conn.id = "exConn";
+  conn.className = "ex-conn wait";
+  conn.innerHTML = '<span class="ex-conn-dot"></span><span class="ex-conn-text"></span>';
+  document.body.appendChild(conn);
+
+  const reset = document.createElement("button");
+  reset.id = "exResetBtn";
+  reset.className = "ex-reset-btn";
+  reset.textContent = (CURRENT_LANG === "en") ? "Reset" : "초기화";
+  reset.onclick = () => exControllerResetRemote();
+  document.body.appendChild(reset);
+
+  const toast = document.createElement("div");
+  toast.id = "exToast";
+  toast.className = "ex-toast";
+  document.body.appendChild(toast);
+
+  setExConn(exConnDisplayed);
+}
+
 function initExhibitionController(){
   // Controller = the exact same display garden, then make plants tappable.
   initExhibitionDisplay();                 // build identical black garden
@@ -6905,7 +7148,11 @@ function initExhibitionController(){
   // Make the rendered plant layers tappable via alpha hit-test
   const container = document.getElementById("seedsContainer");
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => seed.classList.add("ex-tappable"));
-  attachGardenHitTest(container, (plantId) => selectControllerPlant(plantId));
+  // Phase 3 — tap writes selection to Firebase (TV reacts)
+  attachGardenHitTest(container, (plantId) => exControllerSelect(plantId));
+  initExhibitionLink("controller");
+  // Inject controller-only overlay UI (connection + reset + toast)
+  injectControllerOverlay();
   const el = document.querySelector("#exIdle .ex-idle-text");
   if(el) el.textContent = (CURRENT_LANG === "en")
     ? "Tap a plant to choose\\nthe one you want to meet."
