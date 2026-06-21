@@ -5337,11 +5337,13 @@ body.ex-display .garden-stage{
 }
 .answer-bubble.ex-answer-big .bubble-inner{
   padding:clamp(28px,5vw,56px) clamp(32px,6vw,72px) !important;
-  border-radius:18px !important;       /* clean rectangle (override the blob shape) */
-  background:rgba(10,14,10,0.90) !important;  /* solid, override radial blob gradient */
+  border-radius:18px !important;
+  background:rgba(10,14,10,0.90) !important;
   box-shadow:0 12px 40px rgba(0,0,0,0.55) !important;
   backdrop-filter:blur(8px);
   border:1px solid rgba(245,240,232,0.22) !important;
+  max-height:86vh !important;
+  overflow-y:auto !important;
 }
 /* 디스플레이 답변 텍스트 — 크게 */
 .ex-ans-text{
@@ -5383,6 +5385,73 @@ body.ex-controller .answer-bubble{
   border:0 !important;
   box-shadow:none !important;
   border-radius:0 !important;
+}
+
+
+/* ============================================================
+   Phase 3+ — Display = saved record, Controller = question card
+   ============================================================ */
+/* ---- Display: real saved-record look ---- */
+.ex-record .ex-rec-cat{
+  font-family:monospace; font-size:clamp(10px,1.3vw,14px);
+  letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(245,240,232,0.6); text-align:center; margin-bottom:14px;
+}
+.ex-record .ex-rec-q{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(20px,3.4vw,40px); line-height:1.45;
+  color:#f5f0e8; text-align:center; word-break:keep-all; margin-bottom:10px;
+}
+.ex-record .ex-rec-date{
+  font-family:monospace; font-size:clamp(11px,1.4vw,15px);
+  color:rgba(245,240,232,0.45); text-align:center; margin-bottom:22px;
+}
+.ex-record .ex-rec-media{
+  width:100%; max-height:46vh; object-fit:contain;
+  border-radius:10px; display:block; margin:0 auto 18px;
+}
+.ex-record .ex-rec-voice{ text-align:center; margin:8px 0 18px; }
+.ex-record .ex-rec-text{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(22px,4vw,46px); line-height:1.55;
+  color:#f5f0e8; text-align:center; word-break:keep-all;
+}
+
+/* ---- Controller: question CARD ---- */
+.answer-bubble.ex-qcard-mode .bubble-inner{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
+.ex-qcard{
+  position:relative;
+  width:min(72vw, 420px);
+  aspect-ratio:3/4;
+  margin:0 auto;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.55);
+}
+.ex-qcard-bg{
+  position:absolute; inset:0;
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.ex-qcard-body{
+  position:absolute; inset:0; z-index:2;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:10% 12%;
+  text-align:center;
+}
+.ex-qcard-cat{
+  font-family:monospace; font-size:clamp(9px,1.6vw,13px);
+  letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(40,32,24,0.55); margin-bottom:18px;
+}
+.ex-qcard-q{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(18px,3.6vw,30px); line-height:1.5;
+  color:#2a2218; word-break:keep-all; font-style:italic;
 }
 
 </style>
@@ -6323,7 +6392,7 @@ function exControllerSelect(plantId){
     .catch((err) => { console.error("[Exhibition] write failed:", err); exToast(exMsg("link_fail"), true); });
 }
 
-// Controller-only: show the selected plant's QUESTION (not the answer)
+// Controller-only: show the selected plant's QUESTION as a CARD (card asks the question)
 function showControllerQuestion(plantId){
   const e = exFindPlant(plantId);
   if(!e) return;
@@ -6331,10 +6400,27 @@ function showControllerQuestion(plantId){
   const inner = document.getElementById("bubbleInner");
   if(!bub || !inner) return;
   const lang = CURRENT_LANG;
-  inner.innerHTML = '<div class="ex-q-text">"' + exQ(e, lang) + '"</div>';
-  inner.style.background = "rgba(10,14,10,0.90)";
-  inner.style.borderColor = "rgba(245,240,232,0.22)";
-  bub.classList.add("show", "ex-answer-big");
+  // Card background by color code
+  const cardBgByCode = {
+    bl: BASE + "offcardbl-back-empty.png",
+    gn: BASE + "offcardgn-back-empty.png",
+    pk: BASE + "offcardpk-back-empty.png",
+    yw: BASE + "offcardyw-back-empty.png"
+  };
+  const bg = (e.color && cardBgByCode[e.color]) ? cardBgByCode[e.color] : cardBgByCode.gn;
+  const catLabel = (typeof CONV_CAT !== "undefined" && e.color && CONV_CAT[e.color]) ? CONV_CAT[e.color] : "";
+  // A question card: background image + category + question text overlaid
+  inner.innerHTML =
+    '<div class="ex-qcard">' +
+      '<img class="ex-qcard-bg" src="' + bg + '" alt=""/>' +
+      '<div class="ex-qcard-body">' +
+        (catLabel ? '<div class="ex-qcard-cat">' + catLabel + '</div>' : '') +
+        '<div class="ex-qcard-q">"' + exQ(e, lang) + '"</div>' +
+      '</div>' +
+    '</div>';
+  inner.style.background = "transparent";
+  inner.style.borderColor = "transparent";
+  bub.classList.add("show", "ex-answer-big", "ex-qcard-mode");
   bub.style.left = ""; bub.style.top = "";
   const idle = document.getElementById("exIdle");
   if(idle) idle.style.display = "none";
@@ -6648,6 +6734,13 @@ const CONV_CAT = {
   gn: "HOME & SPACE",
   pk: "CARE & CONNECTION",
   yw: "BODY & SENSES"
+};
+// Color-code → hex (for exhibition record accents)
+const TCOLORS_BY_CODE = {
+  bl: "#6db0d8",   // blue
+  gn: "#7bc86c",   // green
+  pk: "#b89cd8",   // purple
+  yw: "#e8b84a"    // yellow
 };
 function buildConv(){
   const t = S.topic, idx = S.questionIdx;
@@ -7011,7 +7104,7 @@ function enterDisplayMode(){
 // Uses existing full-canvas plant image paths (onplant/offplant).
 const exhibitionTraces = [
   {
-    plantId: "ex-gn3-9", cardId: "gn3-9", source: "faceToFace",
+    plantId: "ex-gn3-9", cardId: "gn3-9", source: "faceToFace", color: "gn", date: "2026.05.18",
     plantImage: BASE + "offplantgn3-9.png",
     questionKo: "집에서 가장 편안한 자리는 어디예요?",
     questionEn: "Where is your most comfortable spot at home?",
@@ -7020,7 +7113,7 @@ const exhibitionTraces = [
     mediaType: null, mediaSrc: null, visible: true, displayOrder: 1
   },
   {
-    plantId: "ex-bl1-5", cardId: "bl1-5", source: "faceToFace",
+    plantId: "ex-bl1-5", cardId: "bl1-5", source: "faceToFace", color: "bl", date: "2026.05.19",
     plantImage: BASE + "offplantbl1-5.png",
     questionKo: "요즘 자주 머무는 공간이 있나요?",
     questionEn: "Is there a space you spend a lot of time in lately?",
@@ -7029,7 +7122,7 @@ const exhibitionTraces = [
     mediaType: null, mediaSrc: null, visible: true, displayOrder: 2
   },
   {
-    plantId: "ex-yw2-2", cardId: "yw2-2", source: "faceToFace",
+    plantId: "ex-yw2-2", cardId: "yw2-2", source: "faceToFace", color: "yw", date: "2026.05.20",
     plantImage: BASE + "offplantyw2-2.png",
     questionKo: "피곤할 때 어떻게 쉬는 편이에요?",
     questionEn: "How do you rest when you are tired?",
@@ -7038,7 +7131,7 @@ const exhibitionTraces = [
     mediaType: null, mediaSrc: null, visible: true, displayOrder: 3
   },
   {
-    plantId: "ex-pk2-9", cardId: "pk2-9", source: "faceToFace",
+    plantId: "ex-pk2-9", cardId: "pk2-9", source: "faceToFace", color: "pk", date: "2026.05.21",
     plantImage: BASE + "offplantpk2-9.png",
     questionKo: "좋아하는 맛이나 음식이 있어요?",
     questionEn: "Do you have a favorite taste or food?",
@@ -7047,7 +7140,7 @@ const exhibitionTraces = [
     mediaType: null, mediaSrc: null, visible: true, displayOrder: 4
   },
   {
-    plantId: "ex-gn3-1", cardId: "gn3-1", source: "faceToFace",
+    plantId: "ex-gn3-1", cardId: "gn3-1", source: "faceToFace", color: "gn", date: "2026.05.22",
     plantImage: BASE + "offplantgn3-1.png",
     questionKo: "몸에서 신경 쓰이는 곳이 있나요?",
     questionEn: "Is there a part of your body you are mindful of?",
@@ -7056,7 +7149,7 @@ const exhibitionTraces = [
     mediaType: null, mediaSrc: null, visible: true, displayOrder: 5
   },
   {
-    plantId: "ex-bl3-2", cardId: "bl3-2", source: "faceToFace",
+    plantId: "ex-bl3-2", cardId: "bl3-2", source: "faceToFace", color: "bl", date: "2026.05.23",
     plantImage: BASE + "offplantbl3-2.png",
     questionKo: "하루 중 가장 좋아하는 시간은 언제예요?",
     questionEn: "What is your favorite time of day?",
@@ -7207,37 +7300,58 @@ let exTraceTimer = null;
 function showExhibitionTrace(plantId){
   const e = exFindPlant(plantId);
   if(!e) return;
+  if(window._curAudio){ window._curAudio.pause(); window._curAudio.currentTime = 0; window._curAudio = null; }
   exSelectedPlantId = plantId;
   const bub = document.getElementById("answerBubble");
   const inner = document.getElementById("bubbleInner");
   if(!bub || !inner) return;
   const lang = CURRENT_LANG;
-  // DISPLAY shows the ANSWER (trace) only — large. No question text.
-  let html = "";
-  if(e.mediaType === "image" && e.mediaSrc){
-    html += '<img class="ex-ans-media" src="' + e.mediaSrc + '" alt=""/>';
+  const col = (typeof TCOLORS_BY_CODE !== "undefined" && e.color && TCOLORS_BY_CODE[e.color]) ? TCOLORS_BY_CODE[e.color] : "#9aab9e";
+
+  // DISPLAY = looks like a real saved record: category + question + date + trace
+  let html = '';
+  // Category label (by color)
+  const catLabel = (typeof CONV_CAT !== "undefined" && e.color && CONV_CAT[e.color]) ? CONV_CAT[e.color] : "";
+  if(catLabel) html += '<div class="ex-rec-cat">' + catLabel + '</div>';
+  // Question
+  html += '<div class="ex-rec-q">"' + exQ(e, lang) + '"</div>';
+  // Date
+  if(e.date) html += '<div class="ex-rec-date">' + e.date + '</div>';
+  // Trace body: media first, else text
+  if(e.mediaType === "video" && e.mediaSrc){
+    html += '<video class="ex-rec-media" src="' + e.mediaSrc + '" autoplay muted loop playsinline></video>';
+  } else if(e.mediaType === "image" && e.mediaSrc){
+    html += '<img class="ex-rec-media" src="' + e.mediaSrc + '" alt=""/>';
   } else if(e.mediaType === "voice" && e.mediaSrc){
-    html += '<audio class="ex-ans-audio" src="' + e.mediaSrc + '" autoplay></audio>';
+    // waveform + autoplay
+    let bars = "";
+    for(let i=0;i<32;i++){
+      const h = 10 + Math.abs(Math.sin(i*0.7+1)*26 + Math.cos(i*0.4)*16);
+      bars += '<rect x="'+(i*8)+'" y="'+((44-h)/2)+'" width="5" height="'+h+'" rx="2.5" fill="'+col+'" opacity="0.8"/>';
+    }
+    html += '<div class="ex-rec-voice"><svg width="256" height="44" viewBox="0 0 256 44">'+bars+'</svg></div>';
+    const audio = new Audio(e.mediaSrc);
+    audio.onended = function(){ if(window._curAudio === audio) window._curAudio = null; };
+    audio.play().catch(function(){});
+    window._curAudio = audio;
   }
-  if(exT(e, lang)) html += '<div class="ex-ans-text">' + exT(e, lang) + '</div>';
+  if(exT(e, lang)) html += '<div class="ex-rec-text">' + exT(e, lang) + '</div>';
+
   inner.innerHTML = html;
+  inner.style.background = col + "1f";
+  inner.style.borderColor = col + "55";
   // Highlight the selected plant on the garden
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
     s.classList.toggle("selected", s.dataset.plantId === plantId);
   });
-  // Big centered panel
-  inner.style.background = "rgba(10,14,10,0.90)";
-  inner.style.borderColor = "rgba(245,240,232,0.22)";
-  bub.classList.add("show", "ex-answer-big");
-  bub.style.left = "";
-  bub.style.top = "";
-  // Hide idle instruction while a trace is shown
+  bub.classList.add("show", "ex-answer-big", "ex-record");
+  bub.style.left = ""; bub.style.top = "";
   const idle = document.getElementById("exIdle");
   if(idle) idle.style.display = "none";
-  // Auto-close after 25s → back to idle
   if(exTraceTimer) clearTimeout(exTraceTimer);
   exTraceTimer = setTimeout(() => {
-    bub.classList.remove("show", "ex-answer-big");
+    bub.classList.remove("show", "ex-answer-big", "ex-record");
+    if(window._curAudio){ window._curAudio.pause(); window._curAudio = null; }
     if(idle){ idle.style.display = "flex"; }
     document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => s.classList.remove("selected"));
     exSelectedPlantId = null;
