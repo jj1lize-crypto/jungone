@@ -5192,8 +5192,22 @@ body.mode-controller .app{ display:none !important; }
 /* ============================================================
    Phase 1 FIX — exhibition modes hide cover/intro instantly (no flash)
    ============================================================ */
-/* Controller: hide the entire public app (only the controller root shows) */
-html.html-mode-controller body .app{ display:none !important; }
+/* Controller: same as display — show ONLY the garden (no cover/intro flash) */
+html.html-mode-controller body .screen:not(#s9){ display:none !important; }
+html.html-mode-controller body #s0,
+html.html-mode-controller body #s1,
+html.html-mode-controller body #s2,
+html.html-mode-controller body #s3,
+html.html-mode-controller body #s6,
+html.html-mode-controller body #s7b,
+html.html-mode-controller body #s8,
+html.html-mode-controller body #sf1,
+html.html-mode-controller body #sf2{ display:none !important; }
+html.html-mode-controller body #s9{ display:flex !important; }
+html.html-mode-controller body .lang-toggle{ display:none !important; }
+html.html-mode-controller body #s9 .bottom{ display:none !important; }
+/* The old button-grid controller root is no longer used */
+html.html-mode-controller body #exControllerRoot{ display:none !important; }
 
 /* Display: hide every screen EXCEPT the garden, even before JS runs */
 html.html-mode-display body .screen:not(#s9){ display:none !important; }
@@ -5211,6 +5225,14 @@ html.html-mode-display body #s9{ display:flex !important; }
 /* Hide public controls in display from the start */
 html.html-mode-display body .lang-toggle{ display:none !important; }
 html.html-mode-display body #s9 .bottom{ display:none !important; }
+
+
+/* ===== Phase 1 — controller tappable plant selection ===== */
+.seed-layer.ex-tappable{ cursor:pointer; }
+.seed-layer.selected .seed-layer-img{
+  filter: drop-shadow(0 0 22px rgba(255,240,160,0.85)) brightness(1.12) !important;
+  transition: filter .25s ease;
+}
 
 </style>
 </head>
@@ -6806,50 +6828,78 @@ window.previewExhibitionPlant = function(plantId){
 };
 
 function initExhibitionController(){
+  // Controller now looks EXACTLY like the display: a black full-screen garden.
+  // Difference: tapping a plant selects it (Phase 1 = local state + confirmation).
+  document.body.classList.add("display-mode");
+  document.body.classList.add("ex-display");      // reuse display styling (hides controls)
   document.body.classList.add("ex-controller");
-  // Hide all normal screens
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  const root = document.getElementById("exControllerRoot");
-  if(root) root.style.display = "flex";
-  buildControllerPlants();
+  const s9 = document.getElementById("s9");
+  s9.classList.add("active");
+  const btn = document.querySelector("#s9 .bottom");
+  if(btn) btn.style.display = "none";
+  // Build the SAME curated garden, but plants are tappable
+  buildControllerGarden();
+  setTimeout(fitGardenStage, 50);
+  // Idle instruction (controller wording)
+  let idle = document.getElementById("exIdle");
+  if(!idle){
+    idle = document.createElement("div");
+    idle.id = "exIdle";
+    idle.className = "ex-idle";
+    s9.appendChild(idle);
+  }
+  idle.innerHTML = '<div class="ex-idle-text"></div>';
+  const el = idle.querySelector(".ex-idle-text");
+  if(el) el.textContent = (CURRENT_LANG === "en")
+    ? "Tap a plant to choose\\nthe one you want to meet."
+    : "만나고 싶은 식물을\\n눌러서 골라주세요.";
+  idle.style.display = "flex";
 }
 
-function buildControllerPlants(){
-  const grid = document.getElementById("exControllerGrid");
-  if(!grid) return;
-  grid.innerHTML = "";
-  const lang = CURRENT_LANG;
-  exVisiblePlants().forEach(e => {
-    const card = document.createElement("button");
-    card.className = "ex-ctrl-card";
-    card.dataset.plantId = e.plantId;
-    if(exSelectedPlantId === e.plantId) card.classList.add("on");
-    card.innerHTML =
-      '<div class="ex-ctrl-thumb"><img src="' + e.plantImage + '" alt="" loading="lazy"/></div>' +
-      '<div class="ex-ctrl-q">' + exQ(e, lang) + '</div>';
-    card.onclick = () => {
-      grid.querySelectorAll(".ex-ctrl-card").forEach(x => x.classList.remove("on"));
-      card.classList.add("on");
-      exSelectedPlantId = e.plantId;
-      // Phase 1: local confirmation only (no TV connection yet)
-      const conf = document.getElementById("exCtrlConfirm");
-      if(conf){
-        conf.textContent = (lang === "en")
-          ? "Selected. (TV link comes in a later phase.)"
-          : "선택됨. (TV 연결은 다음 단계에서 연결됩니다.)";
-        conf.classList.add("show");
-      }
-    };
-    grid.appendChild(card);
+// Controller garden = same full-canvas overlay as display, but each plant
+// layer is tappable to select it.
+function buildControllerGarden(){
+  buildSparkles();
+  const container = document.getElementById("seedsContainer");
+  if(!container) return;
+  container.innerHTML = "";
+  const plants = exVisiblePlants();
+  document.getElementById("gardenSub").textContent = t("garden_sub_tpl", {n: plants.length});
+  plants.forEach((e, i) => {
+    const seed = document.createElement("div");
+    seed.className = "seed-layer ex-tappable";
+    seed.style.zIndex = String(10 + i);
+    seed.dataset.plantId = e.plantId;
+    seed.innerHTML = '<img class="seed-layer-img" src="' + e.plantImage + '" alt=""/>';
+    seed.onclick = () => selectControllerPlant(e.plantId);
+    container.appendChild(seed);
   });
+}
+
+function selectControllerPlant(plantId){
+  exSelectedPlantId = plantId;
+  // Mark selection visually
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
+    s.classList.toggle("selected", s.dataset.plantId === plantId);
+  });
+  // Phase 1: local confirmation only (TV link comes in Phase 3)
+  const e = exFindPlant(plantId);
+  const idle = document.getElementById("exIdle");
+  if(idle){
+    const el = idle.querySelector(".ex-idle-text");
+    if(el){
+      el.textContent = (CURRENT_LANG === "en")
+        ? "Selected. (TV link comes in a later phase.)"
+        : "선택됨. (TV 연결은 다음 단계에서 연결됩니다.)";
+    }
+    idle.style.display = "flex";
+  }
 }
 
 function exControllerReset(){
   exSelectedPlantId = null;
-  const grid = document.getElementById("exControllerGrid");
-  if(grid) grid.querySelectorAll(".ex-ctrl-card").forEach(x => x.classList.remove("on"));
-  const conf = document.getElementById("exCtrlConfirm");
-  if(conf) conf.classList.remove("show");
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => s.classList.remove("selected"));
 }
 
 // Boot: route by exhibition mode (Phase 1)
