@@ -5234,6 +5234,15 @@ html.html-mode-display body #s9 .bottom{ display:none !important; }
   transition: filter .25s ease;
 }
 
+
+/* ===== Phase 1 FIX — body.ex-display based hiding (covers both display & controller) ===== */
+body.ex-display .screen:not(#s9){ display:none !important; }
+body.ex-display #s0, body.ex-display #s1, body.ex-display #s2,
+body.ex-display #s3, body.ex-display #s6, body.ex-display #s7b,
+body.ex-display #s8, body.ex-display #sf1, body.ex-display #sf2{ display:none !important; }
+body.ex-display #s9{ display:flex !important; }
+body.ex-display #exControllerRoot{ display:none !important; }
+
 </style>
 </head>
 <body>
@@ -6828,53 +6837,24 @@ window.previewExhibitionPlant = function(plantId){
 };
 
 function initExhibitionController(){
-  // Controller now looks EXACTLY like the display: a black full-screen garden.
-  // Difference: tapping a plant selects it (Phase 1 = local state + confirmation).
-  document.body.classList.add("display-mode");
-  document.body.classList.add("ex-display");      // reuse display styling (hides controls)
+  // Controller = the exact same display garden, then make plants tappable.
+  initExhibitionDisplay();                 // build identical black garden
   document.body.classList.add("ex-controller");
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  const s9 = document.getElementById("s9");
-  s9.classList.add("active");
-  const btn = document.querySelector("#s9 .bottom");
-  if(btn) btn.style.display = "none";
-  // Build the SAME curated garden, but plants are tappable
-  buildControllerGarden();
-  setTimeout(fitGardenStage, 50);
-  // Idle instruction (controller wording)
-  let idle = document.getElementById("exIdle");
-  if(!idle){
-    idle = document.createElement("div");
-    idle.id = "exIdle";
-    idle.className = "ex-idle";
-    s9.appendChild(idle);
-  }
-  idle.innerHTML = '<div class="ex-idle-text"></div>';
-  const el = idle.querySelector(".ex-idle-text");
+  // Make the rendered plant layers tappable + change idle wording
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => {
+    seed.classList.add("ex-tappable");
+    const pid = seed.dataset.plantId;
+    seed.onclick = () => selectControllerPlant(pid);
+  });
+  const el = document.querySelector("#exIdle .ex-idle-text");
   if(el) el.textContent = (CURRENT_LANG === "en")
     ? "Tap a plant to choose\\nthe one you want to meet."
     : "만나고 싶은 식물을\\n눌러서 골라주세요.";
-  idle.style.display = "flex";
 }
 
-// Controller garden = same full-canvas overlay as display, but each plant
-// layer is tappable to select it.
+// (buildControllerGarden kept for reference but no longer the entry point)
 function buildControllerGarden(){
-  buildSparkles();
-  const container = document.getElementById("seedsContainer");
-  if(!container) return;
-  container.innerHTML = "";
-  const plants = exVisiblePlants();
-  document.getElementById("gardenSub").textContent = t("garden_sub_tpl", {n: plants.length});
-  plants.forEach((e, i) => {
-    const seed = document.createElement("div");
-    seed.className = "seed-layer ex-tappable";
-    seed.style.zIndex = String(10 + i);
-    seed.dataset.plantId = e.plantId;
-    seed.innerHTML = '<img class="seed-layer-img" src="' + e.plantImage + '" alt=""/>';
-    seed.onclick = () => selectControllerPlant(e.plantId);
-    container.appendChild(seed);
-  });
+  buildExhibitionGarden();
 }
 
 function selectControllerPlant(plantId){
