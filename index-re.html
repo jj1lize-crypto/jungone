@@ -5426,32 +5426,100 @@ body.ex-controller .answer-bubble{
 }
 .ex-qcard{
   position:relative;
-  width:min(72vw, 420px);
+  width:min(74vw, 440px);
   aspect-ratio:3/4;
   margin:0 auto;
-  border-radius:14px;
+  border-radius:16px;
   overflow:hidden;
-  box-shadow:0 20px 60px rgba(0,0,0,0.55);
+  box-shadow:0 24px 70px rgba(0,0,0,0.6);
 }
 .ex-qcard-bg{
   position:absolute; inset:0;
   width:100%; height:100%; object-fit:cover; display:block;
 }
+/* plant sits in the card, centered, large */
+.ex-qcard-plant{
+  position:absolute; inset:0; z-index:1;
+  width:100%; height:100%; object-fit:contain;
+  object-position:center;
+  pointer-events:none;
+}
+/* dark gradient so white text reads over plant/bg */
+.ex-qcard::after{
+  content:""; position:absolute; inset:0; z-index:2;
+  background:linear-gradient(to bottom,
+    rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.12) 28%,
+    rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.55) 100%);
+  pointer-events:none;
+}
 .ex-qcard-body{
-  position:absolute; inset:0; z-index:2;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  padding:10% 12%;
+  position:absolute; inset:0; z-index:3;
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:space-between;
+  padding:9% 10%;
   text-align:center;
 }
 .ex-qcard-cat{
-  font-family:monospace; font-size:clamp(9px,1.6vw,13px);
-  letter-spacing:.18em; text-transform:uppercase;
-  color:rgba(40,32,24,0.55); margin-bottom:18px;
+  font-family:monospace; font-size:clamp(10px,1.8vw,14px);
+  letter-spacing:.2em; text-transform:uppercase;
+  color:#ffffff; opacity:0.92;
+  text-shadow:0 2px 10px rgba(0,0,0,0.6);
 }
 .ex-qcard-q{
+  flex:1; display:flex; align-items:center; justify-content:center;
   font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(18px,3.6vw,30px); line-height:1.5;
-  color:#2a2218; word-break:keep-all; font-style:italic;
+  font-size:clamp(19px,3.8vw,32px); line-height:1.5;
+  color:#ffffff; word-break:keep-all; font-style:italic;
+  text-shadow:0 2px 14px rgba(0,0,0,0.7);
+  padding:14px 0;
+}
+.ex-qcard-brand{
+  font-family:"Crimson Pro",serif;
+  font-size:clamp(13px,2vw,18px); letter-spacing:.32em;
+  color:#ffffff; opacity:0.9;
+  text-shadow:0 2px 10px rgba(0,0,0,0.6);
+}
+
+
+/* ============================================================
+   Phase 3+ — Pretty popup animation for both modes
+   ============================================================ */
+.answer-bubble.ex-answer-big{
+  opacity:0;
+  transition:opacity .45s cubic-bezier(.2,.7,.3,1);
+}
+.answer-bubble.ex-answer-big.show{ opacity:1; }
+.answer-bubble.ex-answer-big .bubble-inner{
+  transform:scale(0.88) translateY(14px);
+  opacity:0;
+  transition:transform .5s cubic-bezier(.2,.8,.25,1), opacity .45s ease;
+}
+.answer-bubble.ex-answer-big.show .bubble-inner{
+  transform:scale(1) translateY(0);
+  opacity:1;
+}
+/* Card pops with a gentle spring */
+.answer-bubble.ex-qcard-mode.show .ex-qcard{
+  animation: exCardPop .55s cubic-bezier(.2,.85,.3,1.15) both;
+}
+@keyframes exCardPop{
+  0%{ transform:scale(0.82) translateY(20px) rotate(-1.5deg); opacity:0; }
+  60%{ transform:scale(1.03) translateY(0) rotate(.5deg); opacity:1; }
+  100%{ transform:scale(1) translateY(0) rotate(0); opacity:1; }
+}
+/* Record content fades up in sequence */
+.answer-bubble.ex-record.show .bubble-inner > *{
+  animation: exRecFade .55s ease both;
+}
+.answer-bubble.ex-record.show .ex-rec-cat{ animation-delay:.05s; }
+.answer-bubble.ex-record.show .ex-rec-q{ animation-delay:.13s; }
+.answer-bubble.ex-record.show .ex-rec-date{ animation-delay:.21s; }
+.answer-bubble.ex-record.show .ex-rec-media,
+.answer-bubble.ex-record.show .ex-rec-voice,
+.answer-bubble.ex-record.show .ex-rec-text{ animation-delay:.3s; }
+@keyframes exRecFade{
+  from{ opacity:0; transform:translateY(10px); }
+  to{ opacity:1; transform:translateY(0); }
 }
 
 </style>
@@ -6409,13 +6477,15 @@ function showControllerQuestion(plantId){
   };
   const bg = (e.color && cardBgByCode[e.color]) ? cardBgByCode[e.color] : cardBgByCode.gn;
   const catLabel = (typeof CONV_CAT !== "undefined" && e.color && CONV_CAT[e.color]) ? CONV_CAT[e.color] : "";
-  // A question card: background image + category + question text overlaid
+  // A question card: bg image + plant + category (top) + question + JUNG ONE (bottom)
   inner.innerHTML =
     '<div class="ex-qcard">' +
       '<img class="ex-qcard-bg" src="' + bg + '" alt=""/>' +
+      '<img class="ex-qcard-plant" src="' + e.plantImage + '" alt=""/>' +
       '<div class="ex-qcard-body">' +
         (catLabel ? '<div class="ex-qcard-cat">' + catLabel + '</div>' : '') +
         '<div class="ex-qcard-q">"' + exQ(e, lang) + '"</div>' +
+        '<div class="ex-qcard-brand">JUNG ONE</div>' +
       '</div>' +
     '</div>';
   inner.style.background = "transparent";
