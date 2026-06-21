@@ -5548,18 +5548,27 @@ body.ex-display #s9.dark-bg{
 body.ex-display #s9 .garden-body::before{
   content:"";
   position:absolute; inset:0; z-index:0;
-  /* leaf layer on top of night layer (first listed = front) */
-  background:
-    url("https://jj1lize-crypto.github.io/jungone/BGtv-leaf.png") center/cover no-repeat,
-    url("https://jj1lize-crypto.github.io/jungone/BGtv-night.png") center/cover no-repeat;
+  background-image:url("https://jj1lize-crypto.github.io/jungone/BGtv-night.png");
+  background-size:cover; background-position:center; background-repeat:no-repeat;
   opacity:1;
+  pointer-events:none;
+}
+/* leaf overlay — its own layer above night, below plants */
+body.ex-display #s9 .garden-body{
+  position:absolute;
+}
+body.ex-display #s9 .ex-leaf-layer{
+  position:absolute; inset:0; z-index:2;
+  background-image:url("https://jj1lize-crypto.github.io/jungone/BGtv-leaf.png");
+  background-size:cover; background-position:center; background-repeat:no-repeat;
   pointer-events:none;
 }
 /* guide image — sharp, like the plants are really there */
 body.ex-display #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
-  background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") center/contain no-repeat;
+  background-image:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png");
+  background-size:contain; background-position:center; background-repeat:no-repeat;
   opacity:1;
   pointer-events:none;
 }
@@ -7358,6 +7367,13 @@ function buildExhibitionGardenShell(){
   if(btn) btn.style.display = "none";
   buildExhibitionGarden();
   setTimeout(fitGardenStage, 50);
+  // Insert leaf overlay layer (above night/guide, below header)
+  const gbody = document.getElementById("gardenBody");
+  if(gbody && !gbody.querySelector(".ex-leaf-layer")){
+    const leaf = document.createElement("div");
+    leaf.className = "ex-leaf-layer";
+    gbody.appendChild(leaf);
+  }
   exBuildHeader();           // logo + count + idle line (both modes)
   // Idle instruction overlay (kept for layout; text now lives in header under count)
   let idle = document.getElementById("exIdle");
