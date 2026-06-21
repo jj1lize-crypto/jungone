@@ -5303,6 +5303,8 @@ body.ex-display .seed-layer{ inset:0 !important; }
 body.ex-display .seed-layer-img{
   object-fit:contain !important;
   object-position:center !important;
+  filter:none !important;        /* crisp, no dimming */
+  opacity:1 !important;          /* fully solid, like all saved */
 }
 
 
@@ -5564,7 +5566,10 @@ body.ex-display #s9 .garden-body::after{
   pointer-events:none;
 }
 /* keep the real plant layers above the guide */
-body.ex-display #seedsContainer{ z-index:3 !important; }
+body.ex-display #seedsContainer{ z-index:10 !important; }
+body.ex-display .garden-stage{ z-index:10 !important; }
+body.ex-display .seed-layer{ z-index:10 !important; }
+body.ex-display .garden-body{ z-index:10 !important; }
 
 /* Header: logo + count, restored */
 body.ex-display .garden-header{
@@ -5593,32 +5598,6 @@ body.ex-display .lang-toggle{
 /* but NOT on controller (controller has its own reset/conn UI) */
 body.ex-controller .lang-toggle{ display:none !important; }
 body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
-
-
-/* Tappable plants: occasional white sparkle (only the plant lights up; nothing dims) */
-@keyframes exPlantSparkle{
-  0%, 88%, 100%{ filter:none; }
-  92%{ filter:drop-shadow(0 0 16px rgba(255,255,255,0.9)) drop-shadow(0 0 34px rgba(255,255,255,0.5)) brightness(1.2); }
-  96%{ filter:drop-shadow(0 0 8px rgba(255,255,255,0.4)) brightness(1.05); }
-}
-body.ex-display .seed-layer.ex-tappable .seed-layer-img,
-body.ex-controller .seed-layer.ex-tappable .seed-layer-img{
-  animation: exPlantSparkle 6s ease-in-out infinite;
-}
-/* stagger each plant so they twinkle at different times */
-body .seed-layer:nth-child(1) .seed-layer-img{ animation-delay:0s; }
-body .seed-layer:nth-child(2) .seed-layer-img{ animation-delay:1.1s; }
-body .seed-layer:nth-child(3) .seed-layer-img{ animation-delay:2.3s; }
-body .seed-layer:nth-child(4) .seed-layer-img{ animation-delay:3.4s; }
-body .seed-layer:nth-child(5) .seed-layer-img{ animation-delay:4.2s; }
-body .seed-layer:nth-child(6) .seed-layer-img{ animation-delay:5.1s; }
-body .seed-layer:nth-child(7) .seed-layer-img{ animation-delay:1.7s; }
-body .seed-layer:nth-child(8) .seed-layer-img{ animation-delay:3.9s; }
-/* selected (controller) stays steady white, no twinkle */
-body.ex-controller .seed-layer.selected .seed-layer-img{
-  filter:drop-shadow(0 0 30px rgba(255,255,255,0.95)) drop-shadow(0 0 60px rgba(255,255,255,0.6)) brightness(1.25) !important;
-  animation:none !important;
-}
 
 </style>
 </head>
@@ -7678,8 +7657,8 @@ function fitGardenStage(){
     stage.style.height = h + "px";
     stage.style.position = "absolute";
     stage.style.left = "50%";
-    stage.style.top = "0";                       // right under the logo/count
-    stage.style.transform = "translateX(-50%)";  // top-aligned, may overlap header
+    stage.style.top = "0";
+    stage.style.transform = "translateX(-50%)";
     return;
   }
   // Public garden: stage fills the garden body; plants use object-fit:contain.
