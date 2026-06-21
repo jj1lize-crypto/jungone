@@ -5337,8 +5337,11 @@ body.ex-display .garden-stage{
 }
 .answer-bubble.ex-answer-big .bubble-inner{
   padding:clamp(28px,5vw,56px) clamp(32px,6vw,72px) !important;
-  border-radius:18px !important;
+  border-radius:18px !important;       /* clean rectangle (override the blob shape) */
+  background:rgba(10,14,10,0.90) !important;  /* solid, override radial blob gradient */
+  box-shadow:0 12px 40px rgba(0,0,0,0.55) !important;
   backdrop-filter:blur(8px);
+  border:1px solid rgba(245,240,232,0.22) !important;
 }
 /* 디스플레이 답변 텍스트 — 크게 */
 .ex-ans-text{
@@ -7249,8 +7252,9 @@ function injectControllerOverlay(){
 }
 
 function initExhibitionController(){
-  // Controller = the SAME black garden as display.
-  // Difference: tapping a plant highlights it (white glow) + shows the QUESTION only.
+  // Controller = the SAME black garden as display (ex-display styling for the garden),
+  // PLUS ex-controller. Difference: tapping shows the QUESTION + white highlight,
+  // and the controller has its own overlay (connection pill, reset).
   initExhibitionDisplay();                 // build identical black garden
   document.body.classList.add("ex-controller");
   const container = document.getElementById("seedsContainer");
