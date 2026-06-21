@@ -5367,6 +5367,24 @@ body.ex-display .garden-stage{
   font-style:italic;
 }
 
+
+/* ===== Phase 3 FIX — exhibition bubble is ALWAYS a clean rectangle ===== */
+body.ex-display .bubble-inner,
+body.ex-controller .bubble-inner{
+  border-radius:18px !important;
+  background:rgba(10,14,10,0.92) !important;
+  box-shadow:0 12px 40px rgba(0,0,0,0.55) !important;
+  border:1px solid rgba(245,240,232,0.22) !important;
+}
+/* The answer-bubble container itself must not draw any shape/background */
+body.ex-display .answer-bubble,
+body.ex-controller .answer-bubble{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+
 </style>
 </head>
 <body>
@@ -7065,18 +7083,15 @@ function initPublicExperience(){
   // Default behaviour — exactly like Index re 08. Nothing extra.
 }
 
-function initExhibitionDisplay(){
+// Shared: build the black exhibition garden shell (no mode-specific wiring)
+function buildExhibitionGardenShell(){
   document.body.classList.add("display-mode");        // reuse TV garden styling
   document.body.classList.add("ex-display");
-  initExhibitionLink("display");   // Phase 3 — subscribe to controller state
-  // Hide every normal screen, show only the garden
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const s9 = document.getElementById("s9");
   s9.classList.add("active");
-  // Remove public garden controls (reset button)
   const btn = document.querySelector("#s9 .bottom");
   if(btn) btn.style.display = "none";
-  // Build the curated garden (visible plants only)
   buildExhibitionGarden();
   setTimeout(fitGardenStage, 50);
   // Idle instruction overlay
@@ -7090,6 +7105,14 @@ function initExhibitionDisplay(){
   idle.innerHTML = '<div class="ex-idle-text"></div>';
   updateExIdleText();
   idle.style.display = "flex";
+}
+
+function initExhibitionDisplay(){
+  buildExhibitionGardenShell();
+  // DISPLAY ONLY subscribes to controller state (so it shows answers).
+  initExhibitionLink("display");
+  // Display plants are NOT directly clickable in the exhibition — the iPad drives it.
+  // (Direct click still works for solo testing; harmless on the TV.)
 }
 
 function updateExIdleText(){
@@ -7116,7 +7139,7 @@ function buildExhibitionGarden(){
     seed.innerHTML = '<img class="seed-layer-img" crossorigin="anonymous" src="' + e.plantImage + '" alt=""/>';
     container.appendChild(seed);
   });
-  // Single hit-test handler: topmost plant whose PNG is opaque at the click wins.
+  // Default hit-test: show trace (used by display testing). Controller overrides this.
   attachGardenHitTest(container, (plantId) => showExhibitionTrace(plantId));
 }
 
@@ -7252,16 +7275,16 @@ function injectControllerOverlay(){
 }
 
 function initExhibitionController(){
-  // Controller = the SAME black garden as display (ex-display styling for the garden),
-  // PLUS ex-controller. Difference: tapping shows the QUESTION + white highlight,
-  // and the controller has its own overlay (connection pill, reset).
-  initExhibitionDisplay();                 // build identical black garden
+  // Controller = the SAME black garden shell, but it does NOT subscribe to Firebase
+  // for showing answers. Tapping shows the QUESTION + white highlight, and WRITES
+  // the selection so the TV (display) shows the answer.
+  buildExhibitionGardenShell();
   document.body.classList.add("ex-controller");
   const container = document.getElementById("seedsContainer");
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => seed.classList.add("ex-tappable"));
-  // Tap → highlight + show question locally + write selection to Firebase
+  // Override the default hit-test: controller tap → question + highlight + Firebase write
   attachGardenHitTest(container, (plantId) => exControllerSelect(plantId));
-  initExhibitionLink("controller");
+  initExhibitionLink("controller");   // controller role: connection indicator only, NO answer subscription
   injectControllerOverlay();
 }
 
