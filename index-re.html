@@ -5560,7 +5560,7 @@ body.ex-display #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
   background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") center/contain no-repeat;
-  opacity:0.18;
+  opacity:1;
   pointer-events:none;
 }
 /* keep the real plant layers above the guide */
@@ -5586,13 +5586,27 @@ body.ex-display .garden-sub{
   text-shadow:0 1px 8px rgba(0,0,0,0.7);
 }
 /* KR/ENG toggle visible again in exhibition */
-body.ex-display .lang-toggle{
-  display:flex !important;
-  position:fixed; top:14px; right:14px; z-index:600;
-}
+body.ex-display .lang-toggle{ display:none !important; }
 /* but NOT on controller (controller has its own reset/conn UI) */
 body.ex-controller .lang-toggle{ display:none !important; }
 body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
+
+body.ex-display #exIdle{ display:none !important; }
+
+/* Tappable plants gently pulse white so visitors know they are interactive */
+@keyframes exTapPulse{
+  0%,100%{ filter:none; }
+  50%{ filter:drop-shadow(0 0 18px rgba(255,255,255,0.55)) brightness(1.15); }
+}
+body.ex-display .seed-layer.ex-tappable .seed-layer-img,
+body.ex-controller .seed-layer.ex-tappable .seed-layer-img{
+  animation: exTapPulse 3.2s ease-in-out infinite;
+}
+/* Selected plant: stronger steady white highlight */
+body.ex-controller .seed-layer.selected .seed-layer-img{
+  filter:drop-shadow(0 0 30px rgba(255,255,255,0.95)) drop-shadow(0 0 60px rgba(255,255,255,0.6)) brightness(1.25) !important;
+  animation:none !important;
+}
 
 </style>
 </head>
@@ -6343,7 +6357,27 @@ function setLanguage(lang){
     else if(id === "s3") rebuildQuestionCards();
     else if(id === "s6") rebuildConvScreen();
     else if(id === "s7b") rebuildInvitePreview();
-    else if(id === "s9") buildGarden();
+    else if(id === "s9"){
+      // Exhibition modes: refresh count + idle + open card in new language
+      if(document.body.classList.contains("ex-display") || document.body.classList.contains("ex-controller")){
+        // count
+        var sub = document.getElementById("gardenSub");
+        if(sub){
+          var n = (typeof exVisiblePlants === "function") ? exVisiblePlants().length : 0;
+          sub.textContent = (CURRENT_LANG === "en") ? (n + " traces growing in the garden") : ("정원에 " + n + "개의 흔적이 자라고 있어요");
+        }
+        // idle instruction text
+        if(typeof updateExIdleText === "function") updateExIdleText();
+        // re-render an open card/trace
+        var bub = document.getElementById("answerBubble");
+        if(bub && bub.classList.contains("show") && typeof exSelectedPlantId !== "undefined" && exSelectedPlantId){
+          if(document.body.classList.contains("ex-controller") && typeof showControllerQuestion === "function") showControllerQuestion(exSelectedPlantId);
+          else if(typeof showExhibitionTrace === "function") showExhibitionTrace(exSelectedPlantId);
+        }
+      } else {
+        buildGarden();
+      }
+    }
     else if(id === "sf1") buildF2FCategory();
     else if(id === "sf2") buildF2FCards();
   }
@@ -7565,12 +7599,7 @@ function injectControllerOverlay(){
   conn.innerHTML = '<span class="ex-conn-dot"></span><span class="ex-conn-text"></span>';
   document.body.appendChild(conn);
 
-  const reset = document.createElement("button");
-  reset.id = "exResetBtn";
-  reset.className = "ex-reset-btn";
-  reset.textContent = (CURRENT_LANG === "en") ? "Reset" : "초기화";
-  reset.onclick = () => exControllerResetRemote();
-  document.body.appendChild(reset);
+  // (reset button removed — tap the card to close)
 
   const toast = document.createElement("div");
   toast.id = "exToast";
