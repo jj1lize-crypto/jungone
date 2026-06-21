@@ -5284,6 +5284,72 @@ body:not(.ex-controller) #exConn,
 body:not(.ex-controller) #exResetBtn,
 body:not(.ex-controller) #exToast{ display:none !important; }
 
+
+/* ============================================================
+   Phase 3+ — Display garden FULL-BLEED (꽉 차게)
+   ============================================================ */
+/* 정원 body 여백 제거 — 화면 전체 사용 */
+body.ex-display .garden-body{
+  margin:0 !important;
+  inset:0 !important;
+  position:absolute !important;
+}
+body.ex-display .garden-header{ display:none !important; }   /* 제목/부제 숨김 → 정원만 */
+body.ex-display .garden-stage{ inset:0 !important; }
+body.ex-display #seedsContainer{ inset:0 !important; }
+body.ex-display .seed-layer{ inset:0 !important; }
+/* 식물은 contain 유지 (모든 식물이 같은 2160×3840 좌표 공유 → 정렬 보존).
+   stage 자체를 9:16로 화면에 꽉 채워서 레터박스 여백을 없앤다. */
+body.ex-display .seed-layer-img{
+  object-fit:contain !important;
+  object-position:center !important;
+}
+
+
+/* Display: stage를 9:16 비율로 화면을 덮도록 (JS가 크기 설정) */
+body.ex-display .garden-stage{
+  transform-origin:center center !important;
+}
+
+
+/* ============================================================
+   Phase 3+ — Controller = questions only (no garden)
+   ============================================================ */
+.ex-ctrlq-root{
+  position:fixed; inset:0; z-index:500;
+  background:var(--paper);
+  display:flex; flex-direction:column;
+  padding:72px clamp(20px,5vw,56px) calc(32px + env(safe-area-inset-bottom));
+  overflow-y:auto;
+}
+.ex-ctrlq-head{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(19px,3vw,28px); font-weight:400; color:var(--ink);
+  text-align:center; line-height:1.5; margin:8px 0 28px;
+}
+.ex-ctrlq-list{
+  display:flex; flex-direction:column; gap:14px;
+  max-width:680px; width:100%; margin:0 auto;
+}
+.ex-ctrlq-item{
+  width:100%; text-align:left;
+  padding:22px 24px; border-radius:12px;
+  background:#fff; color:var(--ink);
+  border:1.5px solid rgba(60,50,40,0.18);
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(16px,2.2vw,20px); line-height:1.5;
+  cursor:pointer; word-break:keep-all;
+  transition:border-color .15s, background .15s, transform .12s;
+}
+.ex-ctrlq-item:hover{ transform:translateY(-1px); border-color:rgba(60,50,40,0.4); }
+.ex-ctrlq-item.on{ background:#0e0c09; color:#f5f0e8; border-color:#0e0c09; }
+
+/* Controller shows ONLY the question list — hide the garden/app entirely */
+body.ex-controller .app{ display:none !important; }
+html.html-mode-controller body #s9{ display:none !important; }
+body.ex-controller #exConn{ display:flex !important; }
+body.ex-controller #exResetBtn{ display:block !important; }
+
 </style>
 </head>
 <body>
@@ -7142,21 +7208,46 @@ function injectControllerOverlay(){
 }
 
 function initExhibitionController(){
-  // Controller = the exact same display garden, then make plants tappable.
-  initExhibitionDisplay();                 // build identical black garden
+  // Controller = a simple list of QUESTIONS only (no garden, no plant images).
+  // Tapping a question selects that plant and tells the TV to show its trace.
   document.body.classList.add("ex-controller");
-  // Make the rendered plant layers tappable via alpha hit-test
-  const container = document.getElementById("seedsContainer");
-  document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => seed.classList.add("ex-tappable"));
-  // Phase 3 — tap writes selection to Firebase (TV reacts)
-  attachGardenHitTest(container, (plantId) => exControllerSelect(plantId));
+  document.body.classList.add("mode-controller");
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  buildControllerQuestionList();
   initExhibitionLink("controller");
-  // Inject controller-only overlay UI (connection + reset + toast)
   injectControllerOverlay();
-  const el = document.querySelector("#exIdle .ex-idle-text");
-  if(el) el.textContent = (CURRENT_LANG === "en")
-    ? "Tap a plant to choose\\nthe one you want to meet."
-    : "만나고 싶은 식물을\\n눌러서 골라주세요.";
+}
+
+// Build the question-only controller UI
+function buildControllerQuestionList(){
+  let root = document.getElementById("exCtrlQuestions");
+  if(!root){
+    root = document.createElement("div");
+    root.id = "exCtrlQuestions";
+    root.className = "ex-ctrlq-root";
+    document.body.appendChild(root);
+  }
+  const lang = CURRENT_LANG;
+  const heading = (lang === "en")
+    ? "Choose a plant you would like to meet in the garden."
+    : "정원에서 만나고 싶은 식물을 골라주세요.";
+  let html = '<div class="ex-ctrlq-head">' + heading + '</div>';
+  html += '<div class="ex-ctrlq-list">';
+  exVisiblePlants().forEach(e => {
+    const q = exQ(e, lang);
+    html += '<button class="ex-ctrlq-item" data-plant-id="' + e.plantId + '">' + q + '</button>';
+  });
+  html += '</div>';
+  root.innerHTML = html;
+  root.style.display = "flex";
+  // Wire taps
+  root.querySelectorAll(".ex-ctrlq-item").forEach(btn => {
+    btn.onclick = () => {
+      root.querySelectorAll(".ex-ctrlq-item").forEach(x => x.classList.remove("on"));
+      btn.classList.add("on");
+      exControllerSelect(btn.dataset.plantId);
+    };
+  });
 }
 
 // (buildControllerGarden kept for reference but no longer the entry point)
@@ -7205,9 +7296,23 @@ window.addEventListener("DOMContentLoaded", () => {
 function fitGardenStage(){
   const stage = document.getElementById("gardenStage");
   if(!stage) return;
-  // Full-canvas mode: the stage simply fills the garden body. Each plant PNG
-  // (2160×3840) is rendered with object-fit:contain, so it letterboxes itself
-  // to the correct portrait shape regardless of viewport. No manual scaling.
+  const isEx = document.body.classList.contains("ex-display");
+  if(isEx){
+    // Exhibition: make a 9:16 canvas COVER the whole screen (fill, crop edges),
+    // keeping every plant in the same shared coordinate space (alignment intact).
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const ar = 2160 / 3840;            // plant canvas aspect (9:16)
+    let w = vw, h = vw / ar;           // fit width first
+    if(h < vh){ h = vh; w = vh * ar; } // if too short, fit height (cover)
+    stage.style.width = w + "px";
+    stage.style.height = h + "px";
+    stage.style.position = "absolute";
+    stage.style.left = "50%";
+    stage.style.top = "50%";
+    stage.style.transform = "translate(-50%,-50%)";
+    return;
+  }
+  // Public garden: stage fills the garden body; plants use object-fit:contain.
   stage.style.transform = "none";
   stage.style.left = "0";
   stage.style.top = "0";
