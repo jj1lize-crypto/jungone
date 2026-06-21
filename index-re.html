@@ -5575,7 +5575,7 @@ body.ex-display .garden-header{
 body.ex-display .garden-title{ display:none !important; }  /* replaced by logo */
 body.ex-display .ex-logo{
   display:block; margin:0 auto 8px;
-  height:clamp(54px,7vw,88px); width:auto;
+  height:clamp(64px,8.5vw,110px); width:auto;
 }
 body.ex-display .garden-sub{
   display:block !important;
@@ -5587,7 +5587,11 @@ body.ex-display .garden-sub{
 /* KR/ENG toggle visible again in exhibition */
 body.ex-display .lang-toggle{ display:none !important; }
 /* but NOT on controller (controller has its own reset/conn UI) */
-body.ex-controller .lang-toggle{ display:flex !important; position:fixed !important; top:14px !important; right:14px !important; z-index:900 !important; }
+body.ex-controller .lang-toggle{
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  position:fixed !important; top:14px !important; right:14px !important; z-index:900 !important;
+  line-height:1 !important; text-align:center !important;
+}
 body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
 
 body.ex-display:not(.ex-controller) #exIdle{ display:none !important; }
