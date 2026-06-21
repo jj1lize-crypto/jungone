@@ -5399,8 +5399,10 @@ body.ex-controller .answer-bubble{
 }
 .ex-record .ex-rec-q{
   font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(14px,1.8vw,22px); line-height:1.4;
-  color:rgba(245,240,232,0.72); text-align:center; word-break:keep-all; margin-bottom:8px;
+  font-size:12px; line-height:1.3;
+  color:rgba(245,240,232,0.7); text-align:center;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  max-width:90vw; margin:0 auto 10px;
 }
 .ex-record .ex-rec-date{
   font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(12px,1.5vw,16px);
@@ -6503,11 +6505,12 @@ function showControllerQuestion(plantId){
 function exControllerResetRemote(){
   exSelectedPlantId = null;
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => s.classList.remove("selected"));
-  if(!EX_REF){ 
-    // local fallback: close any local preview
-    const bub = document.getElementById("answerBubble"); if(bub) bub.classList.remove("show");
-    const idle = document.getElementById("exIdle"); if(idle) idle.style.display = "flex";
-    return; 
+  // Close the controller's own card + show idle (always, regardless of link)
+  const bub = document.getElementById("answerBubble");
+  if(bub) bub.classList.remove("show", "ex-answer-big", "ex-qcard-mode", "ex-record");
+  const idle = document.getElementById("exIdle"); if(idle) idle.style.display = "flex";
+  if(!EX_REF){
+    return;
   }
   EX_REF.set({ selectedPlantId: null, command: "idle", selectedAt: Date.now() })
     .then(() => { exToast(exMsg("reset_done"), false); })
