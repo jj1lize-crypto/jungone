@@ -4987,6 +4987,70 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
   mix-blend-mode: normal !important;
 }
 
+
+/* ============================================================
+   Index re 08 — FULL-CANVAS plant overlay rendering
+   Each plant PNG (2160×3840) already has the plant in its final
+   position, so we stack them as full-bleed layers. No coords/sizes.
+   ============================================================ */
+#seedsContainer{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  pointer-events:none;   /* let only the layers capture clicks */
+}
+.seed-layer{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  pointer-events:auto;
+  cursor:pointer;
+}
+.seed-layer-img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  display:block !important;
+  /* No mask / blend — show the artwork exactly as drawn */
+  -webkit-mask-image:none !important;
+  mask-image:none !important;
+  mix-blend-mode:normal !important;
+  filter:none !important;
+}
+/* gentle fade-in for newly planted layers */
+.seed-layer.new-arrival{ animation: seedFadeIn 1.4s ease both; }
+@keyframes seedFadeIn{ from{opacity:0;} to{opacity:1;} }
+
+/* Neutralize ALL old positioned-seed rules so nothing conflicts */
+.garden-stage .seed,
+.seed{
+  position:absolute !important;
+  inset:0 !important;
+  left:auto; top:auto;
+  transform:none !important;
+}
+
+
+/* ===== Index re 08 — garden stage fills body (full-canvas plant mode) ===== */
+.garden-stage{
+  position:absolute !important;
+  inset:0 !important;
+  left:0 !important;
+  top:0 !important;
+  width:100% !important;
+  height:100% !important;
+  transform:none !important;
+}
+.garden-body{
+  position:relative !important;
+  overflow:hidden !important;
+}
+
 </style>
 </head>
 <body>
@@ -6399,18 +6463,15 @@ window.addEventListener("DOMContentLoaded", () => {
 // ===== Fit the fixed 1920×1080 stage to viewport (consistent across devices) =====
 function fitGardenStage(){
   const stage = document.getElementById("gardenStage");
-  const body  = document.getElementById("gardenBody");
-  if(!stage || !body) return;
-  const w = body.clientWidth  || window.innerWidth;
-  const h = body.clientHeight || window.innerHeight;
-  // Fixed 1920×1080 canvas; scale to COVER the garden body (fill, may crop edges)
-  const scale = Math.max(w / 1920, h / 1080);
-  stage.style.width  = "1920px";
-  stage.style.height = "1080px";
-  stage.style.left = "50%";
-  stage.style.top  = "50%";
-  stage.style.transformOrigin = "center center";
-  stage.style.transform = "translate(-50%, -50%) scale(" + scale + ")";
+  if(!stage) return;
+  // Full-canvas mode: the stage simply fills the garden body. Each plant PNG
+  // (2160×3840) is rendered with object-fit:contain, so it letterboxes itself
+  // to the correct portrait shape regardless of viewport. No manual scaling.
+  stage.style.transform = "none";
+  stage.style.left = "0";
+  stage.style.top = "0";
+  stage.style.width = "100%";
+  stage.style.height = "100%";
 }
 window.addEventListener("resize", () => { fitGardenStage(); });
 window.addEventListener("orientationchange", () => { fitGardenStage(); });
@@ -6482,59 +6543,31 @@ function buildGarden(){
   container.innerHTML = "";
   document.getElementById("gardenSub").textContent = t("garden_sub_tpl", {n: Math.min(entries.length, 10)});
 
-  const body = document.getElementById("gardenBody");
   requestAnimationFrame(() => {
-    // Use the ACTUAL garden-body size so plants spread to fill the visible area
     fitGardenStage();
-    // FIXED logical canvas — positions in 1920×1080 space, scaled by the stage
-    // transform, so plant size & position never change on viewport resize.
-    const W = 1920;
-    const H = 1080;
 
     // Show up to 10 plants — newest entries take priority
     const limit = 10;
     const visibleEntries = entries.length > limit ? entries.slice(-limit) : entries;
 
-    // Decide layer for each entry deterministically by index
-    // (so positions stay stable when entries are added)
-    const positions = getPositions(visibleEntries.length, W, H);
-
+    // FULL-CANVAS overlay rendering:
+    // Each plant PNG is a 2160×3840 transparent image with the plant already
+    // in its final position. So we simply stack every plant as a full-bleed
+    // layer (inset:0). No coordinates, sizes, rotations or manual positions.
     visibleEntries.forEach((e, i) => {
-      const cacheKey = e._key || ("demo-" + i);
-      let pos;
-      if(positionsByKey[cacheKey]){
-        pos = positionsByKey[cacheKey];
-      } else {
-        pos = positions[i];
-        positionsByKey[cacheKey] = pos;
-      }
-
-      // Plant image: derived from entry's question (topic+number → onplant{color}{n}.png)
       const plantSrc = plantUrlForEntry(e) || qcardSrc(e.topic, 0);
-      const fallbackSrc = plantSrc;  // (no separate fallback — same file)
       const seed = document.createElement("div");
-      // Layer: 0 = background (faintest), 1 = middle, 2 = trace (clearest)
-      // Distribute roughly: 25% bg, 45% mid, 30% trace
-      const layerClass = pos.layer === 0 ? "layer-bg" : pos.layer === 1 ? "layer-mid" : "layer-trace";
-      seed.className = "seed " + layerClass;
-      // Random rotation per seed
-      const rot = (pos.rot != null) ? pos.rot : ((i * 37) % 17 - 8);
-      const scale = pos.scale || 1;
-      const op = pos.opacity != null ? pos.opacity : 1;
-      seed.style.setProperty("--rot", rot + "deg");
-      seed.style.transform = "translate(-50%,-50%) rotate(" + rot + "deg) scale(" + scale + ")";
-      seed.style.opacity = op;
-      seed.style.animationDelay = (i * 0.3) + "s";
-      seed.style.animationDuration = (7 + (i % 4) * 1.1) + "s";
+      seed.className = "seed-layer";
+      // zIndex follows planting order (only adjust later if overlap looks wrong)
+      seed.style.zIndex = String(10 + i);
 
       if(e._key && !seenKeys.has(e._key)){
         seed.classList.add("new-arrival");
         seenKeys.add(e._key);
       }
-      seed.style.left = pos.x + "px";
-      seed.style.top  = pos.y + "px";
-      seed.innerHTML = `<div class="seed-img"><img src="${plantSrc}" onerror="this.onerror=null;this.src='${fallbackSrc}';" alt=""/></div>`;
-      seed.onclick = () => showBubbleAt(e, pos.x, pos.y - 50, false);
+      seed.innerHTML = '<img class="seed-layer-img" src="' + plantSrc + '" alt=""/>';
+      // Clicking a plant layer opens its trace bubble
+      seed.onclick = () => showBubbleForEntry(e);
       container.appendChild(seed);
     });
 
@@ -6614,12 +6647,17 @@ function getPositions(n, W, H){
 function showBubbleAuto(){
   if(!entries.length) return;
   const e = entries[bubbleIdx];
-  const seeds = document.querySelectorAll(".seed");
-  if(!seeds[bubbleIdx]) return;
-  const rect = seeds[bubbleIdx].getBoundingClientRect();
-  const bodyRect = document.getElementById("gardenBody").getBoundingClientRect();
-  // Auto cycle: SILENT — pass isAuto=true so audio doesn't play
-  showBubbleAt(e, rect.left - bodyRect.left + rect.width/2, rect.top - bodyRect.top, true);
+  showBubbleForEntry(e, true);
+}
+
+// Show bubble for a given entry. Position is centered near the bottom of the
+// garden (plants are full-canvas, so there is no single seed coordinate).
+function showBubbleForEntry(e, isAuto){
+  const body = document.getElementById("gardenBody");
+  const bw = 240;
+  const x = (body.clientWidth / 2);
+  const y = Math.max(60, body.clientHeight * 0.16);
+  showBubbleAt(e, x, y, !!isAuto);
 }
 
 function showBubbleAt(e, x, y, isAuto){
