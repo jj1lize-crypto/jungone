@@ -5312,43 +5312,57 @@ body.ex-display .garden-stage{
 }
 
 
-/* ============================================================
-   Phase 3+ — Controller = questions only (no garden)
-   ============================================================ */
-.ex-ctrlq-root{
-  position:fixed; inset:0; z-index:500;
-  background:var(--paper);
-  display:flex; flex-direction:column;
-  padding:72px clamp(20px,5vw,56px) calc(32px + env(safe-area-inset-bottom));
-  overflow-y:auto;
-}
-.ex-ctrlq-head{
-  font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(19px,3vw,28px); font-weight:400; color:var(--ink);
-  text-align:center; line-height:1.5; margin:8px 0 28px;
-}
-.ex-ctrlq-list{
-  display:flex; flex-direction:column; gap:14px;
-  max-width:680px; width:100%; margin:0 auto;
-}
-.ex-ctrlq-item{
-  width:100%; text-align:left;
-  padding:22px 24px; border-radius:12px;
-  background:#fff; color:var(--ink);
-  border:1.5px solid rgba(60,50,40,0.18);
-  font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(16px,2.2vw,20px); line-height:1.5;
-  cursor:pointer; word-break:keep-all;
-  transition:border-color .15s, background .15s, transform .12s;
-}
-.ex-ctrlq-item:hover{ transform:translateY(-1px); border-color:rgba(60,50,40,0.4); }
-.ex-ctrlq-item.on{ background:#0e0c09; color:#f5f0e8; border-color:#0e0c09; }
 
-/* Controller shows ONLY the question list — hide the garden/app entirely */
-body.ex-controller .app{ display:none !important; }
-html.html-mode-controller body #s9{ display:none !important; }
-body.ex-controller #exConn{ display:flex !important; }
-body.ex-controller #exResetBtn{ display:block !important; }
+
+/* ============================================================
+   Phase 3+ — Big answer/question panel + white plant highlight
+   ============================================================ */
+/* 선택된 식물 하얗게 강조 */
+.seed-layer.selected .seed-layer-img{
+  filter: drop-shadow(0 0 30px rgba(255,255,255,0.95))
+          drop-shadow(0 0 60px rgba(255,255,255,0.6))
+          brightness(1.25) !important;
+  transition: filter .3s ease;
+}
+
+/* 답변/질문을 화면 중앙에 크게 */
+.answer-bubble.ex-answer-big{
+  position:fixed !important;
+  left:50% !important; top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  max-width:min(80vw, 760px) !important;
+  width:auto !important;
+  z-index:80 !important;
+  pointer-events:none !important;
+}
+.answer-bubble.ex-answer-big .bubble-inner{
+  padding:clamp(28px,5vw,56px) clamp(32px,6vw,72px) !important;
+  border-radius:18px !important;
+  backdrop-filter:blur(8px);
+}
+/* 디스플레이 답변 텍스트 — 크게 */
+.ex-ans-text{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(24px,4.5vw,52px) !important;
+  line-height:1.5 !important;
+  color:#f5f0e8 !important;
+  text-align:center !important;
+  word-break:keep-all;
+}
+.ex-ans-media{
+  max-width:100%; max-height:60vh; border-radius:12px;
+  display:block; margin:0 auto 8px;
+}
+/* 컨트롤러 질문 텍스트 — 크게 */
+.ex-q-text{
+  font-family:"Crimson Pro","Noto Serif KR",serif;
+  font-size:clamp(22px,4vw,46px) !important;
+  line-height:1.5 !important;
+  color:#f5f0e8 !important;
+  text-align:center !important;
+  word-break:keep-all;
+  font-style:italic;
+}
 
 </style>
 </head>
@@ -6266,13 +6280,14 @@ function exControllerSelect(plantId){
   const e = exFindPlant(plantId);
   if(!e){ console.warn("[Exhibition] unknown plantId:", plantId); return; }
   exSelectedPlantId = plantId;
-  // Visual selection on the controller garden
+  // White highlight on the selected plant (controller garden)
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
     s.classList.toggle("selected", s.dataset.plantId === plantId);
   });
+  // CONTROLLER shows the QUESTION only on its own screen
+  showControllerQuestion(plantId);
   if(!EX_REF){
-    // No link — fall back to local preview so the controller still demonstrates
-    showExhibitionTrace(plantId);
+    // No TV link — still highlight + show question locally
     exToast(exMsg("link_fail"), true);
     return;
   }
@@ -6285,6 +6300,23 @@ function exControllerSelect(plantId){
   EX_REF.set(payload)
     .then(() => { exToast(exMsg("opened"), false); })
     .catch((err) => { console.error("[Exhibition] write failed:", err); exToast(exMsg("link_fail"), true); });
+}
+
+// Controller-only: show the selected plant's QUESTION (not the answer)
+function showControllerQuestion(plantId){
+  const e = exFindPlant(plantId);
+  if(!e) return;
+  const bub = document.getElementById("answerBubble");
+  const inner = document.getElementById("bubbleInner");
+  if(!bub || !inner) return;
+  const lang = CURRENT_LANG;
+  inner.innerHTML = '<div class="ex-q-text">"' + exQ(e, lang) + '"</div>';
+  inner.style.background = "rgba(10,14,10,0.90)";
+  inner.style.borderColor = "rgba(245,240,232,0.22)";
+  bub.classList.add("show", "ex-answer-big");
+  bub.style.left = ""; bub.style.top = "";
+  const idle = document.getElementById("exIdle");
+  if(idle) idle.style.display = "none";
 }
 
 function exControllerResetRemote(){
@@ -7154,25 +7186,34 @@ function showExhibitionTrace(plantId){
   const inner = document.getElementById("bubbleInner");
   if(!bub || !inner) return;
   const lang = CURRENT_LANG;
-  let html = '<div class="b-question">"' + exQ(e, lang) + '"</div>';
-  if(exT(e, lang)) html += '<div class="b-answer">' + exT(e, lang) + '</div>';
+  // DISPLAY shows the ANSWER (trace) only — large. No question text.
+  let html = "";
+  if(e.mediaType === "image" && e.mediaSrc){
+    html += '<img class="ex-ans-media" src="' + e.mediaSrc + '" alt=""/>';
+  } else if(e.mediaType === "voice" && e.mediaSrc){
+    html += '<audio class="ex-ans-audio" src="' + e.mediaSrc + '" autoplay></audio>';
+  }
+  if(exT(e, lang)) html += '<div class="ex-ans-text">' + exT(e, lang) + '</div>';
   inner.innerHTML = html;
-  // Center the panel
-  const body = document.getElementById("gardenBody");
-  const bw = 240;
-  inner.style.background = "rgba(15,20,15,0.92)";
-  inner.style.borderColor = "rgba(245,240,232,0.25)";
-  bub.style.left = Math.max(10, (body.clientWidth/2) - bw/2) + "px";
-  bub.style.top  = Math.max(40, body.clientHeight*0.18) + "px";
-  bub.classList.add("show");
+  // Highlight the selected plant on the garden
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
+    s.classList.toggle("selected", s.dataset.plantId === plantId);
+  });
+  // Big centered panel
+  inner.style.background = "rgba(10,14,10,0.90)";
+  inner.style.borderColor = "rgba(245,240,232,0.22)";
+  bub.classList.add("show", "ex-answer-big");
+  bub.style.left = "";
+  bub.style.top = "";
   // Hide idle instruction while a trace is shown
   const idle = document.getElementById("exIdle");
   if(idle) idle.style.display = "none";
   // Auto-close after 25s → back to idle
   if(exTraceTimer) clearTimeout(exTraceTimer);
   exTraceTimer = setTimeout(() => {
-    bub.classList.remove("show");
+    bub.classList.remove("show", "ex-answer-big");
     if(idle){ idle.style.display = "flex"; }
+    document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => s.classList.remove("selected"));
     exSelectedPlantId = null;
   }, 25000);
 }
@@ -7208,46 +7249,16 @@ function injectControllerOverlay(){
 }
 
 function initExhibitionController(){
-  // Controller = a simple list of QUESTIONS only (no garden, no plant images).
-  // Tapping a question selects that plant and tells the TV to show its trace.
+  // Controller = the SAME black garden as display.
+  // Difference: tapping a plant highlights it (white glow) + shows the QUESTION only.
+  initExhibitionDisplay();                 // build identical black garden
   document.body.classList.add("ex-controller");
-  document.body.classList.add("mode-controller");
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  buildControllerQuestionList();
+  const container = document.getElementById("seedsContainer");
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => seed.classList.add("ex-tappable"));
+  // Tap → highlight + show question locally + write selection to Firebase
+  attachGardenHitTest(container, (plantId) => exControllerSelect(plantId));
   initExhibitionLink("controller");
   injectControllerOverlay();
-}
-
-// Build the question-only controller UI
-function buildControllerQuestionList(){
-  let root = document.getElementById("exCtrlQuestions");
-  if(!root){
-    root = document.createElement("div");
-    root.id = "exCtrlQuestions";
-    root.className = "ex-ctrlq-root";
-    document.body.appendChild(root);
-  }
-  const lang = CURRENT_LANG;
-  const heading = (lang === "en")
-    ? "Choose a plant you would like to meet in the garden."
-    : "정원에서 만나고 싶은 식물을 골라주세요.";
-  let html = '<div class="ex-ctrlq-head">' + heading + '</div>';
-  html += '<div class="ex-ctrlq-list">';
-  exVisiblePlants().forEach(e => {
-    const q = exQ(e, lang);
-    html += '<button class="ex-ctrlq-item" data-plant-id="' + e.plantId + '">' + q + '</button>';
-  });
-  html += '</div>';
-  root.innerHTML = html;
-  root.style.display = "flex";
-  // Wire taps
-  root.querySelectorAll(".ex-ctrlq-item").forEach(btn => {
-    btn.onclick = () => {
-      root.querySelectorAll(".ex-ctrlq-item").forEach(x => x.classList.remove("on"));
-      btn.classList.add("on");
-      exControllerSelect(btn.dataset.plantId);
-    };
-  });
 }
 
 // (buildControllerGarden kept for reference but no longer the entry point)
