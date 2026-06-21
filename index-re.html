@@ -5167,6 +5167,8 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
 
 /* ----- Display idle instruction ----- */
 .ex-idle{
+  /* bottom black gradient so the instruction reads clearly */
+  background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
   position:absolute; inset:0; z-index:40;
   display:flex; align-items:flex-end; justify-content:center;
   padding-bottom:12%;
@@ -5174,10 +5176,11 @@ body.display-mode .garden-stage .seed.layer-trace .seed-img{width:260px !importa
 }
 .ex-idle-text{
   font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(16px,2.4vw,30px);
-  line-height:1.6; color:rgba(245,240,232,0.85);
+  font-size:clamp(17px,2.5vw,32px);
+  font-weight:700;
+  line-height:1.6; color:#ffffff;
   text-align:center; white-space:pre-line;
-  text-shadow:0 2px 12px rgba(0,0,0,0.7);
+  text-shadow:0 2px 16px rgba(0,0,0,0.9);
 }
 
 /* In exhibition display, make sure NO public controls leak in */
@@ -5204,7 +5207,6 @@ html.html-mode-controller body #s8,
 html.html-mode-controller body #sf1,
 html.html-mode-controller body #sf2{ display:none !important; }
 html.html-mode-controller body #s9{ display:flex !important; }
-html.html-mode-controller body .lang-toggle{ display:none !important; }
 html.html-mode-controller body #s9 .bottom{ display:none !important; }
 /* The old button-grid controller root is no longer used */
 html.html-mode-controller body #exControllerRoot{ display:none !important; }
@@ -5223,7 +5225,6 @@ html.html-mode-display body #sf2{ display:none !important; }
 /* Garden shows as the active screen */
 html.html-mode-display body #s9{ display:flex !important; }
 /* Hide public controls in display from the start */
-html.html-mode-display body .lang-toggle{ display:none !important; }
 html.html-mode-display body #s9 .bottom{ display:none !important; }
 
 
@@ -5555,11 +5556,11 @@ body.ex-display #s9 .garden-body::before{
   opacity:1;
   pointer-events:none;
 }
-/* guide image — SHARP, like the plants are really planted */
+/* guide image overlay — shows how the FULL garden would look (faint reference) */
 body.ex-display #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
-  background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") center/contain no-repeat;
+  background:url("https://jj1lize-crypto.github.io/jungone/garden%20guide1-re.png") top center/contain no-repeat;
   opacity:1;
   pointer-events:none;
 }
@@ -5574,15 +5575,15 @@ body.ex-display .garden-header{
   padding:24px 20px 6px !important;
 }
 body.ex-display .garden-title{ display:none !important; }  /* replaced by logo */
-body.ex-display .ex-logo{
-  display:block; margin:0 auto 8px;
-  height:clamp(28px,4vw,46px); width:auto;
+body.ex-display .ex-logo, body.ex-controller .ex-logo{
+  display:block; margin:0 auto 10px;
+  height:clamp(38px,5vw,60px); width:auto;
 }
-body.ex-display .garden-sub{
+body.ex-display .garden-sub, body.ex-controller .garden-sub{
   display:block !important;
-  font-size:clamp(11px,1.6vw,14px);
+  font-size:clamp(14px,2vw,19px);
   letter-spacing:.14em; text-transform:uppercase;
-  color:rgba(245,240,232,0.72);
+  color:rgba(245,240,232,0.82);
   text-shadow:0 1px 8px rgba(0,0,0,0.7);
 }
 /* KR/ENG toggle visible again in exhibition */
@@ -5590,25 +5591,12 @@ body.ex-display .lang-toggle{
   display:flex !important;
   position:fixed; top:14px; right:14px; z-index:600;
 }
-/* Controller ALSO shows the KR/ENG toggle (top-right) + header (logo + count) */
+/* but NOT on controller (controller has its own reset/conn UI) */
 body.ex-controller .lang-toggle{
   display:flex !important;
-  position:fixed; top:14px; right:14px; z-index:700;
+  position:fixed !important; top:14px !important; right:14px !important; z-index:800 !important;
 }
-body.ex-controller #s9 .garden-header{
-  display:block !important;
-  position:relative; z-index:6; text-align:center;
-  padding:24px 20px 6px !important;
-}
-body.ex-controller .garden-title{ display:none !important; }
-body.ex-controller .ex-logo{ display:block; margin:0 auto 8px; height:clamp(28px,4vw,46px); width:auto; }
-body.ex-controller .garden-sub{
-  display:block !important;
-  font-size:clamp(11px,1.6vw,14px); letter-spacing:.14em; text-transform:uppercase;
-  color:rgba(245,240,232,0.72); text-shadow:0 1px 8px rgba(0,0,0,0.7);
-}
-/* Controller: hide the reset button (close by tapping the card instead) */
-body.ex-controller #exResetBtn{ display:none !important; }
+body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
 
 </style>
 </head>
@@ -7668,8 +7656,8 @@ function fitGardenStage(){
     stage.style.height = h + "px";
     stage.style.position = "absolute";
     stage.style.left = "50%";
-    stage.style.top = "50%";
-    stage.style.transform = "translate(-50%,-50%)";
+    stage.style.top = "0";                      // start near the top (just under the count)
+    stage.style.transform = "translateX(-50%)"; // no vertical centering → sits high
     return;
   }
   // Public garden: stage fills the garden body; plants use object-fit:contain.
