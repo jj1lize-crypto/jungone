@@ -5393,7 +5393,7 @@ body.ex-controller .answer-bubble{
    ============================================================ */
 /* ---- Display: real saved-record look ---- */
 .ex-record .ex-rec-cat{
-  font-family:monospace; font-size:clamp(10px,1.3vw,14px);
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(11px,1.4vw,15px);
   letter-spacing:.18em; text-transform:uppercase;
   color:rgba(245,240,232,0.6); text-align:center; margin-bottom:14px;
 }
@@ -5403,7 +5403,7 @@ body.ex-controller .answer-bubble{
   color:#f5f0e8; text-align:center; word-break:keep-all; margin-bottom:10px;
 }
 .ex-record .ex-rec-date{
-  font-family:monospace; font-size:clamp(11px,1.4vw,15px);
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(12px,1.5vw,16px);
   color:rgba(245,240,232,0.45); text-align:center; margin-bottom:22px;
 }
 .ex-record .ex-rec-media{
@@ -5437,19 +5437,12 @@ body.ex-controller .answer-bubble{
   position:absolute; inset:0;
   width:100%; height:100%; object-fit:cover; display:block;
 }
-/* plant sits in the card, centered, large */
-.ex-qcard-plant{
-  position:absolute; inset:0; z-index:1;
-  width:100%; height:100%; object-fit:contain;
-  object-position:center;
-  pointer-events:none;
-}
-/* dark gradient so white text reads over plant/bg */
+/* dark gradient top & bottom so white theme/brand read clearly */
 .ex-qcard::after{
   content:""; position:absolute; inset:0; z-index:2;
   background:linear-gradient(to bottom,
-    rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.12) 28%,
-    rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.55) 100%);
+    rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 22%,
+    rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.2) 75%, rgba(0,0,0,0.6) 100%);
   pointer-events:none;
 }
 .ex-qcard-body{
@@ -5460,7 +5453,7 @@ body.ex-controller .answer-bubble{
   text-align:center;
 }
 .ex-qcard-cat{
-  font-family:monospace; font-size:clamp(10px,1.8vw,14px);
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(11px,1.9vw,15px);
   letter-spacing:.2em; text-transform:uppercase;
   color:#ffffff; opacity:0.92;
   text-shadow:0 2px 10px rgba(0,0,0,0.6);
@@ -5474,7 +5467,7 @@ body.ex-controller .answer-bubble{
   padding:14px 0;
 }
 .ex-qcard-brand{
-  font-family:"Crimson Pro",serif;
+  font-family:"Crimson Pro","Noto Serif KR",serif;
   font-size:clamp(13px,2vw,18px); letter-spacing:.32em;
   color:#ffffff; opacity:0.9;
   text-shadow:0 2px 10px rgba(0,0,0,0.6);
@@ -6437,15 +6430,21 @@ function exControllerSelect(plantId){
   // Confirm the plant exists in curated data
   const e = exFindPlant(plantId);
   if(!e){ console.warn("[Exhibition] unknown plantId:", plantId); return; }
+
+  // TOGGLE: tapping the SAME plant again closes the card and returns to the garden
+  if(exSelectedPlantId === plantId){
+    exControllerResetRemote();
+    return;
+  }
+
   exSelectedPlantId = plantId;
   // White highlight on the selected plant (controller garden)
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
     s.classList.toggle("selected", s.dataset.plantId === plantId);
   });
-  // CONTROLLER shows the QUESTION only on its own screen
+  // CONTROLLER shows the QUESTION card on its own screen
   showControllerQuestion(plantId);
   if(!EX_REF){
-    // No TV link — still highlight + show question locally
     exToast(exMsg("link_fail"), true);
     return;
   }
@@ -6468,20 +6467,13 @@ function showControllerQuestion(plantId){
   const inner = document.getElementById("bubbleInner");
   if(!bub || !inner) return;
   const lang = CURRENT_LANG;
-  // Card background by color code
-  const cardBgByCode = {
-    bl: BASE + "offcardbl-back-empty.png",
-    gn: BASE + "offcardgn-back-empty.png",
-    pk: BASE + "offcardpk-back-empty.png",
-    yw: BASE + "offcardyw-back-empty.png"
-  };
-  const bg = (e.color && cardBgByCode[e.color]) ? cardBgByCode[e.color] : cardBgByCode.gn;
+  // Use the real physical card image (offcard) as the big card background
+  const cardImg = e.cardImage || e.plantImage;
   const catLabel = (typeof CONV_CAT !== "undefined" && e.color && CONV_CAT[e.color]) ? CONV_CAT[e.color] : "";
-  // A question card: bg image + plant + category (top) + question + JUNG ONE (bottom)
+  // A question card: real card image + theme (top) + question + JUNG ONE (bottom)
   inner.innerHTML =
     '<div class="ex-qcard">' +
-      '<img class="ex-qcard-bg" src="' + bg + '" alt=""/>' +
-      '<img class="ex-qcard-plant" src="' + e.plantImage + '" alt=""/>' +
+      '<img class="ex-qcard-bg" src="' + cardImg + '" alt=""/>' +
       '<div class="ex-qcard-body">' +
         (catLabel ? '<div class="ex-qcard-cat">' + catLabel + '</div>' : '') +
         '<div class="ex-qcard-q">"' + exQ(e, lang) + '"</div>' +
@@ -7176,6 +7168,7 @@ const exhibitionTraces = [
   {
     plantId: "ex-gn3-9", cardId: "gn3-9", source: "faceToFace", color: "gn", date: "2026.05.18",
     plantImage: BASE + "offplantgn3-9.png",
+    cardImage: BASE + "offcardgn3-9.png",
     questionKo: "집에서 가장 편안한 자리는 어디예요?",
     questionEn: "Where is your most comfortable spot at home?",
     traceKo: "창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",
@@ -7185,6 +7178,7 @@ const exhibitionTraces = [
   {
     plantId: "ex-bl1-5", cardId: "bl1-5", source: "faceToFace", color: "bl", date: "2026.05.19",
     plantImage: BASE + "offplantbl1-5.png",
+    cardImage: BASE + "offcardbl1-5.png",
     questionKo: "요즘 자주 머무는 공간이 있나요?",
     questionEn: "Is there a space you spend a lot of time in lately?",
     traceKo: "부엌 식탁. 거기서 차 마시며 하루를 시작해.",
@@ -7194,33 +7188,37 @@ const exhibitionTraces = [
   {
     plantId: "ex-yw2-2", cardId: "yw2-2", source: "faceToFace", color: "yw", date: "2026.05.20",
     plantImage: BASE + "offplantyw2-2.png",
+    cardImage: BASE + "offcardyw2-2.png",
     questionKo: "피곤할 때 어떻게 쉬는 편이에요?",
     questionEn: "How do you rest when you are tired?",
     traceKo: "말없이 누워 있는 시간이 필요해. 그냥 알아만 줘.",
     traceEn: "I need quiet time lying down. Just knowing is enough.",
-    mediaType: null, mediaSrc: null, visible: true, displayOrder: 3
+    mediaType: "image", mediaSrc: BASE + "trace-photo.jpg", visible: true, displayOrder: 3
   },
   {
     plantId: "ex-pk2-9", cardId: "pk2-9", source: "faceToFace", color: "pk", date: "2026.05.21",
     plantImage: BASE + "offplantpk2-9.png",
+    cardImage: BASE + "offcardpk2-9.png",
     questionKo: "좋아하는 맛이나 음식이 있어요?",
     questionEn: "Do you have a favorite taste or food?",
     traceKo: "보리차 한 잔이면 충분해. 자기 전에.",
     traceEn: "A cup of barley tea is enough. Before bed.",
-    mediaType: null, mediaSrc: null, visible: true, displayOrder: 4
+    mediaType: "voice", mediaSrc: BASE + "trace-voice.mp3", visible: true, displayOrder: 4
   },
   {
     plantId: "ex-gn3-1", cardId: "gn3-1", source: "faceToFace", color: "gn", date: "2026.05.22",
     plantImage: BASE + "offplantgn3-1.png",
+    cardImage: BASE + "offcardgn3-1.png",
     questionKo: "몸에서 신경 쓰이는 곳이 있나요?",
     questionEn: "Is there a part of your body you are mindful of?",
-    traceKo: "허리가 좀 안 좋은데, 조용히 알아만 주면 돼.",
-    traceEn: "My back isn't great, but quietly knowing is enough.",
-    mediaType: null, mediaSrc: null, visible: true, displayOrder: 5
+    traceKo: "",
+    traceEn: "",
+    mediaType: "video", mediaSrc: BASE + "trace-video.mp4", visible: true, displayOrder: 5
   },
   {
     plantId: "ex-bl3-2", cardId: "bl3-2", source: "faceToFace", color: "bl", date: "2026.05.23",
     plantImage: BASE + "offplantbl3-2.png",
+    cardImage: BASE + "offcardbl3-2.png",
     questionKo: "하루 중 가장 좋아하는 시간은 언제예요?",
     questionEn: "What is your favorite time of day?",
     traceKo: "해 질 무렵. 창으로 들어오는 빛이 좋아.",
