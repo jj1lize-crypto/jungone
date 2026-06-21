@@ -6794,12 +6794,71 @@ function buildExhibitionGarden(){
     seed.className = "seed-layer ex-tappable";
     seed.style.zIndex = String(10 + i);
     seed.dataset.plantId = e.plantId;
-    seed.innerHTML = '<img class="seed-layer-img" src="' + e.plantImage + '" alt=""/>';
-    // Tapping a plant on the display shows its trace directly (also used for testing).
-    // In Phase 3 the iPad controller will trigger this remotely via Firebase.
-    seed.onclick = () => showExhibitionTrace(e.plantId);
+    seed.innerHTML = '<img class="seed-layer-img" crossorigin="anonymous" src="' + e.plantImage + '" alt=""/>';
     container.appendChild(seed);
   });
+  // Single hit-test handler: topmost plant whose PNG is opaque at the click wins.
+  attachGardenHitTest(container, (plantId) => showExhibitionTrace(plantId));
+}
+
+// Alpha-based hit testing so overlapping full-canvas plants are individually clickable.
+function attachGardenHitTest(container, onHit){
+  if(!container || container._hitBound) {} // allow re-bind on rebuild
+  container._hitBound = true;
+  container.onclick = function(ev){
+    const layers = Array.from(container.querySelectorAll(".seed-layer"));
+    // Test from topmost (highest z-index = last in DOM) to bottom
+    for(let i = layers.length - 1; i >= 0; i--){
+      const layer = layers[i];
+      const img = layer.querySelector("img");
+      if(!img || !img.complete || !img.naturalWidth) continue;
+      const rect = img.getBoundingClientRect();
+      const x = ev.clientX - rect.left;
+      const y = ev.clientY - rect.top;
+      if(x < 0 || y < 0 || x > rect.width || y > rect.height) continue;
+      // object-fit:contain → compute the actual drawn image box inside rect
+      const natRatio = img.naturalWidth / img.naturalHeight;
+      const boxRatio = rect.width / rect.height;
+      let drawW, drawH, offX, offY;
+      if(natRatio > boxRatio){ drawW = rect.width; drawH = rect.width / natRatio; offX = 0; offY = (rect.height - drawH)/2; }
+      else { drawH = rect.height; drawW = rect.height * natRatio; offY = 0; offX = (rect.width - drawW)/2; }
+      const ix = x - offX, iy = y - offY;
+      if(ix < 0 || iy < 0 || ix > drawW || iy > drawH) continue;
+      // Map to natural pixel
+      const px = Math.floor(ix / drawW * img.naturalWidth);
+      const py = Math.floor(iy / drawH * img.naturalHeight);
+      if(getImgAlpha(img, px, py) > 24){
+        const pid = layer.dataset.plantId;
+        if(pid && onHit) onHit(pid);
+        return;
+      }
+    }
+  };
+}
+
+// Cache tiny offscreen canvases per image to read alpha
+const _alphaCanvas = {};
+function getImgAlpha(img, px, py){
+  try{
+    const src = img.src;
+    let c = _alphaCanvas[src];
+    if(!c){
+      // Downscale for speed; alpha map is enough at lower res
+      const maxW = 270, scale = Math.min(1, maxW / img.naturalWidth);
+      c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+      c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+      c._scale = scale;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      try { ctx.drawImage(img, 0, 0, c.width, c.height); }
+      catch(e){ return 255; } // cross-origin taint → treat as opaque (fallback)
+      _alphaCanvas[src] = c;
+    }
+    const sx = Math.min(c.width-1, Math.max(0, Math.floor(px * c._scale)));
+    const sy = Math.min(c.height-1, Math.max(0, Math.floor(py * c._scale)));
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    return ctx.getImageData(sx, sy, 1, 1).data[3];
+  }catch(e){ return 255; }
 }
 
 let exTraceTimer = null;
@@ -6843,12 +6902,10 @@ function initExhibitionController(){
   // Controller = the exact same display garden, then make plants tappable.
   initExhibitionDisplay();                 // build identical black garden
   document.body.classList.add("ex-controller");
-  // Make the rendered plant layers tappable + change idle wording
-  document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => {
-    seed.classList.add("ex-tappable");
-    const pid = seed.dataset.plantId;
-    seed.onclick = () => selectControllerPlant(pid);
-  });
+  // Make the rendered plant layers tappable via alpha hit-test
+  const container = document.getElementById("seedsContainer");
+  document.querySelectorAll("#seedsContainer .seed-layer").forEach(seed => seed.classList.add("ex-tappable"));
+  attachGardenHitTest(container, (plantId) => selectControllerPlant(plantId));
   const el = document.querySelector("#exIdle .ex-idle-text");
   if(el) el.textContent = (CURRENT_LANG === "en")
     ? "Tap a plant to choose\\nthe one you want to meet."
