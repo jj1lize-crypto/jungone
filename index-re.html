@@ -5399,8 +5399,8 @@ body.ex-controller .answer-bubble{
 }
 .ex-record .ex-rec-q{
   font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(20px,3.4vw,40px); line-height:1.45;
-  color:#f5f0e8; text-align:center; word-break:keep-all; margin-bottom:10px;
+  font-size:clamp(14px,1.8vw,22px); line-height:1.4;
+  color:rgba(245,240,232,0.72); text-align:center; word-break:keep-all; margin-bottom:8px;
 }
 .ex-record .ex-rec-date{
   font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(12px,1.5vw,16px);
@@ -5514,6 +5514,12 @@ body.ex-controller .answer-bubble{
   from{ opacity:0; transform:translateY(10px); }
   to{ opacity:1; transform:translateY(0); }
 }
+
+
+/* Controller card is clickable to close */
+body.ex-controller .answer-bubble.ex-qcard-mode{ pointer-events:auto !important; }
+body.ex-controller .answer-bubble.ex-qcard-mode .bubble-inner{ pointer-events:auto !important; }
+.ex-qcard{ pointer-events:auto; }
 
 </style>
 </head>
@@ -6486,6 +6492,12 @@ function showControllerQuestion(plantId){
   bub.style.left = ""; bub.style.top = "";
   const idle = document.getElementById("exIdle");
   if(idle) idle.style.display = "none";
+  // Tapping the card itself closes it and returns to the garden
+  const cardEl = inner.querySelector(".ex-qcard");
+  if(cardEl){
+    cardEl.style.cursor = "pointer";
+    cardEl.onclick = (ev) => { ev.stopPropagation(); exControllerResetRemote(); };
+  }
 }
 
 function exControllerResetRemote(){
