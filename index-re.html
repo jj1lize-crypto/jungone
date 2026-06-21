@@ -4864,6 +4864,30 @@ body:has(#s0.active) .lang-toggle{
   #s8 .trace-textarea{ min-height: 88px !important; }
 }
 
+
+/* ===== Index re 08 — f2f single offcard: no frame/bg/shadow around it ===== */
+#s8 .trace-card-top.is-single{
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  aspect-ratio:auto !important;     /* let the image's own ratio show */
+  overflow:visible !important;
+  width:130px !important;            /* a touch larger since no frame */
+}
+#s8 .trace-card-top.is-single .tct-bg{
+  position:relative !important;      /* not absolute-filling a fixed frame */
+  inset:auto !important;
+  width:100% !important;
+  height:auto !important;
+  object-fit:contain !important;     /* show whole card image, no crop */
+}
+@media (max-height:720px){
+  #s8 .trace-card-top.is-single{ width:100px !important; }
+}
+@media (max-height:620px){
+  #s8 .trace-card-top.is-single{ width:78px !important; }
+}
+
 </style>
 </head>
 <body>
@@ -6129,11 +6153,13 @@ function buildTraceInput(){
     if(plant){ plant.src = ""; plant.style.display = "none"; }
     cardTop.style.display = "none";
     if(S.source === "faceToFace" && S.f2fCard){
-      // Physical card — single image fills the frame
+      // Physical card — single complete image, NO frame around it
+      cardTop.classList.add("is-single");
       cardTop.style.display = "block";
       if(bg){ bg.src = offCardImg(S.f2fCard); bg.style.display = "block"; }
       if(plant) plant.style.display = "none";
     } else if(S.source === "afar" && S.topic && (S.questionIdx !== null && S.questionIdx !== undefined)){
+      cardTop.classList.remove("is-single");
       // Online question card — same composition as the conversation card:
       // offcard{color}-back-empty (bg) + oncard{color}{n} (plant overlay)
       cardTop.style.display = "block";
