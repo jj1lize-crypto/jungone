@@ -11,7 +11,7 @@
 <link rel="dns-prefetch" href="https://jj1lize-crypto.github.io">
 <link rel="preload" as="image" href="https://jj1lize-crypto.github.io/jungone/cover-1920.png" fetchpriority="high">
 
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -2596,7 +2596,7 @@ body.display-mode #s9 .garden-body{
    Overrides previous styles. Does not change HTML structure or JS.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&display=swap');
 
 :root {
   --paper: #f3eee4;
@@ -2617,7 +2617,7 @@ html, body {
   padding: 0;
 }
 body {
-  font-family: "Gowun Batang", "Noto Serif KR", serif !important;
+  font-family: "Crimson Pro", "Noto Serif KR", serif !important;
   font-weight: 400;
   color: var(--ink);
   overflow-x: hidden;
@@ -4811,6 +4811,59 @@ body:has(#s0.active) .lang-toggle{
   z-index:2 !important;
 }
 
+
+/* ============================================================
+   Index re 08 — Unified short instruction / heading text
+   ============================================================ */
+.s-title,
+.s-title.center,
+.s-subtitle,
+.s-subtitle.center,
+.invite-tip{
+  font-family: "Crimson Pro", "Noto Serif KR", serif !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+  color: var(--ink) !important;
+  text-align: center !important;
+  letter-spacing: 0 !important;
+  font-style: normal !important;
+  margin: 22px var(--page-padding) 16px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+/* When a subtitle directly follows a title, tighten the gap */
+.s-title + .s-subtitle,
+.s-title.center + .s-subtitle.center{
+  margin-top: -8px !important;
+  margin-bottom: 18px !important;
+  color: var(--muted) !important;
+  font-size: 13px !important;
+}
+
+
+/* ===== Index re 08 — S8 scrollable so buttons never clip ===== */
+#s8{
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+/* Ensure the bottom action area always has breathing room at the end */
+#s8 .bottom{
+  padding-bottom: calc(28px + env(safe-area-inset-bottom)) !important;
+  margin-top: auto !important;
+}
+/* Slightly tighten card-top on short screens so everything fits */
+@media (max-height: 720px){
+  #s8 .trace-card-top{ width: 84px !important; margin-top: 14px !important; }
+  #s8 .trace-textarea{ min-height: 110px !important; margin-top: 14px !important; }
+  #s8 .progress{ padding-top: 18px !important; }
+}
+@media (max-height: 620px){
+  #s8 .trace-card-top{ width: 64px !important; }
+  #s8 .trace-textarea{ min-height: 88px !important; }
+}
+
 </style>
 </head>
 <body>
@@ -5673,15 +5726,37 @@ function go(id){
   if(id==="sf2") buildF2FCards();
 }
 
+
+// Reset trace input + uploaded file + selections (called when a path starts)
+function resetTraceState(){
+  S.uploadedFile = null;
+  const ta = document.getElementById("traceText");
+  if(ta) ta.value = "";
+  const prev = document.getElementById("uploadPreview");
+  if(prev) prev.classList.remove("show");
+  const box = document.getElementById("uploadBox");
+  if(box) box.style.display = "";
+  const cardTop = document.getElementById("traceCardTop");
+  if(cardTop){
+    const bg = cardTop.querySelector(".tct-bg");
+    const plant = cardTop.querySelector(".tct-plant");
+    if(bg){ bg.src = ""; bg.style.display = "none"; }
+    if(plant){ plant.src = ""; plant.style.display = "none"; }
+    cardTop.style.display = "none";
+  }
+}
+
 // ===== Path entry points (from intro) =====
 function startAfar(){
   S.source = "afar";
+  resetTraceState();
   go("s2");
 }
 function startFaceToFace(){
   S.source = "faceToFace";
   S.f2fCat = null;
   S.f2fCard = null;
+  resetTraceState();
   go("sf1");
 }
 
@@ -6033,6 +6108,7 @@ function showFlashAndGoGarden(){
   setTimeout(() => {
     f.classList.remove("show");
     go("s9");
+    resetTraceState();   // clear for next round
   }, 2400);
 }
 
@@ -6048,6 +6124,10 @@ function buildTraceInput(){
   if(cardTop){
     const bg = cardTop.querySelector(".tct-bg");
     const plant = cardTop.querySelector(".tct-plant");
+    // Always reset both layers first (prevents afar+f2f images overlapping)
+    if(bg){ bg.src = ""; bg.style.display = "none"; }
+    if(plant){ plant.src = ""; plant.style.display = "none"; }
+    cardTop.style.display = "none";
     if(S.source === "faceToFace" && S.f2fCard){
       // Physical card — single image fills the frame
       cardTop.style.display = "block";
