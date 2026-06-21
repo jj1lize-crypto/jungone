@@ -5204,7 +5204,6 @@ html.html-mode-controller body #s8,
 html.html-mode-controller body #sf1,
 html.html-mode-controller body #sf2{ display:none !important; }
 html.html-mode-controller body #s9{ display:flex !important; }
-html.html-mode-controller body .lang-toggle{ display:none !important; }
 html.html-mode-controller body #s9 .bottom{ display:none !important; }
 /* The old button-grid controller root is no longer used */
 html.html-mode-controller body #exControllerRoot{ display:none !important; }
@@ -5588,7 +5587,7 @@ body.ex-display .garden-sub{
 /* KR/ENG toggle visible again in exhibition */
 body.ex-display .lang-toggle{ display:none !important; }
 /* but NOT on controller (controller has its own reset/conn UI) */
-body.ex-controller .lang-toggle{ display:none !important; }
+body.ex-controller .lang-toggle{ display:flex !important; position:fixed !important; top:14px !important; right:14px !important; z-index:900 !important; }
 body.ex-controller #s9 .garden-header{ display:none !important; }  /* controller stays clean */
 
 body.ex-display:not(.ex-controller) #exIdle{ display:none !important; }
