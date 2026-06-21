@@ -4578,6 +4578,239 @@ body:has(#s0.active) .lang-toggle{
   pointer-events:none !important;
 }
 
+
+/* ============================================================
+   Index re 07 — Face-to-Face path styles
+   ============================================================ */
+
+/* Intro: two path buttons stacked */
+.intro-paths{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:12px !important;
+}
+.path-btn{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  min-height:auto !important;
+  padding:18px 20px !important;
+  text-align:center !important;
+  background:var(--ink) !important;
+  color:#fff !important;
+  border-radius:0 !important;
+}
+.path-btn .path-title{
+  font-size:17px !important;
+  font-weight:600 !important;
+  line-height:1.3 !important;
+  color:#fff !important;
+}
+.path-btn .path-desc{
+  font-size:11.5px !important;
+  font-weight:400 !important;
+  line-height:1.5 !important;
+  color:rgba(255,255,255,0.78) !important;
+  word-break:keep-all !important;
+}
+
+/* Sub-heading under s-title */
+.s-subtitle.center{
+  text-align:center !important;
+  font-size:12.5px !important;
+  color:var(--muted) !important;
+  line-height:1.5 !important;
+  margin:0 var(--page-padding) 10px !important;
+  font-family:inherit !important;
+}
+
+/* F2 card grid — vertical scroll allowed, same card style */
+#sf2{ overflow-y:auto !important; }
+#sf2 .qcard-row{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+  gap:12px !important;
+  width:calc(100% - 2 * var(--page-padding)) !important;
+  max-width:none !important;
+  margin:20px var(--page-padding) 24px !important;
+  align-content:start !important;
+}
+#sf2 .qcard.f2f-card{
+  aspect-ratio:0.73 !important;
+  background:var(--paper-deep) !important;
+}
+#sf2 .qcard.f2f-card .qc-front{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  padding:0 !important;
+  transform:none !important;
+  z-index:1 !important;
+}
+
+/* sf1 reuses topic-row 2x2 grid (already styled via #s2 .topic-row — replicate) */
+#sf1 .topic-row{
+  display:grid !important;
+  grid-template-columns:repeat(2, 1fr) !important;
+  gap:12px !important;
+  width:calc(100% - 2 * var(--page-padding)) !important;
+  max-width:none !important;
+  margin:20px var(--page-padding) 24px !important;
+  align-content:start !important;
+}
+#sf1 .topic-card{
+  position:relative !important;
+  aspect-ratio:0.73 !important;
+  border:2px solid transparent !important;
+  border-radius:var(--card-radius) !important;
+  overflow:hidden !important;
+  background:var(--paper-deep) !important;
+  padding:0 !important;
+  cursor:pointer;
+}
+#sf1 .topic-card.on{ border-color:var(--ink) !important; }
+#sf1 .topic-card.on::after{
+  content:"✓" !important;
+  display:grid !important; place-items:center !important;
+  position:absolute !important; top:10px !important; right:10px !important;
+  width:32px !important; height:32px !important;
+  border-radius:50% !important; background:var(--ink) !important; color:#fff !important;
+  font-size:18px !important; z-index:5 !important;
+}
+#sf1 .topic-card .tc-img{
+  position:absolute !important; inset:0 !important;
+  width:100% !important; height:100% !important;
+  object-fit:cover !important;
+}
+
+/* Trace page: selected physical card at top */
+.trace-card-top{
+  width:120px !important;
+  aspect-ratio:0.73 !important;
+  margin:20px auto 4px !important;
+  border-radius:6px !important;
+  overflow:hidden !important;
+  box-shadow:0 6px 18px rgba(14,12,9,0.18) !important;
+}
+.trace-card-top img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  display:block !important;
+}
+.trace-f2f-heading{ margin-top:8px !important; }
+.trace-f2f-heading .s-title.center{ margin-bottom:6px !important; }
+
+
+/* ===== Index re 07b — F2F grids centered ===== */
+#sf1 .topic-row,
+#sf2 .qcard-row{
+  margin-left:auto !important;
+  margin-right:auto !important;
+  justify-items:stretch !important;
+  justify-content:center !important;
+}
+#sf1 .s-title.center,
+#sf2 .s-title.center{
+  text-align:center !important;
+  width:auto !important;
+  margin-left:var(--page-padding) !important;
+  margin-right:var(--page-padding) !important;
+}
+
+
+/* ============================================================
+   Index re 07c — S8 trace page: ONE consistent layout for both paths
+   ============================================================ */
+#s8{
+  display:none;
+  flex-direction:column !important;
+  padding:0 !important;
+}
+#s8.active{ display:flex !important; }
+
+/* Progress bar — same as every screen */
+#s8 .progress{
+  padding:28px var(--page-padding) 0 !important;
+  margin:0 !important;
+}
+
+/* Optional physical-card image (face-to-face only) — consistent block */
+#s8 .trace-card-top{
+  width:110px !important;
+  aspect-ratio:0.73 !important;
+  margin:22px auto 0 !important;
+  border-radius:6px !important;
+  overflow:hidden !important;
+  box-shadow:0 6px 18px rgba(14,12,9,0.18) !important;
+  flex:0 0 auto !important;
+}
+#s8 .trace-card-top img{ width:100% !important; height:100% !important; object-fit:cover !important; display:block !important; }
+
+/* Textarea — SAME top spacing whether or not the card is shown.
+   (When card is shown, the card's own margin provides separation; the textarea
+    keeps a fixed gap below whatever precedes it.) */
+#s8 .trace-textarea{
+  box-sizing:border-box !important;
+  width:calc(100% - 2 * var(--page-padding)) !important;
+  max-width:calc(100% - 2 * var(--page-padding)) !important;
+  margin:22px auto 6px !important;   /* uniform */
+}
+#s8 .trace-counter,
+#s8 .divider,
+#s8 .upload-box,
+#s8 .upload-preview{
+  box-sizing:border-box !important;
+  width:calc(100% - 2 * var(--page-padding)) !important;
+  max-width:calc(100% - 2 * var(--page-padding)) !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+#s8 .trace-counter{ margin-top:0 !important; margin-bottom:24px !important; }
+#s8 .divider{ display:flex !important; margin-bottom:20px !important; }
+#s8 .upload-box{ margin-bottom:6px !important; }
+
+/* Bottom buttons — natural footer */
+#s8 .bottom{
+  margin-top:auto !important;
+  position:static !important;
+}
+
+
+/* ===== Index re 07d — trace-card-top layered (afar bg+plant / f2f single) ===== */
+#s8 .trace-card-top{
+  position:relative !important;
+  width:110px !important;
+  aspect-ratio:0.73 !important;
+  margin:22px auto 0 !important;
+  border-radius:6px !important;
+  overflow:hidden !important;
+  background:#0e0c09 !important;
+  box-shadow:0 6px 18px rgba(14,12,9,0.18) !important;
+  flex:0 0 auto !important;
+}
+#s8 .trace-card-top .tct-bg{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  z-index:1 !important;
+}
+#s8 .trace-card-top .tct-plant{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  padding:8% !important;
+  z-index:2 !important;
+}
+
 </style>
 </head>
 <body>
@@ -4605,8 +4838,33 @@ body:has(#s0.active) .lang-toggle{
       <p data-i18n="intro_p4">말문이 막히면<br>정원 카드를 펼쳐보세요.</p>
       <p data-i18n="intro_p5">말하지 않는 것도 대답이고,<br>남기지 않는 것도 선택입니다.</p>
     </div>
+    <div class="bottom intro-paths">
+      <button class="btn path-btn" onclick="startAfar()">
+        <span class="path-title" data-i18n="path_afar_title">멀리서</span>
+      </button>
+      <button class="btn path-btn" onclick="startFaceToFace()">
+        <span class="path-title" data-i18n="path_f2f_title">가까이서</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN F1 — FACE-TO-FACE CATEGORY SELECT ===== -->
+  <section class="screen" id="sf1">
+    <div class="s-title center" data-i18n="f2f_cat_heading">카드 색을 골라주세요</div>
+    <div class="topic-row" id="f2fCatRow"></div>
     <div class="bottom">
-      <button class="btn" data-i18n="intro_btn" onclick="go('s2')">정원 초대장 만들기 →</button>
+      <button class="btn" id="btnSf1" disabled onclick="go('sf2')" data-i18n="btn_next">다음 →</button>
+      <button class="btn-back" onclick="go('s1')" data-i18n="btn_back">← 뒤로</button>
+    </div>
+  </section>
+
+  <!-- ===== SCREEN F2 — FACE-TO-FACE CARD SELECT (all in category) ===== -->
+  <section class="screen" id="sf2">
+    <div class="s-title center" data-i18n="f2f_card_heading">함께 사용한 카드를 골라주세요.</div>
+    <div class="qcard-row" id="f2fCardRow"></div>
+    <div class="bottom">
+      <button class="btn" id="btnSf2" disabled onclick="openPlantModal()" data-i18n="f2f_plant_btn">정원에 심기 →</button>
+      <button class="btn-back" onclick="go('sf1')" data-i18n="btn_back">← 뒤로</button>
     </div>
   </section>
 
@@ -4708,6 +4966,10 @@ body:has(#s0.active) .lang-toggle{
       <div class="step"><div class="bar"></div><div class="label" data-i18n="step_listen">듣기</div></div>
       <div class="step active"><div class="bar"></div><div class="label" data-i18n="step_keep">남기기</div></div>
     </div>
+    <div class="trace-card-top" id="traceCardTop" style="display:none;">
+      <img class="tct-bg" src="" alt=""/>
+      <img class="tct-plant" src="" alt="" style="display:none;"/>
+    </div>
     <textarea class="trace-textarea" id="traceText" placeholder="오늘 마음에 남은 것을 적어주세요." data-i18n-ph="s8_placeholder" maxlength="200" oninput="updateCounter()"></textarea>
     <div class="trace-counter"><span id="traceCount">0</span> / 200</div>
     <div class="divider" data-i18n="s8_or">또는</div>
@@ -4723,7 +4985,7 @@ body:has(#s0.active) .lang-toggle{
     </div>
     <div class="bottom">
       <button class="btn" onclick="plantWithTrace()" data-i18n="s7b_plant">정원에 심기 →</button>
-      <button class="btn-back" onclick="go('s6')" data-i18n="btn_back">← 뒤로</button>
+      <button class="btn-back" id="s8Back" onclick="s8GoBack()" data-i18n="btn_back">← 뒤로</button>
     </div>
   </section>
 
@@ -4825,6 +5087,19 @@ const OFFCARDS_BACK = {
   safety: BASE + "offcardyw-back-empty.png"
 };
 
+// ===== Face-to-Face physical cards (actual files scanned from repo) =====
+const OFFCARD_FILES = {
+  gn: ["gn1-3","gn1-4","gn1-6","gn2-6","gn3-1","gn3-9","gn3-10"],
+  pk: ["pk2-9","pk2-10","pk3-4","pk3-8"],
+  bl: ["bl1-5","bl1-7","bl1-9","bl3-2","bl3-5","bl3-7"],
+  yw: ["yw1-10","yw2-2","yw2-3","yw2-4","yw2-5","yw3-3","yw3-6"]
+};
+function offCardImg(code){ return BASE + "offcard" + code + ".png"; }
+function offPlantImg(code){ return BASE + "offplant" + code + ".png"; }
+// Map physical-card category color → topic key (for garden color + category label reuse)
+const OFFCAT_TOPIC = { bl:"space", gn:"body", pk:"taste", yw:"safety" };
+
+
 // Topic card fronts (S2 — used as the body of each topic tile + 3 random plants on top)
 const ONCARDS_FRONT = {
   space:  BASE + "oncardbl-front.png",
@@ -4866,11 +5141,17 @@ const ONPLANTS = {
   yw: Array.from({length:9}, (_,i)=> BASE + "onplantyw" + (i+1) + ".png")
 };
 function plantUrlForEntry(e){
-  if(!e || !e.q) return "";
+  if(!e) return "";
+  // Face-to-face: use the offplant matching the physical card code
+  if(e.source === "faceToFace" && e.f2fCard){
+    return offPlantImg(e.f2fCard);   // offplant{code}.png e.g. offplantgn3-10.png
+  }
+  // Afar (existing): derive from q ("space-3")
+  if(!e.q) return "";
   const parts = e.q.split("-");
   if(parts.length !== 2) return "";
   const topic = parts[0];
-  const num = parseInt(parts[1]) - 1;  // 0-based
+  const num = parseInt(parts[1]) - 1;
   const color = TOPIC_COLOR[topic];
   if(!color || isNaN(num) || num < 0 || num >= 9) return "";
   return ONPLANTS[color][num];
@@ -5088,6 +5369,16 @@ const I18N = {
     intro_p4: "말문이 막히면<br>정원 카드를 펼쳐보세요.",
     intro_p5: "말하지 않는 것도 대답이고,<br>남기지 않는 것도 선택입니다.",
     intro_btn: "정원 초대장 만들기 →",
+    path_afar_title: "멀리서",
+    path_afar_desc: "작은 질문으로 떨어져 있어도 서로의 일상과 상태를 이어갑니다.",
+    path_f2f_title: "가까이서",
+    path_f2f_desc: "함께 있을 때만 꺼낼 수 있는 질문으로 더 느리고 깊은 대화를 나눕니다.",
+    f2f_cat_heading: "카드 색을 골라주세요",
+    f2f_cat_sub: "카드의 색이나 주제를 골라주세요.",
+    f2f_card_heading: "사용했던 카드를 골라주세요",
+    f2f_plant_btn: "정원에 심기 →",
+    f2f_trace_heading: "함께한 대화에서 무엇을 정원에 남기고 싶나요?",
+    f2f_trace_sub: "대화 전체가 아니라, 다시 돌아보고 싶은 흔적만 남겨주세요.",
     step_ask: "묻기",
     step_read: "읽기",
     step_listen: "듣기",
@@ -5143,6 +5434,16 @@ const I18N = {
     intro_p4: "If words are hard to find,<br>open the garden cards.",
     intro_p5: "Not speaking is also an answer.<br>Not leaving a trace is also a choice.",
     intro_btn: "Create a garden invitation →",
+    path_afar_title: "Apart",
+    path_afar_desc: "Keep everyday connection alive through small questions, even when you are apart.",
+    path_f2f_title: "Together",
+    path_f2f_desc: "Use questions made for slower and deeper conversations when you are together.",
+    f2f_cat_heading: "Choose a card colour",
+    f2f_cat_sub: "Choose its colour or topic.",
+    f2f_card_heading: "Choose the card you used",
+    f2f_plant_btn: "Plant in the garden →",
+    f2f_trace_heading: "What would you like to keep from the conversation you shared?",
+    f2f_trace_sub: "Keep only the trace you may want to return to, rather than the whole conversation.",
     step_ask: "Ask",
     step_read: "Read",
     step_listen: "Listen",
@@ -5243,6 +5544,8 @@ function setLanguage(lang){
     else if(id === "s6") rebuildConvScreen();
     else if(id === "s7b") rebuildInvitePreview();
     else if(id === "s9") buildGarden();
+    else if(id === "sf1") buildF2FCategory();
+    else if(id === "sf2") buildF2FCards();
   }
 }
 
@@ -5352,7 +5655,7 @@ async function initFirebase(){
 let entries = [...DEMO];
 
 // State
-let S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null};
+let S = {topic:null, question:null, questionIdx:null, qChoices:[], qChoicesByTopic:{}, listenCard:null, invitationLink:null, uploadedFile:null, source:"afar", f2fCat:null, f2fCard:null};
 
 // ===== Navigation =====
 function go(id){
@@ -5366,7 +5669,76 @@ function go(id){
   if(id==="s6") buildConv();
   if(id==="s8") buildTraceInput();
   if(id==="s9") buildGarden();
+  if(id==="sf1") buildF2FCategory();
+  if(id==="sf2") buildF2FCards();
 }
+
+// ===== Path entry points (from intro) =====
+function startAfar(){
+  S.source = "afar";
+  go("s2");
+}
+function startFaceToFace(){
+  S.source = "faceToFace";
+  S.f2fCat = null;
+  S.f2fCard = null;
+  go("sf1");
+}
+
+// ===== F1 — Physical card category select (reuse 4 category images) =====
+function buildF2FCategory(){
+  const row = document.getElementById("f2fCatRow");
+  row.innerHTML = "";
+  document.getElementById("btnSf1").disabled = (S.f2fCat === null || S.f2fCat === undefined);
+  // Reuse the same 4 category/topic images (TSRCS) — keyed by color
+  const cats = [
+    {color:"bl", topic:"space"},
+    {color:"gn", topic:"body"},
+    {color:"pk", topic:"taste"},
+    {color:"yw", topic:"safety"}
+  ];
+  cats.forEach(({color, topic}) => {
+    const c = document.createElement("button");
+    c.className = "topic-card";
+    if(S.f2fCat === color) c.classList.add("on");
+    c.innerHTML = `<img class="tc-img" src="${TSRCS[topic]}" alt=""/>`;
+    c.onclick = () => {
+      row.querySelectorAll(".topic-card").forEach(x=>x.classList.remove("on"));
+      c.classList.add("on");
+      S.f2fCat = color;
+      // Reset card selection when category changes
+      S.f2fCard = null;
+      document.getElementById("btnSf1").disabled = false;
+    };
+    row.appendChild(c);
+  });
+}
+
+// ===== F2 — Show ALL physical cards in the selected category =====
+function buildF2FCards(){
+  const row = document.getElementById("f2fCardRow");
+  row.innerHTML = "";
+  document.getElementById("btnSf2").disabled = (S.f2fCard === null || S.f2fCard === undefined);
+  const cat = S.f2fCat;
+  const files = (OFFCARD_FILES[cat] || []);
+  files.forEach(code => {
+    const c = document.createElement("button");
+    c.className = "qcard f2f-card";
+    if(S.f2fCard === code) c.classList.add("on");
+    // Physical card = its cardImage (offcard{code}.png), shown full
+    c.innerHTML = `<img class="qc-front" src="${offCardImg(code)}" alt=""/>`;
+    c.onclick = () => {
+      row.querySelectorAll(".qcard").forEach(x=>x.classList.remove("on"));
+      c.classList.add("on");
+      S.f2fCard = code;
+      document.getElementById("btnSf2").disabled = false;
+    };
+    row.appendChild(c);
+  });
+}
+
+// (F2F now goes through the standard plantModal — same as the afar path.
+//  buildTraceInput() shows the selected physical card at the top of S8.)
 
 // ===== S2 — Topic =====
 function buildTopicGrid(){
@@ -5540,18 +5912,45 @@ function todayStr(){
   return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,'0') + "." + String(d.getDate()).padStart(2,'0');
 }
 function plantOnly(){
-  const col = TCOLORS[S.topic] || '#9aab9e';
-  const a = S.listenCard || null;
-  const entry = {name:t("you_name"), topic:S.topic, q:S.question, a:a, answer:"", date:todayStr(), color:col};
+  const entry = makeBaseEntry("");
   pushToFirebase(entry);
   showFlashAndGoGarden();
 }
 
+// Build the entry object for either path (afar / faceToFace)
+function makeBaseEntry(answer){
+  if(S.source === "faceToFace"){
+    const topicKey = OFFCAT_TOPIC[S.f2fCat] || "taste";
+    const col = TCOLORS[topicKey] || '#9aab9e';
+    return {
+      name: t("you_name"),
+      source: "faceToFace",
+      topic: topicKey,
+      f2fCard: S.f2fCard || null,   // e.g. "gn3-10"
+      q: null,
+      a: null,
+      answer: answer,
+      date: todayStr(),
+      color: col
+    };
+  }
+  // afar (existing)
+  const col = TCOLORS[S.topic] || '#9aab9e';
+  return {
+    name: t("you_name"),
+    source: "afar",
+    topic: S.topic,
+    q: S.question,
+    a: S.listenCard || null,
+    answer: answer,
+    date: todayStr(),
+    color: col
+  };
+}
+
 async function plantWithTrace(){
   const answer = document.getElementById("traceText").value.trim();
-  const col = TCOLORS[S.topic] || '#9aab9e';
-  const a = S.listenCard || null;
-  const entry = {name:t("you_name"), topic:S.topic, q:S.question, a:a, answer, date:todayStr(), color:col};
+  const entry = makeBaseEntry(answer);
 
   // Upload media file to Firebase Storage (if any), then attach URL
   if(S.uploadedFile && S.uploadedFile.file){
@@ -5638,8 +6037,32 @@ function showFlashAndGoGarden(){
 }
 
 // ===== S8 — Trace =====
+function s8GoBack(){
+  if(S.source === "faceToFace") go("sf2");
+  else go("s6");
+}
 function buildTraceInput(){
   document.getElementById("traceText").value = "";
+  // Show the selected card at the top for BOTH paths
+  const cardTop = document.getElementById("traceCardTop");
+  if(cardTop){
+    const bg = cardTop.querySelector(".tct-bg");
+    const plant = cardTop.querySelector(".tct-plant");
+    if(S.source === "faceToFace" && S.f2fCard){
+      // Physical card — single image fills the frame
+      cardTop.style.display = "block";
+      if(bg){ bg.src = offCardImg(S.f2fCard); bg.style.display = "block"; }
+      if(plant) plant.style.display = "none";
+    } else if(S.source === "afar" && S.topic && (S.questionIdx !== null && S.questionIdx !== undefined)){
+      // Online question card — same composition as the conversation card:
+      // offcard{color}-back-empty (bg) + oncard{color}{n} (plant overlay)
+      cardTop.style.display = "block";
+      if(bg){ bg.src = OFFCARDS_BACK[S.topic]; bg.style.display = "block"; }
+      if(plant){ plant.src = qcardSrc(S.topic, S.questionIdx); plant.style.display = "block"; }
+    } else {
+      cardTop.style.display = "none";
+    }
+  }
   document.getElementById("traceCount").textContent = "0";
   clearFile();
 }
@@ -5824,14 +6247,25 @@ function buildSparkles(){
   const flies = document.getElementById("firefliesLayer");
   if(flies){
     flies.innerHTML = "";
-    for(let i = 0; i < 22; i++){  // more fireflies, spread across whole canvas
+    for(let i = 0; i < 22; i++){  // same total; sizes vary, small ones more common
       const f = document.createElement("div");
       f.className = "firefly";
       f.style.left = (2 + srand(i + 501) * 96) + "%";
       f.style.top  = (2 + srand(i + 502) * 96) + "%";
-      f.style.animationDelay = (srand(i + 503) * 6) + "s, " + (srand(i + 504) * 4) + "s";
-      const drift = 30 + srand(i + 505) * 24;   // 30s–54s (much slower drift)
-      const glow  = 3.5 + srand(i + 506) * 3;
+      // Size: bias toward small. r^2 skews most values low; range ~2.5px..8px
+      const rs = srand(i + 507);
+      const size = 2.5 + (rs * rs) * 5.5;   // most ~2.5-4px, few up to ~8px
+      f.style.width = size.toFixed(1) + "px";
+      f.style.height = size.toFixed(1) + "px";
+      // Scale the glow with size
+      const g1 = (size * 1.8).toFixed(0), g2 = (size * 3.4).toFixed(0), g3 = (size * 5.6).toFixed(0);
+      f.style.boxShadow =
+        "0 0 " + g1 + "px rgba(255,235,140,0.85),"
+        + "0 0 " + g2 + "px rgba(255,225,120,0.55),"
+        + "0 0 " + g3 + "px rgba(255,210,100,0.30)";
+      f.style.animationDelay = (srand(i + 503) * 8) + "s, " + (srand(i + 504) * 6) + "s";
+      const drift = 48 + srand(i + 505) * 34;   // 48s–82s (slower drift)
+      const glow  = 6 + srand(i + 506) * 4;      // 6s–10s (slower blink)
       f.style.animationDuration = drift + "s, " + glow + "s";
       flies.appendChild(f);
     }
