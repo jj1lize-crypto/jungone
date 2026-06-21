@@ -4865,27 +4865,43 @@ body:has(#s0.active) .lang-toggle{
 }
 
 
-/* ===== Index re 08 — f2f single offcard: no frame/bg/shadow around it ===== */
-#s8 .trace-card-top.is-single{
+/* ===== Index re 08 — f2f single offcard: COMPLETELY bare (highest specificity) ===== */
+#s8 .trace-card-top.is-single,
+.trace-card-top.is-single{
   background:transparent !important;
+  background-color:transparent !important;
   box-shadow:none !important;
+  border:0 !important;
   border-radius:0 !important;
-  aspect-ratio:auto !important;     /* let the image's own ratio show */
+  aspect-ratio:auto !important;
   overflow:visible !important;
-  width:130px !important;            /* a touch larger since no frame */
+  width:130px !important;
+  padding:0 !important;
 }
-#s8 .trace-card-top.is-single .tct-bg{
-  position:relative !important;      /* not absolute-filling a fixed frame */
+/* Override the global `.trace-card-top img{object-fit:cover!important}` for the single card */
+#s8 .trace-card-top.is-single .tct-bg,
+.trace-card-top.is-single img.tct-bg,
+.trace-card-top.is-single .tct-bg{
+  position:relative !important;
   inset:auto !important;
+  top:auto !important; left:auto !important;
   width:100% !important;
   height:auto !important;
-  object-fit:contain !important;     /* show whole card image, no crop */
+  object-fit:contain !important;
+  display:block !important;
+  border:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+}
+/* The plant layer must NEVER show in single mode */
+.trace-card-top.is-single .tct-plant{
+  display:none !important;
 }
 @media (max-height:720px){
-  #s8 .trace-card-top.is-single{ width:100px !important; }
+  #s8 .trace-card-top.is-single, .trace-card-top.is-single{ width:100px !important; }
 }
 @media (max-height:620px){
-  #s8 .trace-card-top.is-single{ width:78px !important; }
+  #s8 .trace-card-top.is-single, .trace-card-top.is-single{ width:78px !important; }
 }
 
 </style>
