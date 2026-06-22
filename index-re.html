@@ -5329,7 +5329,7 @@ body.ex-display .garden-stage{
   position:fixed !important;
   left:50% !important; top:50% !important;
   transform:translate(-50%,-50%) !important;
-  max-width:min(64vw, 480px) !important;
+  max-width:min(70vw, 560px) !important;
   width:auto !important;
   z-index:80 !important;
   pointer-events:none !important;
@@ -5405,12 +5405,12 @@ body.ex-controller .answer-bubble{
   color:rgba(245,240,232,0.4); text-align:center; margin-bottom:16px;
 }
 .ex-record .ex-rec-media{
-  width:100%; max-height:38vh; object-fit:contain;
+  width:100%; max-height:44vh; object-fit:contain;
   border-radius:10px; display:block; margin:0 auto 14px;
 }
 .ex-record .ex-rec-voice{ text-align:center; margin:8px 0 18px; }
 .ex-record .ex-rec-text{
-  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(16px,2.4vw,28px);
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(18px,2.8vw,34px);
   line-height:1.5; color:#f5f0e8; text-align:center; word-break:keep-all;
 }
 
@@ -5638,6 +5638,7 @@ body.ex-controller .seed-layer.selected .seed-layer-img{
 body.ex-display .sparkle-layer, body.ex-controller .sparkle-layer{ display:block !important; }
 body.ex-display .firefly, body.ex-controller .firefly{ display:block !important; }
 
+#exNotice, .ex-notice{ display:none !important; }
 </style>
 </head>
 <body>
@@ -5930,7 +5931,7 @@ const OFFCARD_FILES = {
   gn: ["gn1-3","gn1-4","gn1-6","gn2-6","gn3-1","gn3-9","gn3-10"],
   pk: ["pk2-9","pk2-10","pk3-4","pk3-8"],
   bl: ["bl1-5","bl1-7","bl1-9","bl3-2","bl3-5","bl3-7"],
-  yw: ["yw1-10","yw2-2","yw2-3","yw2-4","yw2-5","yw3-3","yw3-6"]
+  yw: ["yw1-10","gn1-3","yw2-3","yw2-4","yw2-5","yw3-3","yw3-6"]
 };
 function offCardImg(code){ return BASE + "offcard" + code + ".png"; }
 function offPlantImg(code){ return BASE + "offplant" + code + ".png"; }
@@ -6257,7 +6258,7 @@ const I18N = {
     bubble_none: "(흔적만 남김)",
     bubble_playing: "▶ 재생 중",
     bubble_voicetrace: "음성 흔적",
-    bubble_empty_trace: "아직 남긴 흔적이 없어요.\n흔적을 다시 남겨볼까요?",
+    bubble_empty_trace: "",
     ex_ctrl_heading: "정원에서 만나고 싶은 식물을 골라주세요.",
     ex_ctrl_reset: "초기화",
     modal_pick: "이 카드 선택하기",
@@ -6325,7 +6326,7 @@ const I18N = {
     bubble_none: "(trace only)",
     bubble_playing: "▶ playing",
     bubble_voicetrace: "voice trace",
-    bubble_empty_trace: "No trace yet.\nShall we leave one?",
+    bubble_empty_trace: "",
     ex_ctrl_heading: "Choose a plant you would like to meet in the garden.",
     ex_ctrl_reset: "Reset",
     modal_pick: "Pick this card",
@@ -7346,9 +7347,9 @@ const exhibitionTraces = [
     mediaType: null, mediaSrc: null, visible: true, displayOrder: 2
   },
   {
-    plantId: "ex-yw2-2", cardId: "yw2-2", source: "faceToFace", color: "yw", date: "2026.05.20",
-    plantImage: BASE + "offplantyw2-2.png",
-    cardImage: BASE + "offcardyw2-2.png",
+    plantId: "ex-gn1-3", cardId: "gn1-3", source: "faceToFace", color: "gn", date: "2026.05.20",
+    plantImage: BASE + "offplantgn1-3.png",
+    cardImage: BASE + "offcardgn1-3.png",
     questionKo: "피곤할 때 어떻게 쉬는 편이에요?",
     questionEn: "How do you rest when you are tired?",
     traceKo: "말없이 누워 있는 시간이 필요해. 그냥 알아만 줘.",
@@ -7485,21 +7486,7 @@ function buildExhibitionGarden(){
 
 // Notice shown when a spot with no saved trace is tapped
 let exNoticeTimer = null;
-function exNoTraceNotice(){
-  let el = document.getElementById("exNotice");
-  if(!el){
-    el = document.createElement("div");
-    el.id = "exNotice";
-    el.className = "ex-notice";
-    document.body.appendChild(el);
-  }
-  el.textContent = (CURRENT_LANG === "en")
-    ? "No trace yet. Shall we leave one?"
-    : "아직 남긴 흔적이 없어요. 흔적을 다시 남겨볼까요?";
-  el.classList.add("show");
-  if(exNoticeTimer) clearTimeout(exNoticeTimer);
-  exNoticeTimer = setTimeout(() => { el.classList.remove("show"); }, 2400);
-}
+function exNoTraceNotice(){}
 
 // Alpha-based hit testing so overlapping full-canvas plants are individually clickable.
 function attachGardenHitTest(container, onHit, onMiss){
@@ -7527,7 +7514,16 @@ function attachGardenHitTest(container, onHit, onMiss){
       // Map to natural pixel
       const px = Math.floor(ix / drawW * img.naturalWidth);
       const py = Math.floor(iy / drawH * img.naturalHeight);
-      if(getImgAlpha(img, px, py) > 24){
+      // Check the exact pixel plus a small neighborhood (thin plants are hard to hit)
+      let hit = getImgAlpha(img, px, py) > 8;
+      if(!hit){
+        const R = Math.floor(img.naturalWidth * 0.022); // ~2% radius tolerance
+        const steps = [[R,0],[-R,0],[0,R],[0,-R],[R,R],[-R,-R],[R,-R],[-R,R]];
+        for(const [dx,dy] of steps){
+          if(getImgAlpha(img, px+dx, py+dy) > 8){ hit = true; break; }
+        }
+      }
+      if(hit){
         const pid = layer.dataset.plantId;
         if(pid && onHit) onHit(pid);
         return;
