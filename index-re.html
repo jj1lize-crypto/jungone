@@ -7815,7 +7815,7 @@ function buildGarden(){
       }
       seed.innerHTML = '<img class="seed-layer-img" src="' + plantSrc + '" alt=""/>';
       // Clicking a plant layer opens its trace bubble
-      seed.onclick = () => showBubbleForEntry(e);
+      seed.onclick = (ev) => showBubbleForEntry(e, false, ev);
       container.appendChild(seed);
     });
 
@@ -7825,7 +7825,7 @@ function buildGarden(){
       showBubbleAuto();
       const cycle = IS_DISPLAY_MODE ? 4000 : 5000;
       bubbleTimer = setInterval(() => {
-        bubbleIdx = (bubbleIdx + 1) % entries.length;
+        bubbleIdx = bubbleIdx + 1;
         showBubbleAuto();
       }, cycle);
     }
@@ -7893,18 +7893,40 @@ function getPositions(n, W, H){
 }
 
 function showBubbleAuto(){
-  if(!entries.length) return;
-  const e = entries[bubbleIdx];
+  // Only cycle entries that actually have a trace (media or text)
+  const withTrace = entries.filter(e => !!(e.video || e.photo || e.voice || (e.answer && e.answer.trim())));
+  if(!withTrace.length) return;
+  const e = withTrace[bubbleIdx % withTrace.length];
   showBubbleForEntry(e, true);
 }
 
 // Show bubble for a given entry. Position is centered near the bottom of the
 // garden (plants are full-canvas, so there is no single seed coordinate).
-function showBubbleForEntry(e, isAuto){
+function showBubbleForEntry(e, isAuto, ev){
   const body = document.getElementById("gardenBody");
-  const bw = 240;
-  const x = (body.clientWidth / 2);
-  const y = Math.max(60, body.clientHeight * 0.16);
+  const rect = body.getBoundingClientRect();
+  let x, y;
+  if(ev && typeof ev.clientX === "number"){
+    // Direct click → open the trace right where the plant was tapped
+    x = ev.clientX - rect.left;
+    y = ev.clientY - rect.top;
+  } else {
+    // Auto-cycle → use the matching plant layer's center (so it appears at that plant)
+    let px = body.clientWidth/2, py = body.clientHeight*0.3;
+    try{
+      const layers = document.querySelectorAll("#seedsContainer .seed-layer");
+      // find layer index matching this entry in the visible set
+      const limit = 10;
+      const visibleEntries = entries.length > limit ? entries.slice(-limit) : entries;
+      const idx = visibleEntries.indexOf(e);
+      if(idx >= 0 && layers[idx]){
+        const r = layers[idx].getBoundingClientRect();
+        px = r.left - rect.left + r.width/2;
+        py = r.top - rect.top + r.height*0.35;
+      }
+    }catch(err){}
+    x = px; y = py;
+  }
   showBubbleAt(e, x, y, !!isAuto);
 }
 
