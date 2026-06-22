@@ -5639,6 +5639,22 @@ body.ex-display .sparkle-layer, body.ex-controller .sparkle-layer{ display:block
 body.ex-display .firefly, body.ex-controller .firefly{ display:block !important; }
 
 #exNotice, .ex-notice{ display:none !important; }
+
+/* sparkle layers must NEVER block plant taps */
+.sparkle-layer, #starsLayer, #firefliesLayer, .star, .firefly{ pointer-events:none !important; }
+
+
+/* Exhibition: fireflies above plants, bright & visible */
+body.ex-display #firefliesLayer, body.ex-controller #firefliesLayer{
+  display:block !important; z-index:50 !important; position:absolute !important; inset:0 !important;
+}
+body.ex-display #starsLayer, body.ex-controller #starsLayer{
+  display:block !important; z-index:1 !important;
+}
+body.ex-display .firefly, body.ex-controller .firefly{
+  display:block !important;
+}
+
 </style>
 </head>
 <body>
@@ -7354,7 +7370,7 @@ const exhibitionTraces = [
     questionEn: "How do you rest when you are tired?",
     traceKo: "말없이 누워 있는 시간이 필요해. 그냥 알아만 줘.",
     traceEn: "I need quiet time lying down. Just knowing is enough.",
-    mediaType: "image", mediaSrc: BASE + "trace-photo.jpg", visible: true, displayOrder: 3
+    mediaType: "image", mediaSrc: BASE + "trace-photo.jpg", photo: BASE+"trace-photo.jpg", video: BASE+"trace-video.mp4", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 3
   },
   {
     plantId: "ex-pk2-9", cardId: "pk2-9", source: "faceToFace", color: "pk", date: "2026.05.21",
@@ -7364,7 +7380,7 @@ const exhibitionTraces = [
     questionEn: "Do you have a favorite taste or food?",
     traceKo: "보리차 한 잔이면 충분해. 자기 전에.",
     traceEn: "A cup of barley tea is enough. Before bed.",
-    mediaType: "voice", mediaSrc: BASE + "trace-voice.mp3", visible: true, displayOrder: 4
+    mediaType: "voice", mediaSrc: BASE + "trace-voice.mp3", photo: BASE+"trace-photo.jpg", video: BASE+"trace-video.mp4", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 4
   },
   {
     plantId: "ex-gn3-1", cardId: "gn3-1", source: "faceToFace", color: "gn", date: "2026.05.22",
@@ -7374,7 +7390,7 @@ const exhibitionTraces = [
     questionEn: "Is there a part of your body you are mindful of?",
     traceKo: "",
     traceEn: "",
-    mediaType: "video", mediaSrc: BASE + "trace-video.mp4", visible: true, displayOrder: 5
+    mediaType: "video", mediaSrc: BASE + "trace-video.mp4", photo: BASE+"trace-photo.jpg", video: BASE+"trace-video.mp4", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 5
   },
   {
     plantId: "ex-bl3-2", cardId: "bl3-2", source: "faceToFace", color: "bl", date: "2026.05.23",
@@ -7515,10 +7531,10 @@ function attachGardenHitTest(container, onHit, onMiss){
       const px = Math.floor(ix / drawW * img.naturalWidth);
       const py = Math.floor(iy / drawH * img.naturalHeight);
       // Check the exact pixel plus a small neighborhood (thin plants are hard to hit)
-      let hit = getImgAlpha(img, px, py) > 8;
+      let hit = getImgAlpha(img, px, py) > 4;
       if(!hit){
-        const R = Math.floor(img.naturalWidth * 0.022); // ~2% radius tolerance
-        const steps = [[R,0],[-R,0],[0,R],[0,-R],[R,R],[-R,-R],[R,-R],[-R,R]];
+        const R = Math.floor(img.naturalWidth * 0.04); // ~2% radius tolerance
+        const h2=Math.floor(R/2); const steps = [[R,0],[-R,0],[0,R],[0,-R],[R,R],[-R,-R],[R,-R],[-R,R],[h2,0],[-h2,0],[0,h2],[0,-h2]];
         for(const [dx,dy] of steps){
           if(getImgAlpha(img, px+dx, py+dy) > 8){ hit = true; break; }
         }
@@ -7581,11 +7597,14 @@ function showExhibitionTrace(plantId){
   // Date
   if(e.date) html += '<div class="ex-rec-date">' + e.date + '</div>';
   // Trace body: media first, else text
-  if(e.mediaType === "video" && e.mediaSrc){
-    html += '<video class="ex-rec-media" src="' + e.mediaSrc + '" autoplay muted loop playsinline></video>';
-  } else if(e.mediaType === "image" && e.mediaSrc){
-    html += '<img class="ex-rec-media" src="' + e.mediaSrc + '" alt=""/>';
-  } else if(e.mediaType === "voice" && e.mediaSrc){
+  // Show ALL available media (photo + video + voice) together
+  if(e.video){
+    html += '<video class="ex-rec-media" src="' + e.video + '" autoplay muted loop playsinline></video>';
+  }
+  if(e.photo){
+    html += '<img class="ex-rec-media" src="' + e.photo + '" alt=""/>';
+  }
+  if(e.voice){
     // waveform + autoplay
     let bars = "";
     for(let i=0;i<32;i++){
@@ -7593,7 +7612,7 @@ function showExhibitionTrace(plantId){
       bars += '<rect x="'+(i*8)+'" y="'+((44-h)/2)+'" width="5" height="'+h+'" rx="2.5" fill="'+col+'" opacity="0.8"/>';
     }
     html += '<div class="ex-rec-voice"><svg width="256" height="44" viewBox="0 0 256 44">'+bars+'</svg></div>';
-    const audio = new Audio(e.mediaSrc);
+    const audio = new Audio(e.voice);
     audio.onended = function(){ if(window._curAudio === audio) window._curAudio = null; };
     audio.play().catch(function(){});
     window._curAudio = audio;
@@ -7764,14 +7783,14 @@ function buildSparkles(){
   const flies = document.getElementById("firefliesLayer");
   if(flies){
     flies.innerHTML = "";
-    for(let i = 0; i < 22; i++){  // same total; sizes vary, small ones more common
+    for(let i = 0; i < 55; i++){  // more fireflies for exhibition sparkle
       const f = document.createElement("div");
       f.className = "firefly";
       f.style.left = (2 + srand(i + 501) * 96) + "%";
       f.style.top  = (2 + srand(i + 502) * 96) + "%";
       // Size: bias toward small. r^2 skews most values low; range ~2.5px..8px
       const rs = srand(i + 507);
-      const size = 2.5 + (rs * rs) * 5.5;   // most ~2.5-4px, few up to ~8px
+      const size = 3.5 + (rs * rs) * 8;   // bigger: ~3.5-6px, some up to ~11px
       f.style.width = size.toFixed(1) + "px";
       f.style.height = size.toFixed(1) + "px";
       // Scale the glow with size
