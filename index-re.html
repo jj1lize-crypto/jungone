@@ -7568,17 +7568,10 @@ function attachGardenHitTest(container, onHit, onMiss){
       // Check the exact pixel plus a small neighborhood (thin plants are hard to hit)
       let hit = getImgAlpha(img, px, py) > 4;
       if(!hit){
-        const R = Math.floor(img.naturalWidth * 0.04); // ~2% radius tolerance
+        const R = Math.floor(img.naturalWidth * 0.025); // ~2% radius tolerance
         const h2=Math.floor(R/2); const steps = [[R,0],[-R,0],[0,R],[0,-R],[R,R],[-R,-R],[R,-R],[-R,R],[h2,0],[-h2,0],[0,h2],[0,-h2]];
         for(const [dx,dy] of steps){
           if(getImgAlpha(img, px+dx, py+dy) > 8){ hit = true; break; }
-        }
-      }
-      // Fallback: if click is within the plant's opaque bounding box, count as hit
-      if(!hit){
-        const bb = getImgBBox(img);
-        if(bb && px >= bb.x0 && px <= bb.x1 && py >= bb.y0 && py <= bb.y1){
-          hit = true;
         }
       }
       if(hit){
