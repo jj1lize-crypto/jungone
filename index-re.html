@@ -5655,6 +5655,11 @@ body.ex-display .firefly, body.ex-controller .firefly{
   display:block !important;
 }
 
+
+/* Controller: the open card must NOT block plant taps underneath */
+body.ex-controller #answerBubble, body.ex-controller .answer-bubble{ pointer-events:none !important; }
+body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer-events:none !important; }
+
 </style>
 </head>
 <body>
@@ -6597,12 +6602,6 @@ function exControllerSelect(plantId){
   const e = exFindPlant(plantId);
   if(!e){ console.warn("[Exhibition] unknown plantId:", plantId); return; }
 
-  // TOGGLE: tapping the SAME plant again closes the card and returns to the garden
-  if(exSelectedPlantId === plantId){
-    exControllerResetRemote();
-    return;
-  }
-
   exSelectedPlantId = plantId;
   // White highlight on the selected plant (controller garden)
   document.querySelectorAll("#seedsContainer .seed-layer").forEach(s => {
@@ -6653,11 +6652,8 @@ function showControllerQuestion(plantId){
   const idle = document.getElementById("exIdle");
   if(idle) idle.style.display = "none";
   // Tapping the card itself closes it and returns to the garden
-  const cardEl = inner.querySelector(".ex-qcard");
-  if(cardEl){
-    cardEl.style.cursor = "pointer";
-    cardEl.onclick = (ev) => { ev.stopPropagation(); exControllerResetRemote(); };
-  }
+  // (card no longer intercepts clicks — plants stay tappable underneath;
+  //  tapping another plant simply replaces the card)
 }
 
 function exControllerResetRemote(){
