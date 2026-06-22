@@ -7370,7 +7370,7 @@ const exhibitionTraces = [
     questionEn: "How do you rest when you are tired?",
     traceKo: "말없이 누워 있는 시간이 필요해. 그냥 알아만 줘.",
     traceEn: "I need quiet time lying down. Just knowing is enough.",
-    mediaType: "image", mediaSrc: BASE + "trace-photo.jpg", photo: BASE+"trace-photo.jpg", video: BASE+"trace-video.mp4", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 3
+    mediaType: "image", mediaSrc: BASE + "trace-photo.jpg", photo: BASE+"trace-photo.jpg", visible: true, displayOrder: 3
   },
   {
     plantId: "ex-pk2-9", cardId: "pk2-9", source: "faceToFace", color: "pk", date: "2026.05.21",
@@ -7380,7 +7380,7 @@ const exhibitionTraces = [
     questionEn: "Do you have a favorite taste or food?",
     traceKo: "보리차 한 잔이면 충분해. 자기 전에.",
     traceEn: "A cup of barley tea is enough. Before bed.",
-    mediaType: "voice", mediaSrc: BASE + "trace-voice.mp3", photo: BASE+"trace-photo.jpg", video: BASE+"trace-video.mp4", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 4
+    mediaType: "voice", mediaSrc: BASE + "trace-voice.mp3", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 4
   },
   {
     plantId: "ex-gn3-1", cardId: "gn3-1", source: "faceToFace", color: "gn", date: "2026.05.22",
@@ -7390,7 +7390,7 @@ const exhibitionTraces = [
     questionEn: "Is there a part of your body you are mindful of?",
     traceKo: "",
     traceEn: "",
-    mediaType: "video", mediaSrc: BASE + "trace-video.mp4", photo: BASE+"trace-photo.jpg", video: BASE+"trace-video.mp4", voice: BASE+"trace-voice.mp3", visible: true, displayOrder: 5
+    mediaType: "video", mediaSrc: BASE + "trace-video.mp4", video: BASE+"trace-video.mp4", visible: true, displayOrder: 5
   },
   {
     plantId: "ex-bl3-2", cardId: "bl3-2", source: "faceToFace", color: "bl", date: "2026.05.23",
@@ -7505,6 +7505,41 @@ let exNoticeTimer = null;
 function exNoTraceNotice(){}
 
 // Alpha-based hit testing so overlapping full-canvas plants are individually clickable.
+
+// Cache the opaque bounding box of a plant image (so thin plants are easy to tap)
+const _bboxCache = {};
+function getImgBBox(img){
+  const src = img.src;
+  if(_bboxCache[src] !== undefined) return _bboxCache[src];
+  try{
+    const W = 120, H = Math.round(120 * img.naturalHeight / img.naturalWidth);
+    const c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, W, H);
+    const data = ctx.getImageData(0,0,W,H).data;
+    let x0=W, y0=H, x1=0, y1=0, found=false;
+    for(let y=0;y<H;y++){
+      for(let x=0;x<W;x++){
+        if(data[(y*W+x)*4+3] > 8){
+          found=true;
+          if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+        }
+      }
+    }
+    if(!found){ _bboxCache[src]=null; return null; }
+    // scale back to natural pixels + pad 6%
+    const sx = img.naturalWidth / W, sy = img.naturalHeight / H;
+    const padX = img.naturalWidth*0.06, padY = img.naturalHeight*0.06;
+    const bb = {
+      x0: x0*sx - padX, x1: x1*sx + padX,
+      y0: y0*sy - padY, y1: y1*sy + padY
+    };
+    _bboxCache[src] = bb;
+    return bb;
+  }catch(e){ _bboxCache[src]=null; return null; }
+}
+
 function attachGardenHitTest(container, onHit, onMiss){
   if(!container || container._hitBound) {} // allow re-bind on rebuild
   container._hitBound = true;
@@ -7537,6 +7572,13 @@ function attachGardenHitTest(container, onHit, onMiss){
         const h2=Math.floor(R/2); const steps = [[R,0],[-R,0],[0,R],[0,-R],[R,R],[-R,-R],[R,-R],[-R,R],[h2,0],[-h2,0],[0,h2],[0,-h2]];
         for(const [dx,dy] of steps){
           if(getImgAlpha(img, px+dx, py+dy) > 8){ hit = true; break; }
+        }
+      }
+      // Fallback: if click is within the plant's opaque bounding box, count as hit
+      if(!hit){
+        const bb = getImgBBox(img);
+        if(bb && px >= bb.x0 && px <= bb.x1 && py >= bb.y0 && py <= bb.y1){
+          hit = true;
         }
       }
       if(hit){
@@ -7597,14 +7639,12 @@ function showExhibitionTrace(plantId){
   // Date
   if(e.date) html += '<div class="ex-rec-date">' + e.date + '</div>';
   // Trace body: media first, else text
-  // Show ALL available media (photo + video + voice) together
+  // Show the single media this plant has (video OR image OR voice)
   if(e.video){
     html += '<video class="ex-rec-media" src="' + e.video + '" autoplay muted loop playsinline></video>';
-  }
-  if(e.photo){
+  } else if(e.photo){
     html += '<img class="ex-rec-media" src="' + e.photo + '" alt=""/>';
-  }
-  if(e.voice){
+  } else if(e.voice){
     // waveform + autoplay
     let bars = "";
     for(let i=0;i<32;i++){
@@ -7783,25 +7823,25 @@ function buildSparkles(){
   const flies = document.getElementById("firefliesLayer");
   if(flies){
     flies.innerHTML = "";
-    for(let i = 0; i < 55; i++){  // more fireflies for exhibition sparkle
+    for(let i = 0; i < 90; i++){  // lots of fireflies for exhibition
       const f = document.createElement("div");
       f.className = "firefly";
       f.style.left = (2 + srand(i + 501) * 96) + "%";
       f.style.top  = (2 + srand(i + 502) * 96) + "%";
       // Size: bias toward small. r^2 skews most values low; range ~2.5px..8px
       const rs = srand(i + 507);
-      const size = 3.5 + (rs * rs) * 8;   // bigger: ~3.5-6px, some up to ~11px
+      const size = 4 + (rs * rs) * 9;   // ~4-7px, some up to ~13px
       f.style.width = size.toFixed(1) + "px";
       f.style.height = size.toFixed(1) + "px";
       // Scale the glow with size
       const g1 = (size * 1.8).toFixed(0), g2 = (size * 3.4).toFixed(0), g3 = (size * 5.6).toFixed(0);
       f.style.boxShadow =
-        "0 0 " + g1 + "px rgba(255,235,140,0.85),"
-        + "0 0 " + g2 + "px rgba(255,225,120,0.55),"
-        + "0 0 " + g3 + "px rgba(255,210,100,0.30)";
+        "0 0 " + g1 + "px rgba(255,240,160,1),"
+        + "0 0 " + g2 + "px rgba(255,230,130,0.8),"
+        + "0 0 " + g3 + "px rgba(255,215,110,0.5)";
       f.style.animationDelay = (srand(i + 503) * 8) + "s, " + (srand(i + 504) * 6) + "s";
       const drift = 48 + srand(i + 505) * 34;   // 48s–82s (slower drift)
-      const glow  = 6 + srand(i + 506) * 4;      // 6s–10s (slower blink)
+      const glow  = 2.5 + srand(i + 506) * 3;    // 2.5s–5.5s (livelier blink)
       f.style.animationDuration = drift + "s, " + glow + "s";
       flies.appendChild(f);
     }
