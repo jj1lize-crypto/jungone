@@ -5329,20 +5329,19 @@ body.ex-display .garden-stage{
   position:fixed !important;
   left:50% !important; top:50% !important;
   transform:translate(-50%,-50%) !important;
-  max-width:min(80vw, 760px) !important;
+  max-width:min(64vw, 480px) !important;
   width:auto !important;
   z-index:80 !important;
   pointer-events:none !important;
 }
 .answer-bubble.ex-answer-big .bubble-inner{
-  padding:clamp(28px,5vw,56px) clamp(32px,6vw,72px) !important;
-  border-radius:18px !important;
-  background:rgba(10,14,10,0.90) !important;
+  padding:clamp(20px,3vw,36px) clamp(24px,3.5vw,44px) !important;
+  border-radius:16px !important;
+  background:rgba(10,14,10,0.92) !important;
   box-shadow:0 12px 40px rgba(0,0,0,0.55) !important;
   backdrop-filter:blur(8px);
-  border:1px solid rgba(245,240,232,0.22) !important;
-  max-height:86vh !important;
-  overflow-y:auto !important;
+  border:1px solid rgba(245,240,232,0.2) !important;
+  max-height:80vh !important; overflow-y:auto !important;
 }
 /* 디스플레이 답변 텍스트 — 크게 */
 .ex-ans-text{
@@ -5392,30 +5391,27 @@ body.ex-controller .answer-bubble{
    ============================================================ */
 /* ---- Display: real saved-record look ---- */
 .ex-record .ex-rec-cat{
-  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(11px,1.4vw,15px);
-  letter-spacing:.18em; text-transform:uppercase;
-  color:rgba(245,240,232,0.6); text-align:center; margin-bottom:14px;
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(10px,1.2vw,13px);
+  letter-spacing:.16em; text-transform:uppercase;
+  color:rgba(245,240,232,0.55); text-align:center; margin-bottom:10px;
 }
 .ex-record .ex-rec-q{
-  font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:12px; line-height:1.3;
-  color:rgba(245,240,232,0.7); text-align:center;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  max-width:90vw; margin:0 auto 10px;
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:12px; line-height:1.4;
+  color:rgba(245,240,232,0.7); text-align:center; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; max-width:90%; margin:0 auto 8px;
 }
 .ex-record .ex-rec-date{
-  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(12px,1.5vw,16px);
-  color:rgba(245,240,232,0.45); text-align:center; margin-bottom:22px;
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(10px,1.1vw,12px);
+  color:rgba(245,240,232,0.4); text-align:center; margin-bottom:16px;
 }
 .ex-record .ex-rec-media{
-  width:100%; max-height:46vh; object-fit:contain;
-  border-radius:10px; display:block; margin:0 auto 18px;
+  width:100%; max-height:38vh; object-fit:contain;
+  border-radius:10px; display:block; margin:0 auto 14px;
 }
 .ex-record .ex-rec-voice{ text-align:center; margin:8px 0 18px; }
 .ex-record .ex-rec-text{
-  font-family:"Crimson Pro","Noto Serif KR",serif;
-  font-size:clamp(22px,4vw,46px); line-height:1.55;
-  color:#f5f0e8; text-align:center; word-break:keep-all;
+  font-family:"Crimson Pro","Noto Serif KR",serif; font-size:clamp(16px,2.4vw,28px);
+  line-height:1.5; color:#f5f0e8; text-align:center; word-break:keep-all;
 }
 
 /* ---- Controller: question CARD ---- */
@@ -5636,6 +5632,11 @@ body.ex-controller .seed-layer.selected .seed-layer-img{
   filter:drop-shadow(0 0 32px rgba(255,255,255,1)) drop-shadow(0 0 64px rgba(255,255,255,0.7)) brightness(1.35) !important;
   animation:none !important;
 }
+
+
+/* Fireflies visible in exhibition garden too */
+body.ex-display .sparkle-layer, body.ex-controller .sparkle-layer{ display:block !important; }
+body.ex-display .firefly, body.ex-controller .firefly{ display:block !important; }
 
 </style>
 </head>
@@ -6420,6 +6421,12 @@ window.addEventListener("DOMContentLoaded", function(){
 
 function toggleLanguage(){
   setLanguage(CURRENT_LANG === "ko" ? "en" : "ko");
+  // Exhibition: controller broadcasts language so the TV switches too
+  try{
+    if(document.body.classList.contains("ex-controller") && EX_REF){
+      EX_REF.child("lang").set(CURRENT_LANG);
+    }
+  }catch(e){}
 }
 
 
@@ -6662,6 +6669,10 @@ function subscribeExhibitionState(){
   EX_REF.on("value", (snap) => {
     const st = snap.val();
     if(!st){ exDisplayIdle(); return; }
+    // Language sync — display follows controller's language
+    if(st.lang && st.lang !== CURRENT_LANG){
+      setLanguage(st.lang);
+    }
     const cmd = st.command;
     const pid = st.selectedPlantId;
     const at  = st.selectedAt || 0;
@@ -7451,6 +7462,7 @@ function updateExIdleText(){
 
 // Curated garden: full-canvas overlay of visible exhibition plants
 function buildExhibitionGarden(){
+  if(typeof buildSparkles === "function") buildSparkles();
   buildSparkles();
   const container = document.getElementById("seedsContainer");
   if(!container) return;
