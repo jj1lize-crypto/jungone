@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JungOne · Garden</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;700&display=swap');
+@media(min-width:600px){.grid2{grid-template-columns:repeat(4,1fr)!important;}.sel-card{max-height:30vh!important;}.ph{padding:28px 32px 8px!important;}.pb{padding:8px 32px!important;}.pf{padding:10px 32px 24px!important;}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','Noto Serif KR',serif;overflow:hidden;}
+.page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
+.page.active{transform:translateX(0);}
+.page.exit{transform:translateX(-100%);}
+.ph{padding:36px 24px 8px;flex-shrink:0;}
+.step{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
+.prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:14px;}
+.prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
+.title{font-size:clamp(20px,5vw,28px);font-weight:700;line-height:1.18;color:#0e0c09;}
+.sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;color:#8a7e74;margin-top:6px;line-height:1.6;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 14px 8px;}
+.pf{padding:12px 18px 40px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.btn{width:100%;padding:16px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:17px;font-weight:700;cursor:pointer;}
+.btn-multiline{padding:14px 16px;font-size:15px;line-height:1.5;font-weight:500;}
+.btn:active{opacity:.75;}
+.btn:disabled{opacity:.2;pointer-events:none;}
+.btn-back{width:100%;padding:10px;border:none;background:transparent;color:#8a7e74;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sel-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;max-height:36vh;}
+.sel-card:active{transform:scale(.92);}
+.sel-card.on{border-color:#0e0c09;transform:scale(.96);}
+.sel-card img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .18s;}
+.grid2.picked .sel-card:not(.on) img{filter:brightness(.4);}
+.chk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;font-size:18px;color:#fff;z-index:5;}
+.sel-card.on .chk{display:flex;}
+.card-overlay{position:absolute;bottom:0;left:0;right:0;padding:10px 10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.82));}
+.card-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.card-desc{display:none;}
+.q-num{position:absolute;top:8px;left:8px;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.7);background:rgba(0,0,0,.4);padding:2px 6px;border-radius:2px;}
+.q-detail{display:none;background:#fff;border:1px solid #e0d8cc;padding:16px;margin-top:10px;border-radius:4px;}
+.q-detail.show{display:block;}
+.q-detail-text{font-size:15px;color:#0e0c09;line-height:1.75;margin-bottom:6px;}
+.q-detail-ex{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;color:#8a7e74;font-style:italic;margin-bottom:10px;line-height:1.6;}
+.q-detail-follow{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;color:#6a5e54;line-height:1.7;padding-top:10px;border-top:1px solid #e0d8cc;}
+
+/* Final card */
+.final-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;gap:14px;}
+.p4-intro-big{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(16px,4.4vw,19px);line-height:1.55;color:#0e0c09;text-align:left;letter-spacing:-.01em;width:100%;max-width:520px;}
+.p4-final-note{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(12px,3.2vw,14px);line-height:1.7;color:#3a3028;text-align:left;padding:0 6px;width:100%;max-width:520px;}
+.p4-final-note .p4-final-title{font-size:clamp(14px,3.6vw,16px);color:#0e0c09;margin-bottom:8px;font-weight:500;}
+.p4-final-note .p4-final-list{list-style:none;padding:0;margin:0;}
+.p4-final-note .p4-final-list li{position:relative;padding-left:14px;margin-bottom:4px;color:#3a3028;}
+.p4-final-note .p4-final-list li::before{content:'·';position:absolute;left:2px;top:-2px;color:#8a7e74;font-weight:700;}
+.card-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;}
+.card-box{width:min(50vw,280px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
+.card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
+.card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.img-t{z-index:1;}
+.img-q{z-index:2;opacity:0.7;}
+.img-a{z-index:3;opacity:0.85;}
+.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;}
+.back-badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.back-badge{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
+.back-q{font-size:clamp(15px,4.2vw,19px);color:#0e0c09;line-height:1.55;font-weight:400;}
+.back-sub{font-size:clamp(12px,3.4vw,15px);color:#6a5e54;line-height:1.6;margin-top:12px;}
+.back-follow{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;color:#6a5e54;line-height:1.6;padding-top:9px;border-top:1.2px solid #e0d8cc;margin-top:9px;}
+.back-follow .action-label{font-weight:700;color:#0e0c09;text-transform:none;display:block;margin-bottom:4px;font-size:13px;font-family:'Crimson Pro','Noto Serif KR',serif;letter-spacing:0;line-height:1.4;}
+
+/* Answer page */
+.answer-wrap{flex:1;padding:16px 24px;display:flex;flex-direction:column;gap:14px;}
+.answer-card-mini{display:flex;gap:10px;align-items:center;padding:12px;background:#fff;border:1px solid #e0d8cc;border-radius:4px;flex-shrink:0;}
+.mini-img{width:44px;height:62px;object-fit:cover;border-radius:2px;flex-shrink:0;}
+.mini-q{font-size:12px;color:#0e0c09;line-height:1.6;}
+.mini-q span{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;color:#8a7e74;display:block;margin-bottom:3px;}
+.name-input{width:100%;padding:12px 14px;border:1.5px solid #e0d8cc;background:#fff;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:16px;color:#0e0c09;outline:none;border-radius:4px;}
+.name-input:focus{border-color:#0e0c09;}
+.answer-textarea{width:100%;padding:14px;border:1.5px solid #e0d8cc;background:#fff;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;color:#0e0c09;outline:none;resize:none;border-radius:4px;line-height:1.7;min-height:100px;}
+.answer-textarea:focus{border-color:#0e0c09;}
+.answer-textarea::placeholder{color:#c8bfb0;}
+.char-count{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;color:#c8bfb0;text-align:right;margin-top:4px;}
+
+/* Answer sections — text + file as parallel options */
+.answer-section{display:flex;flex-direction:column;gap:6px;}
+.answer-section-label{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a7e74;margin-bottom:2px;}
+.answer-divider{display:flex;align-items:center;justify-content:center;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;color:#8a7e74;margin:4px 0;position:relative;}
+.answer-divider::before,.answer-divider::after{content:'';flex:1;height:1px;background:#e0d8cc;}
+.answer-divider::before{margin-right:14px;}
+.answer-divider::after{margin-left:14px;}
+
+/* File drop zone */
+.file-drop{display:block;border:1.5px dashed #c8bfb0;border-radius:4px;background:#fff;cursor:pointer;transition:border-color .2s;overflow:hidden;}
+.file-drop:hover{border-color:#0e0c09;}
+.file-drop:active{background:#faf6ee;}
+.file-drop-empty{padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.file-drop-icon{font-family:'Crimson Pro',serif;font-size:30px;line-height:1;color:#c8bfb0;margin-bottom:4px;font-weight:300;}
+.file-drop-text{font-size:13px;color:#3a3028;}
+.file-drop-sub{font-family:'Crimson Pro',serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a7e74;margin-top:2px;}
+
+/* File preview (when a file is selected) */
+.file-preview{display:none;}
+.file-preview.show{display:block;padding:8px;}
+.file-preview img{max-width:100%;max-height:200px;display:block;border-radius:3px;}
+.file-preview video{max-width:100%;max-height:200px;display:block;border-radius:3px;}
+.file-preview audio{width:100%;display:block;}
+.file-clear{align-self:flex-end;background:none;border:none;color:#8a7e74;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;cursor:pointer;padding:4px 8px;margin-top:2px;}
+.file-clear:hover{color:#0e0c09;}
+
+/* Garden page */
+.garden-page{background:#0e0c09;}
+.garden-header{padding:40px 24px 16px;flex-shrink:0;}
+.garden-title{font-size:clamp(20px,5vw,28px);font-weight:400;color:#f5f0e8;opacity:.85;}
+.garden-sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#4a4038;margin-top:6px;}
+.garden-body{flex:1;position:relative;overflow:hidden;}
+.seeds-container{position:absolute;inset:0;}
+
+/* Seed plants — natural look (no card box) */
+.seed{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:all .3s;}
+.seed-img{width:90px;aspect-ratio:5/7;position:relative;overflow:visible;}
+.seed-img img{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.35) saturate(1.55) brightness(1.08) contrast(1.05);mix-blend-mode:screen;opacity:.92;-webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);}
+.seed-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:#7a6e54;text-align:center;margin-top:6px;opacity:.7;}
+
+/* Answer bubble */
+.answer-bubble{position:absolute;z-index:50;pointer-events:none;opacity:0;transition:opacity .5s;max-width:260px;}
+.answer-bubble.show{opacity:1;}
+.bubble-inner{padding:12px 14px;border-radius:50% 40% 55% 45% / 45% 55% 40% 50%;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:12px;line-height:1.65;color:#f5f0e8;border:1px solid rgba(255,255,255,.15);}
+.bubble-inner .b-question{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;line-height:1.5;color:rgba(245,240,232,.55);font-style:italic;letter-spacing:-.005em;}
+.bubble-inner .b-date{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:8.5px;letter-spacing:.14em;color:rgba(245,240,232,.4);margin-top:6px;}
+.bubble-inner .b-answer{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:16px;line-height:1.55;color:#f5f0e8;margin-top:10px;padding-top:10px;border-top:1px solid rgba(245,240,232,.18);font-weight:400;letter-spacing:-.005em;}
+.bubble-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:7px;letter-spacing:.12em;text-transform:uppercase;margin-top:6px;opacity:.5;}
+
+.garden-footer{padding:12px 18px 36px;flex-shrink:0;border-top:1px solid #1e1a14;}
+.btn-light{width:100%;padding:14px;border:1px solid #3a3028;background:transparent;color:#d4c9b0;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;font-weight:400;cursor:pointer;}
+.btn-light:active{background:#1e1a14;}
+
+/* v11 — secondary button, text question cards, modal */
+.btn-secondary{background:#fff !important;color:#0e0c09 !important;border:1.5px solid #0e0c09 !important;}
+.btn-secondary:active{background:#f5f0e8 !important;}
+
+/* v12 — hide text content on selection cards (image-only) */
+.sel-card .card-overlay{display:none;}
+.sel-card.q-text{aspect-ratio:5/7;background:#0e0c09;position:relative;border-radius:4px;cursor:pointer;overflow:hidden;}
+.sel-card.q-text img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.sel-card.q-text .chk{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:#0e0c09;color:#fff;display:none;align-items:center;justify-content:center;font-size:12px;z-index:5;}
+.sel-card.q-text.on{outline:2.5px solid #0e0c09;outline-offset:-2.5px;}
+.sel-card.q-text.on .chk{display:flex;}
+
+/* Question grid — 3 columns, 3 rows */
+#qGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
+#qGrid .sel-card.q-text{aspect-ratio:5/7;}
+
+/* Action grid — 3 columns, 2 rows, with text overlay on cards */
+#aGrid{grid-template-columns:repeat(3,1fr) !important;gap:8px !important;}
+#aGrid .sel-card{aspect-ratio:5/7;position:relative;border-radius:4px;overflow:hidden;cursor:pointer;background:#0e0c09;}
+#aGrid .sel-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+#aGrid .sel-card .card-overlay{display:flex !important;position:absolute;inset:0;flex-direction:column;justify-content:flex-end;padding:9px 9px 10px;background:linear-gradient(180deg, transparent 25%, rgba(14,12,9,.7) 55%, rgba(14,12,9,.95) 100%);z-index:3;}
+#aGrid .card-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;line-height:1.4;color:#f5f0e8;font-weight:700;margin-bottom:4px;}
+#aGrid .card-desc{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:7.5px;line-height:1.5;color:rgba(245,240,232,.7);letter-spacing:.02em;}
+#aGrid .sel-card .chk{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:#0e0c09;color:#fff;display:none;align-items:center;justify-content:center;font-size:12px;z-index:5;}
+#aGrid .sel-card.on{outline:2.5px solid #f5f0e8;outline-offset:-3px;}
+#aGrid .sel-card.on .chk{display:flex;}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(14,12,9,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;}
+.modal-backdrop.show{display:flex;}
+.modal-card{background:#fff;padding:28px 24px 22px;width:100%;max-width:340px;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.3);text-align:center;}
+.modal-title{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:18px;color:#0e0c09;margin-bottom:8px;line-height:1.4;}
+.modal-sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;color:#8a7e74;letter-spacing:.04em;line-height:1.6;margin-bottom:20px;}
+.modal-buttons{display:flex;flex-direction:column;gap:8px;}
+.modal-buttons .btn{padding:14px;font-size:14px;}
+
+/* Card flash — shown briefly after action selection before auto-save */
+.card-flash{position:fixed;inset:0;background:rgba(14,12,9,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:1100;display:none;align-items:center;justify-content:center;flex-direction:column;padding:32px;gap:24px;}
+.card-flash.show{display:flex;animation:flashIn .4s ease;}
+.card-flash-card{width:min(220px,60vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;background:#0e0c09;animation:cardPop .6s cubic-bezier(.34,1.56,.64,1);}
+.card-flash-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.card-flash-card .img-q{opacity:0.7;}
+.card-flash-card .img-a{opacity:0.85;}
+.flash-label{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#8a7e74;opacity:0;animation:fadeUp .5s ease .8s forwards;}
+@keyframes flashIn{from{opacity:0;}to{opacity:1;}}
+@keyframes cardPop{0%{transform:scale(.7);opacity:0;}60%{transform:scale(1.04);opacity:1;}100%{transform:scale(1);opacity:1;}}
+
+/* Opening page (P0) */
+.opening-brand{font-family:'Crimson Pro',serif;font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:#8a7e74;font-weight:500;margin-bottom:14px;}
+#p0 .title{font-size:38px;line-height:1.1;}
+.intro-content{padding:6px 2px 8px;display:flex;flex-direction:column;gap:18px;}
+.intro-content p{font-size:14px;line-height:1.85;color:#0e0c09;letter-spacing:-.005em;}
+.intro-content .how-to{margin-top:4px;padding:18px 18px 14px;background:#fff;border:1px solid #e0d8cc;border-radius:4px;}
+.intro-content .how-to-label{font-family:'Crimson Pro',serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8a7e74;margin-bottom:14px;font-weight:500;}
+.intro-content .how-to-list{padding-left:22px;margin:0;}
+.intro-content .how-to-list li{font-size:13.5px;line-height:1.75;color:#0e0c09;margin-bottom:7px;}
+.intro-content .how-to-list li::marker{font-family:'Crimson Pro',serif;color:#8a7e74;font-size:13px;}
+.intro-content .closing-note{font-style:italic;color:#3a3028;font-size:13.5px;line-height:1.75;padding-top:6px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- P0: Opening -->
+<div class="page active" id="p0">
+  <div class="ph">
+    <div class="opening-brand">JUNGONE</div>
+    <div class="title">Garden</div>
+  </div>
+  <div class="pb">
+    <div class="intro-content">
+      <p>Garden is a tool where families ask, listen, pause, and return — tending their conversations like a small garden.</p>
+      <p>Care can be attention, but sometimes intrusion. Rather than fix or convince each other, Garden helps you gently adjust the distance and the level of help you need. Not speaking is also an answer. Not leaving a trace is also a choice.</p>
+      <div class="how-to">
+        <div class="how-to-label">How to use</div>
+        <ol class="how-to-list">
+          <li>Decide who speaks first.</li>
+          <li>Open one question.</li>
+          <li>Choose how you want to be listened to.</li>
+          <li>Only one person speaks until they say "I'm done."</li>
+          <li>Family responds only in the way the card owner chose.</li>
+          <li>Pass to the next person or close the round.</li>
+          <li>Leave only what you want to leave in the garden.</li>
+        </ol>
+      </div>
+      <p class="closing-note">To preserve the color and scent of each other's lives, Garden practices caring from a healthy distance.</p>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" onclick="goTo('p1')">Choose a question →</button>
+  </div>
+</div>
+
+<!-- P1: Topic -->
+<div class="page" id="p1">
+  <div class="ph">
+    <div class="step">JungOne · 1 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
+    <div class="title">Choose a topic</div>
+  </div>
+  <div class="pb"><div class="grid2" id="tGrid"></div></div>
+  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>Next →</button></div>
+</div>
+
+<!-- P2: Question -->
+<div class="page" id="p2">
+  <div class="ph">
+    <div class="step">JungOne · 2 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:66%"></div></div>
+    <div class="title">Choose a question</div>
+  </div>
+  <div class="pb">
+    <div class="grid2" id="qGrid"></div>
+  </div>
+  <div class="pf">
+    <button class="btn" id="btn2" onclick="goTo('p4')" disabled>See your card →</button>
+    <button class="btn-back" onclick="goBack('p1')">← Back</button>
+  </div>
+</div>
+
+<!-- P3: Action (optional, entered from P4) -->
+<div class="page" id="p3">
+  <div class="ph">
+    <div class="step" style="display:none;">JungOne · Action</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">How to listen</div>
+    <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">Choose how you'd like your family to listen.</div>
+  </div>
+  <div class="pb"><div class="grid2" id="aGrid"></div></div>
+  <div class="pf">
+    <button class="btn" id="btn3" onclick="afterAction()" disabled>Next →</button>
+    <button class="btn-back" onclick="backFromP3()">← Back</button>
+  </div>
+</div>
+
+<!-- P4: Final card -->
+<div class="page" id="p4">
+  <div class="ph" style="padding-bottom:8px;">
+    <div class="step" id="p4Step" style="display:none;">JungOne · Preparing</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title" id="p4Title">Preparing</div>
+  </div>
+  <div class="final-stage">
+    <div id="p4Intro" class="p4-final-note">
+      <ul class="p4-final-list">
+        <li>Take a minute to think of your answer.</li>
+        <li>Choose how you'd like family to respond.</li>
+      </ul>
+    </div>
+    <div id="p4FinalNote" class="p4-final-note" style="display:none;">
+      <div class="p4-final-title">Now let's begin the conversation</div>
+      <ul class="p4-final-list">
+        <li>The card owner speaks first.</li>
+        <li>Wait until they say "I'm done"</li>
+        <li>Family responds only in the way the card owner chose.</li>
+      </ul>
+    </div>
+    <div class="card-pair">
+      <div class="card-box">
+        <div class="card-front" id="cFront">
+          <img class="img-t" id="imgT" src="" alt=""/>
+          <img class="img-q" id="imgQ" src="" alt=""/>
+          <img class="img-a" id="imgA" src="" alt="" style="display:none;"/>
+        </div>
+      </div>
+      <div class="card-box">
+        <div class="card-back" id="cBack">
+          <div>
+            <div class="back-badges" id="bBadges"></div>
+            <div class="back-q" id="bQ"></div>
+            <div class="back-sub" id="bSub"></div>
+          </div>
+          <div>
+            <div class="back-follow" id="bF" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
+    <button class="btn" id="btnAction" onclick="goTo('p3')">Choose a listening card →</button>
+    <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">I'm done</button>
+    <button class="btn-back" onclick="backFromP4()">← Back</button>
+  </div>
+</div>
+
+<!-- P5: Answer -->
+<div class="page" id="p5">
+  <div class="ph">
+    <div class="step" style="display:none;">JungOne · Answer</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">How was today?</div>
+  </div>
+  <div class="answer-wrap">
+    <div class="answer-card-mini" id="miniCard">
+      <img class="mini-img" id="miniImg" src="" alt=""/>
+      <div class="mini-q"><span id="miniLabel"></span><span id="miniQ"></span></div>
+    </div>
+
+    <div class="answer-section">
+      <div class="answer-section-label">Leave words</div>
+      <textarea class="answer-textarea" id="answerText" placeholder="Leave a memorable answer or reflection from today." maxlength="200" oninput="updateSubmitState()"></textarea>
+      <div class="char-count"><span id="charCount">0</span> / 200</div>
+    </div>
+
+    <div class="answer-divider">or</div>
+
+    <div class="answer-section">
+      <div class="answer-section-label">Leave a file</div>
+      <label class="file-drop" id="fileDrop">
+        <input type="file" id="fileInput" accept="image/*,video/*,audio/*" onchange="handleFileUpload(this)" style="display:none;"/>
+        <div class="file-drop-empty" id="fileDropEmpty">
+          <div class="file-drop-icon">+</div>
+          <div class="file-drop-text">Photo · Video · Voice</div>
+          <div class="file-drop-sub">Tap to choose</div>
+        </div>
+        <div class="file-preview" id="filePreview"></div>
+      </label>
+      <button class="file-clear" id="fileClear" type="button" onclick="clearFile()" style="display:none;">× Remove file</button>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" id="btn5" onclick="submitAnswer()" disabled>Plant in garden →</button>
+    <button class="btn-back" onclick="goBack('p4')">← Back</button>
+  </div>
+</div>
+
+
+<!-- P55: Seed planted -->
+<div class="page" id="p55" style="background:#0e0c09;align-items:center;justify-content:center;text-align:center;">
+  <div style="padding:40px 32px;display:flex;flex-direction:column;align-items:center;gap:24px;">
+    <svg width="120" height="168" viewBox="0 0 120 168" xmlns="http://www.w3.org/2000/svg" id="seedSvg">
+      <defs><radialGradient id="sg"><stop offset="0%" stop-color="#9aab9e" stop-opacity="0.18"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient></defs>
+      <circle cx="60" cy="84" r="58" fill="url(#sg)"/>
+      <circle cx="60" cy="128" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.7" dur="0.4s" begin="0.3s" fill="freeze"/></circle>
+      <circle cx="60" cy="128" r="10" fill="none" stroke="#9aab9e" stroke-width="0.6" opacity="0"><animate attributeName="opacity" from="0" to="0.25" dur="0.4s" begin="0.3s" fill="freeze"/></circle>
+      <line x1="60" y1="128" x2="60" y2="38" stroke="#9aab9e" stroke-width="1.2" opacity="0" stroke-dasharray="90" stroke-dashoffset="90">
+        <animate attributeName="opacity" values="0;0.5" dur="0.2s" begin="0.6s" fill="freeze"/>
+        <animate attributeName="stroke-dashoffset" from="90" to="0" dur="0.8s" begin="0.6s" fill="freeze" calcMode="spline" keySplines="0.4 0 0.2 1"/>
+      </line>
+      <path d="M 60 88 Q 38 78 35 62 Q 48 72 60 76" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.3s" fill="freeze"/></path>
+      <path d="M 60 68 Q 82 58 85 42 Q 72 52 60 56" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.5s" fill="freeze"/></path>
+      <circle cx="60" cy="32" r="10" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.5" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
+      <circle cx="60" cy="32" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.65" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
+    </svg>
+    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:22px;color:#f5f0e8;opacity:0.85;line-height:1.4;opacity:0;animation:fadeUp .6s ease 2s forwards;">A new trace has been<br>added to the garden.</div>
+    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;opacity:0;animation:fadeUp .6s ease 2.3s forwards;">Opening garden →</div>
+  </div>
+</div>
+
+<!-- P6: Garden -->
+<div class="page garden-page" id="p6">
+  <div class="garden-header">
+    <div class="garden-title">JungOne · Garden</div>
+    <div class="garden-sub" id="gardenSub">Seeds planted today</div>
+  </div>
+  <div class="garden-body">
+    <div class="seeds-container" id="seedsContainer"></div>
+    <div class="answer-bubble" id="answerBubble">
+      <div class="bubble-inner" id="bubbleInner"></div>
+      <div class="bubble-name" id="bubbleName"></div>
+    </div>
+  </div>
+  <div class="garden-footer">
+    <button class="btn-light" onclick="goTo('p0');resetAll()">Plant another?</button>
+  </div>
+</div>
+
+<!-- Card flash — brief preview after action before auto-save -->
+<div class="card-flash" id="cardFlash">
+  <div class="card-flash-card">
+    <img class="img-t" id="fImgT" src="" alt=""/>
+    <img class="img-q" id="fImgQ" src="" alt=""/>
+    <img class="img-a" id="fImgA" src="" alt=""/>
+  </div>
+  <div class="flash-label">Planting in the garden…</div>
+</div>
+
+<!-- Modal: Ask if user wants to leave an answer -->
+<div class="modal-backdrop" id="answerModal" onclick="closeAnswerModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <div class="modal-title">Would you like to leave a trace too?</div>
+    <div class="modal-sub">You can plant just the card without an answer.</div>
+    <div class="modal-buttons">
+      <button class="btn" onclick="answerYes()">Yes, I'll leave a trace</button>
+      <button class="btn btn-secondary" onclick="answerNo()">No, plant directly</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = "../assets/jungone-main/";
+
+// 4 Topics — new names
+const TNAMES = {
+  space:  "Space & Daily Life",
+  body:   "Body",
+  taste:  "Taste & Feeling",
+  safety: "Relationships & Inner Life"
+};
+const TDESC = {
+  space:  "Home, objects<br>where you settle",
+  body:   "Health, habits<br>body's changes",
+  taste:  "Taste, feeling<br>what you love",
+  safety: "People, heart<br>what to share"
+};
+const TCOLORS = {
+  space:  '#5c6b3a',
+  body:   '#c4845a',
+  taste:  '#9aab9e',
+  safety: '#6a5e7a'
+};
+const TSRCS = {
+  space:  BASE + "t01.png",
+  body:   BASE + "t02.png",
+  taste:  BASE + "t03.png",
+  safety: BASE + "t04.png"
+};
+
+// 12 question images — recycled across topics
+const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
+
+// 6 Actions — "How to listen"
+const ANAMES = {
+  a01: "Just listen",
+  a02: "One question only",
+  a03: "Share briefly",
+  a04: "Hold the advice",
+  a05: "Hold the judgment",
+  a06: "Let's stop here for today"
+};
+const ADESC = {
+  a01: "I don't need a solution right now. Just listen.",
+  a02: "I appreciate your care, but too many questions starts to feel heavy.",
+  a03: "If you've had a similar experience, share it briefly — not as advice or comparison.",
+  a04: "Right now I need listening, not advice. I'll ask if I need help.",
+  a05: "Before comparing or correcting, just hear it as it is.",
+  a06: "I'd like to stop here for today. We can come back to it when I'm ready."
+};
+// a05, a06 borrow random images from a01-a04
+const _aPool = ['a01','a02','a03','a04'].sort(()=>Math.random()-0.5);
+const ASRCS = {
+  a01: BASE + "a01.png",
+  a02: BASE + "a02.png",
+  a03: BASE + "a03.png",
+  a04: BASE + "a04.png",
+  a05: BASE + _aPool[0] + ".png",
+  a06: BASE + _aPool[1] + ".png"
+};
+
+// 4 topics × 9 questions = 36, each with main q + sub q (English)
+const QDATA = {
+  space: [
+    {q:"Where do you most enjoy settling down these days?", f:"When you're there, how does your body usually sit? (e.g., lying down, leaning back, sitting upright)"},
+    {q:"Is there something catching your eye or staying on your mind lately?", f:"Is it more of a space, an object, a person, or a worry?"},
+    {q:"Is there a space or object at home you've been using less than before?", f:"Do you remember the last time you reached for it?"},
+    {q:"Is there something you've gotten used to and left as it is, but that actually bothers you a little?", f:"When does the discomfort feel sharpest?"},
+    {q:"Have you noticed a spot or object lately that feels newly good to be around?", f:"Why does it feel good to you?"},
+    {q:"Has there been a moment recently that felt \"a bit harder than it used to\"?", f:"Was it your body, your mind, or the situation?"},
+    {q:"Has anything made you quietly smile recently?", f:"Was it a moment you'd want to share?"},
+    {q:"How would you sum up how you've been, in one word or one sentence?", f:"What's behind that word?"},
+    {q:"What's your favorite moment of the day lately?", f:"What makes that moment the best one?"}
+  ],
+  body: [
+    {q:"Is there a small change in your body lately?", f:"Even something small — would you share it?"},
+    {q:"Is there something health-related that's started to weigh on you recently?", f:"When you hear health news about people around you, what thought passes through your mind?"},
+    {q:"What time of day does your body feel most at ease?", f:"What does it feel like in your body then?"},
+    {q:"Have you started any new medication or health routine recently?", f:"When and how do you do it?"},
+    {q:"How is your appetite these days?", f:"Is anything different from how it usually is?"},
+    {q:"Have you noticed your stomach feeling settled or unsettled often lately?", f:"Is it tied to certain foods or times of day?"},
+    {q:"How has your sleep been lately?", f:"How does your body feel when you wake up?"},
+    {q:"Have you noticed any change in how your body moves or feels?", f:"Your hands, knees, back, eyes, ears — is there a spot that's been on your mind?"},
+    {q:"Have you started, or started paying more attention to, any daily habit?", f:"After doing it, does anything feel a little different in your body or mind?"}
+  ],
+  taste: [
+    {q:"Is there a food, drink, song, video, or piece of writing you keep coming back to lately?", f:"Do you enjoy it alone, or would you want to share it with someone?"},
+    {q:"Is there a habit or small pleasure that's been giving you joy lately?", f:"Would you want to do it a little more often?"},
+    {q:"Is there a routine of your own that you've been repeating lately?", f:"How does your state change after you do it?"},
+    {q:"Is there a way of doing something that others might not notice, but that you quietly insist on?", f:"Would you want the family to understand that about you?"},
+    {q:"Is there something recently you get absorbed in and lose track of time doing?", f:"What kind of energy does it give you?"},
+    {q:"What part of the day do you most look forward to lately?", f:"How do you feel in the lead-up to it?"},
+    {q:"Have you discovered something new in everyday life recently?", f:"Did you want to tell someone about it?"},
+    {q:"Is there a small action you've been quietly keeping up?", f:"Is there a reason you keep doing it?"},
+    {q:"When does a moment lately make you feel \"ah, that's better\"?", f:"Could we find ways to make that moment happen a bit more often?"}
+  ],
+  safety: [
+    {q:"Is there something on your mind that you let slide without saying?", f:"Was the reason closer to worry, guilt, or timing?"},
+    {q:"Has there been a moment recently when you hesitated whether to contact the family?", f:"What was it you wanted to say then?"},
+    {q:"Is there something you'd like to ask one of your family members right now?", f:"Is there a reason you haven't asked yet?"},
+    {q:"Is there something you'd like to ask of your family, but carefully?", f:"How could you phrase it so it feels less heavy?"},
+    {q:"Was there a word or gesture from family recently that you were grateful for?", f:"Did you say so at the time, or did you keep it to yourself?"},
+    {q:"Is there a worry that's been quietly surfacing lately?", f:"Is it a worry you'd rather keep to yourself, or one you'd want to share?"},
+    {q:"Has \"being looked after\" felt like \"being intruded on\" recently?", f:"What kind of tone or question made it feel that way?"},
+    {q:"How much room is there in your mind these days?", f:"On a scale of 0 to 10, where are you?"},
+    {q:"Is there something you'd like to gently share with family right now?", f:"When do you think would be the easiest time to say it?"}
+  ]
+};
+
+// Demo garden entries (English)
+const DEMO = [
+  {name:"Mom",      topic:"space",  q:"space-1",  a:"a02", answer:"Sitting on the window sofa catching morning light is most comfortable.",       date:"2026.05.18", color:TCOLORS.space},
+  {name:"Dad",      topic:"body",   q:"body-1",   a:"a01", answer:"My back isn't great, but quietly knowing is enough.",                          date:"2026.05.19", color:TCOLORS.body},
+  {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                                              date:"2026.05.20", color:TCOLORS.safety},
+  {name:"Brother",  topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: "../assets/media/trace-voice.mp3",                                              date:"2026.05.21", color:TCOLORS.taste},
+  {name:"Hyun",     topic:"taste",  q:"taste-1",  a:"a04", answer:"A cup of barley tea is enough. Before bed.",                                  date:"2026.05.21", color:TCOLORS.taste},
+  {name:"Daughter", topic:"safety", q:"safety-1", a:"a02", answer:"Sometimes I can't bring it up because I don't want to be a burden when tired.", date:"2026.05.22", color:TCOLORS.safety}
+];
+
+let S={topic:null,question:null,action:null};
+let entries=[];
+entries = [...DEMO];
+
+/* ===== Build topic grid (P1) ===== */
+function buildTopicGrid(){
+  const grid = document.getElementById("tGrid");
+  grid.innerHTML = "";
+  Object.keys(TNAMES).forEach(key => {
+    const card = document.createElement("div");
+    card.className = "sel-card";
+    card.onclick = () => pick("topic", key, card);
+    card.innerHTML = `
+      <div class="chk">✓</div>
+      <img src="${TSRCS[key]}" alt="${TNAMES[key]}"/>
+      <div class="card-overlay">
+        <div class="card-name">${TNAMES[key]}</div>
+        <div class="card-desc">${TDESC[key]}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ===== Build question grid (P2) — 9 image cards of selected topic ===== */
+function buildQuestionGrid(){
+  const grid = document.getElementById("qGrid");
+  grid.innerHTML = "";
+  const topic = S.topic;
+  if(!topic){ return; }
+  const qs = QDATA[topic];
+  qs.forEach((qText, i) => {
+    const qid = `${topic}-${i+1}`;
+    const qimgIdx = i % QSRCS.length;
+    const card = document.createElement("div");
+    card.className = "sel-card q-text";
+    card.onclick = () => pick("question", qid, card);
+    card.innerHTML = `
+      <div class="chk">✓</div>
+      <img src="${QSRCS[qimgIdx]}" alt=""/>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ===== Build action grid (P3) ===== */
+function buildActionGrid(){
+  const grid = document.getElementById("aGrid");
+  grid.innerHTML = "";
+  Object.keys(ANAMES).forEach(key => {
+    const card = document.createElement("div");
+    card.className = "sel-card";
+    card.onclick = () => pick("action", key, card);
+    card.innerHTML = `
+      <div class="chk">✓</div>
+      <img src="${ASRCS[key]}" alt="${ANAMES[key]}"/>
+      <div class="card-overlay">
+        <div class="card-name">${ANAMES[key]}</div>
+        <div class="card-desc">${ADESC[key]}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function pick(type, val, el){
+  const g = el.closest(".grid2");
+  g.querySelectorAll(".sel-card").forEach(c => c.classList.remove("on"));
+  el.classList.add("on");
+  g.classList.add("picked");
+  S[type] = val;
+  const b = document.getElementById({topic:"btn1",question:"btn2",action:"btn3"}[type]);
+  if(b) b.disabled = false;
+}
+
+function goTo(id){
+  document.querySelectorAll(".page").forEach(p=>{
+    if(p.classList.contains("active")){p.classList.remove("active");p.classList.add("exit");setTimeout(()=>p.classList.remove("exit"),420);}
+  });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+  if(id==="p2"){ buildQuestionGrid(); document.getElementById("btn2").disabled = true; S.question = null; }
+  if(id==="p3"){ buildActionGrid(); document.getElementById("btn3").disabled = true; S.action = null; }
+  if(id==="p4") buildFinalCard();
+  if(id==="p5") buildAnswerPage();
+  if(id==="p6") buildGarden();
+}
+
+function goBack(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+/* Smart back handlers — follow the actual previous step */
+function backFromP4(){
+  // Final mode (action chosen) → P3, Think mode → P2
+  if(S.action) goBack("p3");
+  else goBack("p2");
+}
+function backFromP3(){
+  // Going back from action selection drops the action and returns to P4 in Think mode
+  S.action = null;
+  document.querySelectorAll('#aGrid .sel-card.on').forEach(c=>c.classList.remove('on'));
+  document.getElementById("btn3").disabled = true;
+  goBack("p4");
+  buildFinalCard();
+}
+
+function buildFinalCard(){
+  const t = S.topic, q = S.question, a = S.action;
+  const idx = parseInt(q.split('-')[1]) - 1;
+  const qimgIdx = idx % QSRCS.length;
+  document.getElementById("imgT").src = TSRCS[t];
+  document.getElementById("imgQ").src = QSRCS[qimgIdx];
+
+  const imgA = document.getElementById("imgA");
+  if(a){ imgA.src = ASRCS[a]; imgA.style.display = ""; }
+  else { imgA.style.display = "none"; }
+
+  // No badges on back of card
+  document.getElementById("bBadges").innerHTML = '';
+
+  // Main + sub question
+  const qData = QDATA[t][idx];
+  document.getElementById("bQ").textContent = qData.q;
+  const bSub = document.getElementById("bSub");
+  if(bSub) bSub.textContent = qData.f || "";
+
+  // Action area (final mode only)
+  const bF = document.getElementById("bF");
+  if(a){
+    bF.innerHTML = '<span class="action-label">' + ANAMES[a] + '</span>' + ADESC[a];
+    bF.style.display = "";
+  } else {
+    bF.style.display = "none";
+  }
+
+  // Mode-specific UI: title, intro, buttons, final note
+  const titleEl = document.getElementById("p4Title");
+  const stepEl  = document.getElementById("p4Step");
+  const intro   = document.getElementById("p4Intro");
+  const finalNote = document.getElementById("p4FinalNote");
+  const btnAction = document.getElementById("btnAction");
+  const btnSave   = document.getElementById("btnSave");
+  if(a){
+    if(titleEl) titleEl.textContent = "Today's card";
+    if(stepEl)  stepEl.textContent  = "JungOne · Today's card";
+    if(intro) intro.style.display = "none";
+    if(finalNote) finalNote.style.display = "";
+    if(btnAction) btnAction.style.display = "none";
+    if(btnSave) btnSave.style.display = "";
+  } else {
+    if(titleEl) titleEl.textContent = "Preparing";
+    if(stepEl)  stepEl.textContent  = "JungOne · Preparing";
+    if(intro) intro.style.display = "";
+    if(finalNote) finalNote.style.display = "none";
+    if(btnAction) btnAction.style.display = "";
+    if(btnSave) btnSave.style.display = "none";
+  }
+}
+
+/* ===== Action flow ===== */
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,'0') + "." + String(d.getDate()).padStart(2,'0');
+}
+
+function afterAction(){
+  // Action selected → return to P4 with renewed card
+  goTo("p4");
+}
+
+/* ===== Save flow with answer-or-not modal ===== */
+function askAnswerConfirm(){
+  document.getElementById("answerModal").classList.add("show");
+}
+function closeAnswerModal(e){
+  if(e && e.target.id !== "answerModal") return;
+  document.getElementById("answerModal").classList.remove("show");
+}
+function answerYes(){
+  document.getElementById("answerModal").classList.remove("show");
+  goTo("p5");
+}
+function answerNo(){
+  document.getElementById("answerModal").classList.remove("show");
+  // Save without an answer
+  const col = TCOLORS[S.topic] || '#9aab9e';
+  entries.push({name:"Me", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col});
+  goTo("p55");
+  setTimeout(()=> goTo("p6"), 2400);
+}
+
+/* ===== Answer page (P5) ===== */
+function buildAnswerPage(){
+  const t = S.topic, q = S.question;
+  const idx = parseInt(q.split('-')[1]) - 1;
+  const qimgIdx = idx % QSRCS.length;
+  document.getElementById("miniImg").src = QSRCS[qimgIdx];
+  document.getElementById("miniLabel").textContent = "";
+  document.getElementById("miniQ").textContent = QDATA[t][idx].q;
+  document.getElementById("answerText").value = "";
+  document.getElementById("charCount").textContent = "0";
+  document.getElementById("btn5").disabled = true;
+  clearFile();  // reset any previously uploaded file
+}
+
+function updateSubmitState(){
+  const v = document.getElementById("answerText").value;
+  document.getElementById("charCount").textContent = v.length;
+  const hasText = v.trim().length >= 3;
+  const hasFile = !!S.uploadedFile;
+  document.getElementById("btn5").disabled = !(hasText || hasFile);
+}
+
+// Back-compat alias — some inline handlers may still call updateCount
+function updateCount(){ updateSubmitState(); }
+
+function handleFileUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  S.uploadedFile = { url, type: file.type, name: file.name };
+
+  const preview = document.getElementById("filePreview");
+  const empty   = document.getElementById("fileDropEmpty");
+  const clearBtn = document.getElementById("fileClear");
+  preview.innerHTML = "";
+  if(file.type.startsWith("image/")){
+    preview.innerHTML = `<img src="${url}" alt="${file.name}"/>`;
+  } else if(file.type.startsWith("video/")){
+    preview.innerHTML = `<video src="${url}" controls playsinline></video>`;
+  } else if(file.type.startsWith("audio/")){
+    preview.innerHTML = `<audio src="${url}" controls></audio>`;
+  } else {
+    preview.innerHTML = `<div style="padding:14px;font-family:'Crimson Pro',serif;font-size:13px;color:#3a3028;">${file.name}</div>`;
+  }
+  preview.classList.add("show");
+  empty.style.display = "none";
+  clearBtn.style.display = "";
+  updateSubmitState();
+}
+
+function clearFile(){
+  S.uploadedFile = null;
+  const fi = document.getElementById("fileInput");
+  if(fi) fi.value = "";
+  const preview = document.getElementById("filePreview");
+  if(preview){ preview.innerHTML = ""; preview.classList.remove("show"); }
+  const empty = document.getElementById("fileDropEmpty");
+  if(empty) empty.style.display = "";
+  const clearBtn = document.getElementById("fileClear");
+  if(clearBtn) clearBtn.style.display = "none";
+  updateSubmitState();
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  buildTopicGrid();
+});
+// also run immediately in case DOMContentLoaded already fired
+buildTopicGrid();
+
+function submitAnswer(){
+  const answer = document.getElementById("answerText").value.trim();
+  const col = TCOLORS[S.topic] || '#9aab9e';
+  const entry = {name:"Me", topic:S.topic, q:S.question, a:S.action, answer, date:todayStr(), color:col};
+  if(S.uploadedFile){
+    const t = S.uploadedFile.type;
+    if(t.startsWith("image/"))      entry.photo = S.uploadedFile.url;
+    else if(t.startsWith("video/")) entry.video = S.uploadedFile.url;
+    else if(t.startsWith("audio/")) entry.voice = S.uploadedFile.url;
+  }
+  entries.push(entry);
+  S.uploadedFile = null;
+  goTo("p55");
+  setTimeout(()=> goTo("p6"), 2400);
+}
+
+// Garden
+let bubbleTimer=null;
+let bubbleIdx=0;
+
+function buildGarden(){
+  const container=document.getElementById("seedsContainer");
+  container.innerHTML="";
+  document.getElementById("gardenSub").textContent = entries.length + " traces growing";
+
+  const W=window.innerWidth, H=window.innerHeight-180;
+  const positions=getPositions(entries.length,W,H);
+
+  entries.forEach((e,i)=>{
+    const pos=positions[i];
+    // q ID can be either old "q05" or new "space-3" format
+    let qimgIdx = 0;
+    if(e.q && e.q.includes('-')){
+      qimgIdx = (parseInt(e.q.split('-')[1])-1) % QSRCS.length;
+    } else if(e.q){
+      qimgIdx = (parseInt(e.q.replace(/[^\d]/g,''))-1) % QSRCS.length;
+    }
+    const seed=document.createElement("div");
+    seed.className="seed";
+    seed.style.left=pos.x+"px";
+    seed.style.top=pos.y+"px";
+    seed.style.animationDelay=(i*0.12)+"s";
+    seed.innerHTML=`
+      <div class="seed-img">
+        <img src="${QSRCS[qimgIdx]}" alt=""/>
+      </div>
+      <div class="seed-name">${e.name}</div>`;
+    seed.onclick=()=>showBubble(e,pos,W);
+    container.appendChild(seed);
+  });
+
+  // Auto cycle answers every 5s
+  clearInterval(bubbleTimer);
+  bubbleIdx=0;
+  showBubbleAuto();
+  bubbleTimer=setInterval(()=>{
+    bubbleIdx=(bubbleIdx+1)%entries.length;
+    showBubbleAuto();
+  },5000);
+}
+
+function getPositions(n,W,H){
+  const positions=[];
+  const cols=Math.ceil(Math.sqrt(n*1.4));
+  const rows=Math.ceil(n/cols);
+  const cw=W/cols, ch=H/rows;
+  for(let i=0;i<n;i++){
+    const col=i%cols, row=Math.floor(i/cols);
+    const jx=(Math.random()-.5)*cw*0.3;
+    const jy=(Math.random()-.5)*ch*0.3;
+    positions.push({x:cw*(col+.5)+jx, y:ch*(row+.5)+jy+40});
+  }
+  return positions;
+}
+
+function showBubbleAuto(){
+  if(!entries.length) return;
+  const e=entries[bubbleIdx];
+  const seeds=document.querySelectorAll(".seed");
+  if(!seeds[bubbleIdx]) return;
+  const rect=seeds[bubbleIdx].getBoundingClientRect();
+  const bodyRect=document.getElementById("p6").getBoundingClientRect();
+  showBubbleAt(e, rect.left-bodyRect.left+rect.width/2, rect.top-bodyRect.top);
+}
+
+function showBubble(e,pos,W){
+  showBubbleAt(e,pos.x,pos.y-50);
+}
+
+function showBubbleAt(e,x,y){
+  if(window._curAudio){window._curAudio.pause();window._curAudio=null;}
+  const bub=document.getElementById("answerBubble");
+  const col=e.color||"#9aab9e";
+  const inner=document.getElementById("bubbleInner");
+  inner.style.background=col+"22";
+  inner.style.borderColor=col+"44";
+  document.getElementById("bubbleName").textContent=e.name;
+  document.getElementById("bubbleName").style.color=col;
+
+  // Build header: Topic · Question · Date
+  const topicName = TNAMES[e.topic] || e.topic;
+  let qText = "";
+  if(e.q && e.q.includes('-')){
+    const idx = parseInt(e.q.split('-')[1])-1;
+    const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
+    qText = obj ? obj.q : "";
+  }
+  const dateStr = e.date || "";
+  let headerHtml = `
+    <div class="b-question">"${qText}"</div>
+    <div class="b-date">${dateStr}</div>`;
+
+  // Body: optional media or answer
+  let bodyHtml = "";
+  if(e.video){
+    bodyHtml = '<video src="'+e.video+'" style="width:100%;aspect-ratio:16/9;border-radius:6px;display:block;margin-top:8px;" autoplay muted loop playsinline></video>';
+  } else if(e.photo){
+    bodyHtml = '<img src="'+e.photo+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;display:block;margin-top:8px;"/>';
+  } else if(e.voice){
+    var bars="";
+    for(var i=0;i<28;i++){
+      var h=8+Math.abs(Math.sin(i*0.7+1)*20+Math.cos(i*0.4)*14);
+      bars+='<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
+    }
+    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">▶ playing</div></div>';
+    var audio=new Audio(e.voice);
+    audio.play().catch(function(){});
+    window._curAudio=audio;
+  } else if(e.answer){
+    bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
+  }
+
+  inner.innerHTML = headerHtml + bodyHtml;
+
+  var bw=240;
+  var lx=x-bw/2;
+  lx=Math.max(10,Math.min(lx,window.innerWidth-bw-10));
+  bub.style.left=lx+"px";
+  bub.style.top=Math.max(10,y-20)+"px";
+  bub.classList.remove("show");
+  requestAnimationFrame(function(){bub.classList.add("show");});
+}
+
+function resetAll(){
+  S={topic:null,question:null,action:null};
+  document.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
+  document.querySelectorAll(".grid2").forEach(g=>g.classList.remove("picked"));
+  
+  ["btn1","btn2","btn3"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
+  clearInterval(bubbleTimer);
+}
+</script>
+</body>
+</html>

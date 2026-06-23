@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정원: The Garden — sample</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Nanum+Myeongjo:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;width:100%;overflow:hidden;}
+body{
+  font-family:'Crimson Pro','Noto Serif KR','Nanum Myeongjo','AppleMyungjo',Georgia,serif;
+  background:#0a0d0a;
+  color:#e8e2d4;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== Garden stage ===== */
+.garden{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 20% 30%, #0d1410 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, #0c1c14 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, #0a0d0a 0%, #050706 100%);
+  overflow:hidden;
+}
+
+/* Vignette */
+.vignette{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+  z-index:200;
+}
+
+/* Subtle atmospheric noise / grain */
+.noise{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.04;
+  z-index:201;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+/* ===== Header (top-left) ===== */
+.header{
+  position:absolute;
+  top:42px;
+  left:36px;
+  z-index:150;
+  max-width:60%;
+}
+.garden-title{
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+  font-size:clamp(20px,2.4vw,26px);
+  font-weight:400;
+  color:#f0ead8;
+  letter-spacing:-.01em;
+  opacity:.92;
+  margin-bottom:10px;
+}
+.garden-sub{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#7a8a72;
+  font-family:'Crimson Pro',sans-serif;
+}
+
+/* ===== Vines layer (SVG paths) ===== */
+.vines{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:1;
+}
+.vine{
+  fill:none;
+  stroke:#1f4030;
+  stroke-width:0.6;
+  opacity:0.22;
+  filter:blur(0.5px);
+}
+.vine.thin{stroke-width:0.4;opacity:0.15;}
+
+/* ===== Plant layers ===== */
+.plants{
+  position:absolute;
+  inset:0;
+  z-index:5;
+}
+
+.plant{
+  position:absolute;
+  pointer-events:none;
+  transform-origin:center bottom;
+}
+.plant img{
+  display:block;
+  width:100%;
+  height:auto;
+  mix-blend-mode:screen;
+  filter:sepia(0.35) saturate(1.6) hue-rotate(-20deg) brightness(1.1) contrast(1.05);
+  -webkit-mask-image:radial-gradient(ellipse 60% 76% at center 56%, #000 38%, transparent 88%);
+  mask-image:radial-gradient(ellipse 60% 76% at center 56%, #000 38%, transparent 88%);
+}
+
+/* Background layer — large, faint, blurred */
+.plant.layer-bg{
+  z-index:2;
+}
+.plant.layer-bg img{
+  filter:sepia(0.35) saturate(1.4) hue-rotate(-25deg) brightness(0.85) contrast(0.9) blur(1.5px);
+}
+
+/* Middle layer */
+.plant.layer-mid{
+  z-index:6;
+}
+.plant.layer-mid img{
+  filter:sepia(0.4) saturate(1.5) hue-rotate(-20deg) brightness(1.0) contrast(1.05) blur(0.3px);
+}
+
+/* Trace (foreground) layer */
+.plant.layer-trace{
+  z-index:10;
+}
+.plant.layer-trace img{
+  filter:sepia(0.35) saturate(1.7) hue-rotate(-15deg) brightness(1.18) contrast(1.1);
+}
+
+/* Subtle breathing animation, staggered */
+@keyframes sway{
+  0%, 100% { transform: rotate(var(--rot, 0deg)) scale(var(--sc, 1)) translateY(0); }
+  50%       { transform: rotate(calc(var(--rot, 0deg) + 1.5deg)) scale(var(--sc, 1)) translateY(-2px); }
+}
+.plant{
+  animation: sway 7s ease-in-out infinite;
+}
+
+/* ===== Trace bubble (irregular blob) ===== */
+.trace-bubble{
+  position:absolute;
+  z-index:80;
+  max-width:230px;
+  padding:18px 22px 20px;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(72,52,40,0.92) 0%, rgba(54,38,28,0.88) 60%, rgba(40,28,20,0.85) 100%);
+  color:#f0ead8;
+  border-radius:60% 40% 55% 45% / 50% 60% 40% 50%;
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  font-style:italic;
+  line-height:1.6;
+}
+.trace-meta-q{
+  font-family:'Crimson Pro',sans-serif;
+  font-size:10px;
+  font-style:normal;
+  color:rgba(240,234,216,0.55);
+  letter-spacing:.02em;
+  line-height:1.5;
+  margin-bottom:8px;
+  font-weight:400;
+}
+.trace-meta-date{
+  font-family:'Crimson Pro',sans-serif;
+  font-size:9px;
+  font-style:normal;
+  letter-spacing:.16em;
+  color:rgba(240,234,216,0.4);
+  margin-bottom:12px;
+}
+.trace-text{
+  font-size:15px;
+  line-height:1.65;
+  color:#f5eedf;
+  font-style:italic;
+}
+
+/* ===== Footer (bottom button text) ===== */
+.footer-action{
+  position:absolute;
+  bottom:48px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:150;
+}
+.btn-return{
+  background:transparent;
+  border:1px solid rgba(232,226,212,0.35);
+  color:#d4ccb8;
+  padding:14px 28px;
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+  font-size:14px;
+  letter-spacing:.02em;
+  cursor:pointer;
+  border-radius:2px;
+  transition:all .25s;
+}
+.btn-return:hover{
+  border-color:rgba(232,226,212,0.7);
+  color:#f5eedf;
+  background:rgba(232,226,212,0.05);
+}
+
+/* Sample tag */
+.sample-tag{
+  position:absolute;
+  top:42px;
+  right:36px;
+  z-index:150;
+  font-family:'Crimson Pro',sans-serif;
+  font-size:10px;
+  letter-spacing:.22em;
+  color:rgba(232,226,212,0.32);
+  text-transform:uppercase;
+}
+
+</style>
+</head>
+<body>
+
+<div class="garden">
+
+  <!-- Atmospheric layers (back to front) -->
+  <div class="noise"></div>
+
+  <!-- Vines: organic curves connecting the garden -->
+  <svg class="vines" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <!-- Long sweeping vine, left to right, low -->
+    <path class="vine"
+          d="M -2,72 C 14,68 20,82 32,76 C 44,70 52,84 64,78 C 76,72 86,82 102,76"
+          vector-effect="non-scaling-stroke"/>
+    <!-- Upper diagonal vine, gentle arc -->
+    <path class="vine thin"
+          d="M 0,28 C 18,22 30,38 48,32 C 64,26 78,40 100,34"
+          vector-effect="non-scaling-stroke"/>
+    <!-- Vertical-ish curve, center-left -->
+    <path class="vine"
+          d="M 22,10 C 28,28 18,46 26,62 C 32,76 22,88 28,98"
+          vector-effect="non-scaling-stroke"/>
+    <!-- Short connecting vine, right side -->
+    <path class="vine thin"
+          d="M 72,18 C 78,32 68,46 76,58 C 82,68 72,80 80,92"
+          vector-effect="non-scaling-stroke"/>
+  </svg>
+
+  <!-- Plants will be injected here via JS -->
+  <div class="plants" id="plants"></div>
+
+  <!-- Trace bubble (one example, near a foreground plant) -->
+  <div class="trace-bubble" style="left:56%; top:38%;">
+    <div class="trace-meta-q">몸을 자주 찾는 음식, 음료,<br>노래, 영상, 물건이 있나요?</div>
+    <div class="trace-meta-date">2026.05.21</div>
+    <div class="trace-text">"보리차 한 잔이면 충분해.<br>자기 전에."</div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <h1 class="garden-title">정원: The Garden</h1>
+    <div class="garden-sub">가족의 흔적이 정원에 자라고 있어요</div>
+  </header>
+
+  <div class="sample-tag">sample · static</div>
+
+  <!-- Vignette overlay -->
+  <div class="vignette"></div>
+
+  <!-- Footer -->
+  <div class="footer-action">
+    <button class="btn-return" onclick="window.location.href='index-re.html'">또 가꾸러 가볼까요?</button>
+  </div>
+
+</div>
+
+<script>
+const BASE = "../assets/jungone-main/";
+const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
+
+// Plants — organic scatter across 3 depth layers
+// x/y are %, size in px (width), rotate in deg, opacity 0-1
+const plants = [
+  // ===== Background layer: large, faint, deep =====
+  { src: QSRCS[0], x:  8, y: 18, size: 280, rotate: -8, opacity: 0.14, layer: "bg" },
+  { src: QSRCS[4], x: 76, y: 12, size: 240, rotate:  6, opacity: 0.18, layer: "bg" },
+  { src: QSRCS[7], x: 38, y: 78, size: 320, rotate:  4, opacity: 0.12, layer: "bg" },
+  { src: QSRCS[10], x: 88, y: 64, size: 260, rotate: -5, opacity: 0.16, layer: "bg" },
+  { src: QSRCS[2], x: 16, y: 58, size: 220, rotate:  9, opacity: 0.22, layer: "bg" },
+
+  // ===== Middle layer: medium plants =====
+  { src: QSRCS[1], x: 30, y: 24, size: 150, rotate: -4, opacity: 0.52, layer: "mid" },
+  { src: QSRCS[5], x: 64, y: 28, size: 165, rotate:  7, opacity: 0.48, layer: "mid" },
+  { src: QSRCS[9], x: 12, y: 42, size: 130, rotate: -10, opacity: 0.6, layer: "mid" },
+  { src: QSRCS[3], x: 50, y: 58, size: 145, rotate:  3, opacity: 0.55, layer: "mid" },
+  { src: QSRCS[6], x: 80, y: 46, size: 140, rotate: -6, opacity: 0.5, layer: "mid" },
+  { src: QSRCS[11], x: 26, y: 70, size: 155, rotate:  5, opacity: 0.42, layer: "mid" },
+  { src: QSRCS[8], x: 70, y: 78, size: 135, rotate: -8, opacity: 0.45, layer: "mid" },
+
+  // ===== Trace (foreground) layer: clearest =====
+  { src: QSRCS[2], x: 42, y: 38, size: 110, rotate: -3, opacity: 0.88, layer: "trace" },
+  { src: QSRCS[7], x: 22, y: 32, size: 95,  rotate:  8, opacity: 0.92, layer: "trace" },
+  { src: QSRCS[5], x: 14, y: 80, size: 105, rotate: -5, opacity: 0.85, layer: "trace" },
+  { src: QSRCS[10], x: 60, y: 64, size: 100, rotate:  6, opacity: 0.78, layer: "trace" },
+  { src: QSRCS[1], x: 84, y: 34, size: 88,  rotate: -7, opacity: 0.9, layer: "trace" },
+  { src: QSRCS[8], x: 36, y: 18, size: 92,  rotate:  4, opacity: 0.82, layer: "trace" }
+];
+
+const stage = document.getElementById("plants");
+plants.forEach((p, i) => {
+  const el = document.createElement("div");
+  el.className = "plant layer-" + p.layer;
+  el.style.left    = p.x + "%";
+  el.style.top     = p.y + "%";
+  el.style.width   = p.size + "px";
+  el.style.opacity = p.opacity;
+  el.style.setProperty("--rot", p.rotate + "deg");
+  el.style.setProperty("--sc", "1");
+  el.style.transform = `rotate(${p.rotate}deg) scale(1)`;
+  // Stagger the breathing animation
+  el.style.animationDelay = (i * 0.4) + "s";
+  el.style.animationDuration = (6 + (i % 4) * 1.2) + "s";
+  el.innerHTML = `<img src="${p.src}" alt=""/>`;
+  stage.appendChild(el);
+});
+</script>
+
+</body>
+</html>
