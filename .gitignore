@@ -1,0 +1,6 @@
+# Local backup of the previous jungone site — ~926MB and contains its own nested
+# git repo. Kept locally for original-resolution source files; never commit it.
+구버전 jungone/
+
+# macOS
+.DS_Store
