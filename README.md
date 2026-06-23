@@ -18,5 +18,5 @@ Then open http://127.0.0.1:8000/.
 - `assets/images/questions/` - compressed WebP question cards
 - `assets/images/listening/` - listening/action cards
 - `assets/media/` - demo photo and voice assets
-- `assets/jungone-main/` - compressed local WebP copy used by `archive/index-re.html`
+- `assets/jungone-main/` - compressed local GIF copy used by `archive/index-re.html`
 - `archive/` - previous HTML iterations

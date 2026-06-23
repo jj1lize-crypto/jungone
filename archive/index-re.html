@@ -16,7 +16,7 @@
 <title>정원: The Garden</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="image" href="/assets/jungone-main/cover-1920.webp" fetchpriority="high">
+<link rel="preload" as="image" href="/assets/jungone-main/cover-1920.gif" fetchpriority="high">
 
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1340,7 +1340,7 @@ body.display-mode .bubble-inner .b-answer{font-size:20px;}
 body.display-mode .display-hint{font-size:16px;bottom:48px;}
 
 
-/* ===== Fallback garden image (smp-full.webp) — shown if JS / vine fail ===== */
+/* ===== Fallback garden image (smp-full.gif) — shown if JS / vine fail ===== */
 .garden-fallback{
   position:absolute;
   inset:0;
@@ -2355,12 +2355,12 @@ body.display-mode #s9 .garden-body{
   content:"";
 }
 
-/* ===== Subtle texture on background (cover-back-empty.webp) ===== */
+/* ===== Subtle texture on background (cover-back-empty.gif) ===== */
 .app::before{
   content:"";
   position:fixed;
   inset:0;
-  background-image:url("/assets/jungone-main/cover-back-empty.webp");
+  background-image:url("/assets/jungone-main/cover-back-empty.gif");
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
@@ -2383,7 +2383,7 @@ body.display-mode #s9 .garden-body{
 .cover-bg{
   position:absolute;
   inset:0;
-  background-image:url("/assets/jungone-main/cover-1920.webp");
+  background-image:url("/assets/jungone-main/cover-1920.gif");
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
@@ -2635,7 +2635,7 @@ body {
   flex-direction: column !important;
   background:
     linear-gradient(rgba(243,238,228,.94), rgba(243,238,228,.94)),
-    url("/assets/jungone-main/cover-back-empty.webp");
+    url("/assets/jungone-main/cover-back-empty.gif");
   background-size: cover;
   background-position: center;
   background-blend-mode: normal;
@@ -2803,7 +2803,7 @@ body {
   inset: 0 !important;
   z-index: 1 !important;
   background-image: linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,.35)),
-                    url("/assets/jungone-main/cover-1920.webp") !important;
+                    url("/assets/jungone-main/cover-1920.gif") !important;
   background-size: cover !important;
   background-position: center !important;
 }
@@ -3098,7 +3098,7 @@ body {
 }
 
 /* ============================================================
-   Listening MODAL — listencard-back-empty.webp bg, large icon
+   Listening MODAL — listencard-back-empty.gif bg, large icon
    ============================================================ */
 .listen-modal {
   align-items: center !important;
@@ -3111,7 +3111,7 @@ body {
   max-width: 340px !important;
   aspect-ratio: 0.73 !important;
   padding: 0 !important;
-  background: url("/assets/jungone-main/listencard-back-empty.webp") center / cover no-repeat !important;
+  background: url("/assets/jungone-main/listencard-back-empty.gif") center / cover no-repeat !important;
   color: #fff !important;
   position: relative !important;
   border: 0 !important;
@@ -3619,7 +3619,7 @@ body.display-mode .app {
   justify-content:center !important;
   text-align:center !important;
   margin:0 auto !important;
-  background:url("/assets/jungone-main/cover-logo-wh.webp") center/contain no-repeat !important;
+  background:url("/assets/jungone-main/cover-logo-wh.gif") center/contain no-repeat !important;
   width:140px !important;
   height:48px !important;
   font-size:0 !important;
@@ -4159,7 +4159,7 @@ body.display-mode .app {
   height:auto !important;
   aspect-ratio:1/1.05 !important;
   flex:0 0 auto !important;
-  background:#0e0c09 url("/assets/jungone-main/listencard-back-empty.webp") center/cover no-repeat !important;
+  background:#0e0c09 url("/assets/jungone-main/listencard-back-empty.gif") center/cover no-repeat !important;
   overflow:hidden;
 }
 .lm-img-wrap .lm-back{display:none !important;}
@@ -4350,7 +4350,7 @@ body.display-mode .app {
 .app{
   background:
     linear-gradient(rgba(243,238,228,.90), rgba(243,238,228,.90)),
-    url("/assets/jungone-main/cover-back-empty.webp") !important;
+    url("/assets/jungone-main/cover-back-empty.gif") !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -4548,7 +4548,7 @@ body:has(#s0.active) .lang-toggle{
 .intro-logo{
   display:block !important;
   margin:24px auto 8px !important;       /* same top spacing as garden header */
-  background:url("/assets/jungone-main/cover-logo-bk.webp") center/contain no-repeat !important;
+  background:url("/assets/jungone-main/cover-logo-bk.gif") center/contain no-repeat !important;
   width:140px !important;                /* same as garden logo */
   height:48px !important;                /* same as garden logo */
   flex:0 0 auto !important;
@@ -5543,7 +5543,7 @@ body.ex-display #s9.dark-bg{
 body.ex-display #s9 .garden-body::before{
   content:"";
   position:absolute; inset:0; z-index:0;
-  background:url("/assets/jungone-main/BGtv-night.webp") center/cover no-repeat;
+  background:url("/assets/jungone-main/BGtv-night.gif") center/cover no-repeat;
   opacity:1;
   pointer-events:none;
 }
@@ -5551,7 +5551,7 @@ body.ex-display #s9 .garden-body::before{
 body.ex-display #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
-  background:url("/assets/jungone-main/garden%20guide1-re.webp") center/contain no-repeat;
+  background:url("/assets/jungone-main/garden%20guide1-re.gif") center/contain no-repeat;
   opacity:1;
   pointer-events:none;
 }
@@ -5670,7 +5670,7 @@ body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer
     <div class="cover-bg" aria-hidden="true"></div>
     <div class="cover-vignette" aria-hidden="true"></div>
     <div class="cover-center">
-      <img class="cover-logo" src="/assets/jungone-main/cover-logo-wh.webp" alt="JungOne · The Garden"/>
+      <img class="cover-logo" src="/assets/jungone-main/cover-logo-wh.gif" alt="JungOne · The Garden"/>
       <button class="cover-enter btn" onclick="go('s1')" data-i18n="cover_enter">정원 들어가기 →</button>
     </div>
   </section>
@@ -5917,19 +5917,19 @@ const TOPIC_COLOR = { space: "bl", body: "gn", taste: "pk", safety: "yw" };
 
 // Topic cover cards (S2 — choose topic)
 const TSRCS = {
-  space:  BASE + "oncardbl-topic.webp",
-  body:   BASE + "oncardgn-topic.webp",
-  taste:  BASE + "oncardpk-topic.webp",
-  safety: BASE + "oncardyw-topic.webp"
+  space:  BASE + "oncardbl-topic.gif",
+  body:   BASE + "oncardgn-topic.gif",
+  taste:  BASE + "oncardpk-topic.gif",
+  safety: BASE + "oncardyw-topic.gif"
 };
 
 // Question cards front (S3 — choose question)
-// Each color has 9 question cards: oncard{color}1.webp ~ oncard{color}9.webp
+// Each color has 9 question cards: oncard{color}1.gif ~ oncard{color}9.gif
 const ONCARDS_Q = {
-  bl: Array.from({length:9}, (_,i)=> BASE + "oncardbl" + (i+1) + ".webp"),
-  gn: Array.from({length:9}, (_,i)=> BASE + "oncardgn" + (i+1) + ".webp"),
-  pk: Array.from({length:9}, (_,i)=> BASE + "oncardpk" + (i+1) + ".webp"),
-  yw: Array.from({length:9}, (_,i)=> BASE + "oncardyw" + (i+1) + ".webp")
+  bl: Array.from({length:9}, (_,i)=> BASE + "oncardbl" + (i+1) + ".gif"),
+  gn: Array.from({length:9}, (_,i)=> BASE + "oncardgn" + (i+1) + ".gif"),
+  pk: Array.from({length:9}, (_,i)=> BASE + "oncardpk" + (i+1) + ".gif"),
+  yw: Array.from({length:9}, (_,i)=> BASE + "oncardyw" + (i+1) + ".gif")
 };
 function qcardSrc(topic, qIdx){  // qIdx 0-based
   const c = TOPIC_COLOR[topic];
@@ -5938,10 +5938,10 @@ function qcardSrc(topic, qIdx){  // qIdx 0-based
 
 // Card back (used when card is "selected" — appears as the conv-card background)
 const OFFCARDS_BACK = {
-  space:  BASE + "offcardbl-back-empty.webp",
-  body:   BASE + "offcardgn-back-empty.webp",
-  taste:  BASE + "offcardpk-back-empty.webp",
-  safety: BASE + "offcardyw-back-empty.webp"
+  space:  BASE + "offcardbl-back-empty.gif",
+  body:   BASE + "offcardgn-back-empty.gif",
+  taste:  BASE + "offcardpk-back-empty.gif",
+  safety: BASE + "offcardyw-back-empty.gif"
 };
 
 // ===== Face-to-Face physical cards (actual files scanned from repo) =====
@@ -5951,18 +5951,18 @@ const OFFCARD_FILES = {
   bl: ["bl1-5","bl1-7","bl1-9","bl3-2","bl3-5","bl3-7"],
   yw: ["yw1-10","yw2-2","yw2-3","yw2-4","yw2-5","yw3-3","yw3-6"]
 };
-function offCardImg(code){ return BASE + "offcard" + code + ".webp"; }
-function offPlantImg(code){ return BASE + "offplant" + code + ".webp"; }
+function offCardImg(code){ return BASE + "offcard" + code + ".gif"; }
+function offPlantImg(code){ return BASE + "offplant" + code + ".gif"; }
 // Map physical-card category color → topic key (for garden color + category label reuse)
 const OFFCAT_TOPIC = { bl:"space", gn:"body", pk:"taste", yw:"safety" };
 
 
 // Topic card fronts (S2 — used as the body of each topic tile + 3 random plants on top)
 const ONCARDS_FRONT = {
-  space:  BASE + "oncardbl-front.webp",
-  body:   BASE + "oncardgn-front.webp",
-  taste:  BASE + "oncardpk-front.webp",
-  safety: BASE + "oncardyw-front.webp"
+  space:  BASE + "oncardbl-front.gif",
+  body:   BASE + "oncardgn-front.gif",
+  taste:  BASE + "oncardpk-front.gif",
+  safety: BASE + "oncardyw-front.gif"
 };
 
 // Helper: pick 3 random plants from oncard{color}1~6 for a topic tile
@@ -5975,33 +5975,33 @@ function randomPlantsForTopic(topic){
     const j = Math.floor(Math.random() * (i + 1));
     [all[i], all[j]] = [all[j], all[i]];
   }
-  return all.slice(0,3).map(n => BASE + "oncard" + c + n + ".webp");
+  return all.slice(0,3).map(n => BASE + "oncard" + c + n + ".gif");
 }
 
 // Listening cards (S6 — 6 listening style cards)
 const LISTEN_KEYS = ["a01","a02","a03","a04","a05","a06"];
 const ASRCS = {
-  a01: BASE + "listencard1.webp",
-  a02: BASE + "listencard2.webp",
-  a03: BASE + "listencard3.webp",
-  a04: BASE + "listencard4.webp",
-  a05: BASE + "listencard5.webp",
-  a06: BASE + "listencard6.webp"
+  a01: BASE + "listencard1.gif",
+  a02: BASE + "listencard2.gif",
+  a03: BASE + "listencard3.gif",
+  a04: BASE + "listencard4.gif",
+  a05: BASE + "listencard5.gif",
+  a06: BASE + "listencard6.gif"
 };
 
 // Garden plants (S9 — when an entry is planted)
-// onplant{color}{1-9}.webp, mapped from the question chosen
+// onplant{color}{1-9}.gif, mapped from the question chosen
 const ONPLANTS = {
-  bl: Array.from({length:9}, (_,i)=> BASE + "onplantbl" + (i+1) + ".webp"),
-  gn: Array.from({length:9}, (_,i)=> BASE + "onplantgn" + (i+1) + ".webp"),
-  pk: Array.from({length:9}, (_,i)=> BASE + "onplantpk" + (i+1) + ".webp"),
-  yw: Array.from({length:9}, (_,i)=> BASE + "onplantyw" + (i+1) + ".webp")
+  bl: Array.from({length:9}, (_,i)=> BASE + "onplantbl" + (i+1) + ".gif"),
+  gn: Array.from({length:9}, (_,i)=> BASE + "onplantgn" + (i+1) + ".gif"),
+  pk: Array.from({length:9}, (_,i)=> BASE + "onplantpk" + (i+1) + ".gif"),
+  yw: Array.from({length:9}, (_,i)=> BASE + "onplantyw" + (i+1) + ".gif")
 };
 function plantUrlForEntry(e){
   if(!e) return "";
   // Face-to-face: use the offplant matching the physical card code
   if(e.source === "faceToFace" && e.f2fCard){
-    return offPlantImg(e.f2fCard);   // offplant{code}.webp e.g. offplantgn3-10.webp
+    return offPlantImg(e.f2fCard);   // offplant{code}.gif e.g. offplantgn3-10.gif
   }
   // Afar (existing): derive from q ("space-3")
   if(!e.q) return "";
@@ -6173,7 +6173,7 @@ const DEMO_BY_LANG = {
   ko: [
   {name:"엄마", topic:"space",  q:"space-1",  a:"a02", answer:"창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",       date:"2026.05.18", color:TCOLORS.space},
   {name:"아빠", topic:"body",   q:"body-1",   a:null,  answer:"", video: BASE+"trace-video.mp4",                       date:"2026.05.19", color:TCOLORS.body},
-  {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.webp",                       date:"2026.05.20", color:TCOLORS.safety},
+  {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.gif",                       date:"2026.05.20", color:TCOLORS.safety},
   {name:"오빠", topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                       date:"2026.05.21", color:TCOLORS.taste},
   {name:"현",   topic:"taste",  q:"taste-1",  a:"a04", answer:"보리차 한 잔이면 충분해. 자기 전에.",                    date:"2026.05.21", color:TCOLORS.taste},
   {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
@@ -6181,7 +6181,7 @@ const DEMO_BY_LANG = {
   en: [
   {name:"Mom",      topic:"space",  q:"space-1",  a:"a02", answer:"Sitting on the window sofa catching morning light is most comfortable.",       date:"2026.05.18", color:TCOLORS.space},
   {name:"Dad",      topic:"body",   q:"body-1",   a:null,  answer:"", video: BASE+"trace-video.mp4",                                               date:"2026.05.19", color:TCOLORS.body},
-  {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.webp",                                              date:"2026.05.20", color:TCOLORS.safety},
+  {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.gif",                                              date:"2026.05.20", color:TCOLORS.safety},
   {name:"Brother",  topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                                              date:"2026.05.21", color:TCOLORS.taste},
   {name:"Hyun",     topic:"taste",  q:"taste-1",  a:"a04", answer:"A cup of barley tea is enough. Before bed.",                                  date:"2026.05.21", color:TCOLORS.taste},
   {name:"Daughter", topic:"safety", q:"safety-1", a:"a02", answer:"Sometimes I can't bring it up because I don't want to be a burden when tired.", date:"2026.05.22", color:TCOLORS.safety}
@@ -6856,7 +6856,7 @@ function buildF2FCards(){
     const c = document.createElement("button");
     c.className = "qcard f2f-card";
     if(S.f2fCard === code) c.classList.add("on");
-    // Physical card = its cardImage (offcard{code}.webp), shown full
+    // Physical card = its cardImage (offcard{code}.gif), shown full
     c.innerHTML = `<img class="qc-front" src="${offCardImg(code)}" alt=""/>`;
     c.onclick = () => {
       row.querySelectorAll(".qcard").forEach(x=>x.classList.remove("on"));
@@ -6880,7 +6880,7 @@ function buildTopicGrid(){
     const c = document.createElement("button");
     c.className = "topic-card";
     if(S.topic === key) c.classList.add("on");
-    // Single oncard{color}-topic.webp image
+    // Single oncard{color}-topic.gif image
     c.innerHTML = `<img class="tc-img" src="${TSRCS[key]}" alt=""/>`;
     c.onclick = () => {
       row.querySelectorAll(".topic-card").forEach(x=>x.classList.remove("on"));
@@ -6917,7 +6917,7 @@ function buildQuestionChoices(){
     c.className = "qcard";
     if(previouslySelected === idx) c.classList.add("on");
     const color = TOPIC_COLOR[S.topic];
-    const frontSrc = BASE + "oncard" + color + "-front.webp";
+    const frontSrc = BASE + "oncard" + color + "-front.gif";
     const plantSrc = qcardSrc(S.topic, idx);
     c.innerHTML = `<img class="qc-front" src="${frontSrc}" alt=""/><img class="qc-plant" src="${plantSrc}" alt=""/>`;
     c.onclick = () => {
@@ -6995,7 +6995,7 @@ function buildConvListen(){
     c.className = "conv-listen-card";
     if(S.listenCard === key) c.classList.add("on");
     c.onclick = () => openListenModal(key);
-    c.innerHTML = `<img class="lc-back" src="${BASE}listencard-front-empty.webp" alt=""/><img class="lc-content" src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
+    c.innerHTML = `<img class="lc-back" src="${BASE}listencard-front-empty.gif" alt=""/><img class="lc-content" src="${ASRCS[key]}" alt=""/><span class="lc-name">${ANAMES[key]}</span>`;
     row.appendChild(c);
   });
   updateInviteBtn();
@@ -7004,7 +7004,7 @@ function buildConvListen(){
 let _currentModalKey = null;
 function openListenModal(key){
   _currentModalKey = key;
-  document.getElementById("lmBack").src = BASE + "listencard-back-empty.webp";
+  document.getElementById("lmBack").src = BASE + "listencard-back-empty.gif";
   document.getElementById("lmImg").src = ASRCS[key];
   document.getElementById("lmName").textContent = ANAMES[key];
   document.getElementById("lmDesc").textContent = ADESC[key];
@@ -7337,8 +7337,8 @@ function enterDisplayMode(){
 const exhibitionTraces = [
   {
     plantId: "ex-gn3-9", cardId: "gn3-9", source: "faceToFace", color: "gn", date: "2026.05.18",
-    plantImage: BASE + "offplantgn3-9.webp",
-    cardImage: BASE + "offcardgn3-9.webp",
+    plantImage: BASE + "offplantgn3-9.gif",
+    cardImage: BASE + "offcardgn3-9.gif",
     questionKo: "집에서 가장 편안한 자리는 어디예요?",
     questionEn: "Where is your most comfortable spot at home?",
     traceKo: "창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",
@@ -7347,8 +7347,8 @@ const exhibitionTraces = [
   },
   {
     plantId: "ex-bl1-5", cardId: "bl1-5", source: "faceToFace", color: "bl", date: "2026.05.19",
-    plantImage: BASE + "offplantbl1-5.webp",
-    cardImage: BASE + "offcardbl1-5.webp",
+    plantImage: BASE + "offplantbl1-5.gif",
+    cardImage: BASE + "offcardbl1-5.gif",
     questionKo: "요즘 자주 머무는 공간이 있나요?",
     questionEn: "Is there a space you spend a lot of time in lately?",
     traceKo: "부엌 식탁. 거기서 차 마시며 하루를 시작해.",
@@ -7357,18 +7357,18 @@ const exhibitionTraces = [
   },
   {
     plantId: "ex-gn1-3", cardId: "gn1-3", source: "faceToFace", color: "gn", date: "2026.05.20",
-    plantImage: BASE + "offplantgn1-3.webp",
-    cardImage: BASE + "offcardgn1-3.webp",
+    plantImage: BASE + "offplantgn1-3.gif",
+    cardImage: BASE + "offcardgn1-3.gif",
     questionKo: "피곤할 때 어떻게 쉬는 편이에요?",
     questionEn: "How do you rest when you are tired?",
     traceKo: "말없이 누워 있는 시간이 필요해. 그냥 알아만 줘.",
     traceEn: "I need quiet time lying down. Just knowing is enough.",
-    mediaType: "image", mediaSrc: BASE + "trace-photo.webp", photo: BASE+"trace-photo.webp", visible: true, displayOrder: 3
+    mediaType: "image", mediaSrc: BASE + "trace-photo.gif", photo: BASE+"trace-photo.gif", visible: true, displayOrder: 3
   },
   {
     plantId: "ex-pk2-9", cardId: "pk2-9", source: "faceToFace", color: "pk", date: "2026.05.21",
-    plantImage: BASE + "offplantpk2-9.webp",
-    cardImage: BASE + "offcardpk2-9.webp",
+    plantImage: BASE + "offplantpk2-9.gif",
+    cardImage: BASE + "offcardpk2-9.gif",
     questionKo: "좋아하는 맛이나 음식이 있어요?",
     questionEn: "Do you have a favorite taste or food?",
     traceKo: "보리차 한 잔이면 충분해. 자기 전에.",
@@ -7377,8 +7377,8 @@ const exhibitionTraces = [
   },
   {
     plantId: "ex-gn3-1", cardId: "gn3-1", source: "faceToFace", color: "gn", date: "2026.05.22",
-    plantImage: BASE + "offplantgn3-1.webp",
-    cardImage: BASE + "offcardgn3-1.webp",
+    plantImage: BASE + "offplantgn3-1.gif",
+    cardImage: BASE + "offcardgn3-1.gif",
     questionKo: "몸에서 신경 쓰이는 곳이 있나요?",
     questionEn: "Is there a part of your body you are mindful of?",
     traceKo: "",
@@ -7387,8 +7387,8 @@ const exhibitionTraces = [
   },
   {
     plantId: "ex-bl3-2", cardId: "bl3-2", source: "faceToFace", color: "bl", date: "2026.05.23",
-    plantImage: BASE + "offplantbl3-2.webp",
-    cardImage: BASE + "offcardbl3-2.webp",
+    plantImage: BASE + "offplantbl3-2.gif",
+    cardImage: BASE + "offcardbl3-2.gif",
     questionKo: "하루 중 가장 좋아하는 시간은 언제예요?",
     questionEn: "What is your favorite time of day?",
     traceKo: "해 질 무렵. 창으로 들어오는 빛이 좋아.",
@@ -7430,7 +7430,7 @@ function buildExhibitionGardenShell(){
   if(header && !header.querySelector(".ex-logo")){
     const logo = document.createElement("img");
     logo.className = "ex-logo";
-    logo.src = BASE + "cover-logo-wh.webp";   // white logo on dark bg
+    logo.src = BASE + "cover-logo-wh.gif";   // white logo on dark bg
     logo.alt = "JUNG ONE";
     header.insertBefore(logo, header.firstChild);
   }
