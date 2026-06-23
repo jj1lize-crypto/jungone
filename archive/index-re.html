@@ -1496,8 +1496,9 @@ body:has(.screen.dark-bg.active) .lang-toggle:hover{
 html, body{height:100%;overflow:hidden;}
 .app{
   width:100%;
-  height:100dvh;  /* dynamic viewport — accurate on mobile */
-  min-height:100vh;  /* fallback */
+  height:100vh;   /* fallback for browsers without dvh */
+  height:100dvh;  /* dynamic viewport — exactly the visible area on mobile/TV */
+  min-height:0;   /* cancel the earlier 100vh floor so we never exceed the screen */
   position:relative;
   background:#F4EFE7;
   overflow:hidden;
@@ -1506,8 +1507,9 @@ html, body{height:100%;overflow:hidden;}
   display:none;
   flex-direction:column;
   align-items:center;
-  height:100dvh;
-  min-height:100vh;
+  height:100vh;   /* fallback */
+  height:100dvh;  /* exact visible viewport — never taller than the screen */
+  min-height:0;   /* cancel the earlier 100vh floor so we never exceed the screen */
   padding:36px 24px 160px;
   position:relative;
   overflow:hidden;
