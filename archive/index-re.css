@@ -5602,3 +5602,53 @@ body.ex-display .firefly, body.ex-controller .firefly{
 body.ex-controller #answerBubble, body.ex-controller .answer-bubble{ pointer-events:none !important; }
 body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer-events:none !important; }
 
+
+/* ============================================================
+   Display (TV) trace bubble — enlarged so it reads big on screen.
+   Scoped to ex-display only (does not affect the phone garden).
+   vw/vh based → scales on any display size or orientation.
+   Overrides the earlier `body.ex-display .answer-bubble{max-width:240px}`.
+   ============================================================ */
+body.ex-display .answer-bubble.ex-answer-big{
+  max-width:min(86vw, 920px) !important;
+  width:auto !important;
+}
+body.ex-display .answer-bubble.ex-answer-big .bubble-inner{
+  padding:clamp(28px,4vw,56px) clamp(32px,4.5vw,64px) !important;
+  max-height:90vh !important;
+}
+body.ex-display .ex-record .ex-rec-cat{
+  font-size:clamp(15px,1.8vw,26px) !important;
+  letter-spacing:.18em !important;
+  margin-bottom:clamp(10px,1.4vw,18px) !important;
+}
+body.ex-display .ex-record .ex-rec-q{
+  font-size:clamp(22px,3vw,44px) !important;
+  line-height:1.45 !important;
+  white-space:normal !important;     /* let the full question wrap & show big */
+  overflow:visible !important;
+  text-overflow:clip !important;
+  max-width:100% !important;
+  margin:0 auto clamp(10px,1.4vw,18px) !important;
+}
+body.ex-display .ex-record .ex-rec-date{
+  font-size:clamp(14px,1.5vw,22px) !important;
+  margin-bottom:clamp(18px,2.4vw,34px) !important;
+}
+body.ex-display .ex-record .ex-rec-media{
+  max-height:60vh !important;
+  border-radius:14px !important;
+  margin:0 auto clamp(16px,2vw,28px) !important;
+}
+body.ex-display .ex-record .ex-rec-text{
+  font-size:clamp(28px,3.6vw,56px) !important;
+  line-height:1.5 !important;
+}
+body.ex-display .ex-record .ex-rec-voice{
+  margin:clamp(10px,1.6vw,22px) 0 clamp(20px,2.4vw,34px) !important;
+}
+body.ex-display .ex-record .ex-rec-voice svg{
+  width:clamp(280px,40vw,560px) !important;
+  height:auto !important;
+}
+
