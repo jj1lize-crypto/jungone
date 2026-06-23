@@ -5371,18 +5371,25 @@ body.ex-display .garden-stage{
 /* ===== Phase 3 FIX — exhibition bubble is ALWAYS a clean rectangle ===== */
 body.ex-display .bubble-inner,
 body.ex-controller .bubble-inner{
-  /* organic leaf-blob shape like the public garden bubble (not a square card),
-     and let the per-trace tint show through (no dark override) */
-  border-radius:58% 42% 55% 45% / 50% 60% 40% 50% !important;
-  box-shadow:0 12px 40px rgba(0,0,0,0.55) !important;
-}
-/* The answer-bubble container itself must not draw any shape/background */
-body.ex-display .answer-bubble,
-body.ex-controller .answer-bubble{
+  /* inner is just the text holder — the .answer-bubble draws the bubble shape */
   background:transparent !important;
   border:0 !important;
   box-shadow:none !important;
   border-radius:0 !important;
+  padding:0 !important;
+}
+/* The answer-bubble itself is the bubble (dark organic blob) */
+body.ex-display .answer-bubble,
+body.ex-controller .answer-bubble{
+  background: rgba(15, 20, 15, 0.92) !important;
+  color: #f5f0e8 !important;
+  font-family: inherit !important;
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50% !important;
+  padding: 16px 22px !important;
+  max-width: 240px !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  z-index: 50 !important;
 }
 
 
