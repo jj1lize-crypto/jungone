@@ -5952,7 +5952,7 @@ const OFFCARD_FILES = {
   gn: ["gn1-3","gn1-4","gn1-6","gn2-6","gn3-1","gn3-9","gn3-10"],
   pk: ["pk2-9","pk2-10","pk3-4","pk3-8"],
   bl: ["bl1-5","bl1-7","bl1-9","bl3-2","bl3-5","bl3-7"],
-  yw: ["yw1-10","gn1-3","yw2-3","yw2-4","yw2-5","yw3-3","yw3-6"]
+  yw: ["yw1-10","yw2-2","yw2-3","yw2-4","yw2-5","yw3-3","yw3-6"]
 };
 function offCardImg(code){ return BASE + "offcard" + code + ".png"; }
 function offPlantImg(code){ return BASE + "offplant" + code + ".png"; }
@@ -6175,7 +6175,7 @@ const QDATA_BY_LANG = {
 const DEMO_BY_LANG = {
   ko: [
   {name:"엄마", topic:"space",  q:"space-1",  a:"a02", answer:"창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",       date:"2026.05.18", color:TCOLORS.space},
-  {name:"아빠", topic:"body",   q:"body-1",   a:"a01", answer:"허리가 좀 안 좋은데, 조용히 알아만 주면 돼.",          date:"2026.05.19", color:TCOLORS.body},
+  {name:"아빠", topic:"body",   q:"body-1",   a:null,  answer:"", video: BASE+"trace-video.mp4",                       date:"2026.05.19", color:TCOLORS.body},
   {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                       date:"2026.05.20", color:TCOLORS.safety},
   {name:"오빠", topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                       date:"2026.05.21", color:TCOLORS.taste},
   {name:"현",   topic:"taste",  q:"taste-1",  a:"a04", answer:"보리차 한 잔이면 충분해. 자기 전에.",                    date:"2026.05.21", color:TCOLORS.taste},
@@ -6183,7 +6183,7 @@ const DEMO_BY_LANG = {
 ],
   en: [
   {name:"Mom",      topic:"space",  q:"space-1",  a:"a02", answer:"Sitting on the window sofa catching morning light is most comfortable.",       date:"2026.05.18", color:TCOLORS.space},
-  {name:"Dad",      topic:"body",   q:"body-1",   a:"a01", answer:"My back isn't great, but quietly knowing is enough.",                          date:"2026.05.19", color:TCOLORS.body},
+  {name:"Dad",      topic:"body",   q:"body-1",   a:null,  answer:"", video: BASE+"trace-video.mp4",                                               date:"2026.05.19", color:TCOLORS.body},
   {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                                              date:"2026.05.20", color:TCOLORS.safety},
   {name:"Brother",  topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                                              date:"2026.05.21", color:TCOLORS.taste},
   {name:"Hyun",     topic:"taste",  q:"taste-1",  a:"a04", answer:"A cup of barley tea is enough. Before bed.",                                  date:"2026.05.21", color:TCOLORS.taste},
