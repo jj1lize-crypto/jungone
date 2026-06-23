@@ -2133,6 +2133,11 @@ function showBubbleAt(e, x, y, isAuto){
     window._curAudio = null;
   }
   const bub = document.getElementById("answerBubble");
+  // No saved trace (no media, no text) → never pop an empty bubble. Just close any open one.
+  if(!(e.video || e.photo || e.voice || (e.answer && e.answer.trim()))){
+    if(bub) bub.classList.remove("show");
+    return;
+  }
   const col = e.color || "#9aab9e";
   const inner = document.getElementById("bubbleInner");
   inner.style.background = col + "22";
@@ -2156,9 +2161,8 @@ function showBubbleAt(e, x, y, isAuto){
   if(qText) headerHtml += '<div class="b-question">"' + qText + '"</div>';
   if(dateStr) headerHtml += '<div class="b-date">' + dateStr + '</div>';
 
-  // Body — show saved trace if any; otherwise a gentle prompt
+  // Body — show the saved trace (entries with no trace are filtered out above)
   let bodyHtml = "";
-  const hasTrace = !!(e.video || e.photo || e.voice || (e.answer && e.answer.trim()));
   if(e.video){
     bodyHtml = '<video src="'+e.video+'" style="width:100%;aspect-ratio:16/9;border-radius:6px;display:block;margin-top:8px;" autoplay muted loop playsinline></video>';
   } else if(e.photo){
@@ -2182,9 +2186,6 @@ function showBubbleAt(e, x, y, isAuto){
     }
   } else if(e.answer && e.answer.trim()){
     bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
-  } else {
-    // No saved trace — gentle invitation to leave one
-    bodyHtml = '<div class="b-empty">' + t("bubble_empty_trace") + '</div>';
   }
 
   inner.innerHTML = headerHtml + bodyHtml;
