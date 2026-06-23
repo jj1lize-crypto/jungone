@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JungOne</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+@media(min-width:600px){
+  .topic-grid,.q-grid{grid-template-columns:repeat(5,1fr)!important;}
+  .sel-card,.topic-card,.q-card{max-height:26vh!important;}
+  .ph{padding:28px 32px 8px!important;}
+  .pb{padding:8px 32px!important;}
+  .pf{padding:10px 32px 28px!important;}
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo',serif;overflow:hidden;}
+.page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
+.page.active{transform:translateX(0);}
+.page.exit{transform:translateX(-100%);}
+.ph{padding:44px 22px 10px;flex-shrink:0;}
+.step{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:7px;}
+.prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:12px;}
+.prog-fill{height:100%;transition:width .4s;}
+.title{font-size:clamp(22px,6vw,32px);font-weight:700;line-height:1.18;color:#0e0c09;}
+.sub{font-family:'DM Mono',monospace;font-size:10px;color:#8a7e74;margin-top:6px;line-height:1.6;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px 8px;}
+.pf{padding:10px 18px 36px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.btn{width:100%;padding:15px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Nanum Myeongjo',serif;font-size:16px;font-weight:700;cursor:pointer;}
+.btn:active{opacity:.75;}
+.btn:disabled{opacity:.2;pointer-events:none;}
+.btn-ghost{width:100%;padding:10px;border:none;background:transparent;color:#8a7e74;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+
+/* Topic grid */
+.topic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.topic-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;max-height:32vh;}
+.topic-card:active{transform:scale(.92);}
+.topic-card.on{border-color:#0e0c09;transform:scale(.96);}
+.topic-card img{width:100%;height:100%;object-fit:cover;display:block;mix-blend-mode:multiply;}
+.topic-grid.picked .topic-card:not(.on) img{filter:brightness(.5);}
+.card-label{position:absolute;bottom:0;left:0;right:0;padding:8px 8px 10px;font-family:'Nanum Myeongjo',serif;font-size:12px;font-weight:700;color:#fff;text-align:center;}
+.chk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;font-size:16px;color:#fff;z-index:5;}
+.topic-card.on .chk,.q-card.on .chk{display:flex;}
+
+/* Q grid */
+.q-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.q-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;max-height:32vh;}
+.q-card:active{transform:scale(.92);}
+.q-card.on{border-color:#0e0c09;transform:scale(.96);}
+.q-card img{width:100%;height:100%;object-fit:cover;display:block;}
+.q-grid.picked .q-card:not(.on) img{filter:brightness(.45);}
+.q-overlay{position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,.85));display:flex;align-items:flex-end;padding:8px;}
+.q-text{font-family:'DM Mono',monospace;font-size:7.5px;color:#fff;line-height:1.5;letter-spacing:.02em;}
+
+/* Open Q card */
+.q-open{background:#0e0c09!important;}
+.q-open.on{border-color:#d4c9b0!important;}
+.q-open-inner{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:10px;gap:8px;}
+.q-open-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#d4c9b0;text-align:center;}
+.q-open-input{background:transparent;border:none;border-bottom:1px solid #3a3028;color:#f5f0e8;font-family:'Nanum Myeongjo',serif;font-size:11px;padding:4px 0;resize:none;outline:none;width:100%;height:60px;line-height:1.6;}
+.q-open-input::placeholder{color:#3a3028;font-size:10px;}
+
+/* Answer page */
+.answer-wrap{flex:1;padding:14px 22px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.answer-section{background:#fff;border:1px solid #e0d8cc;border-radius:4px;padding:14px;}
+.answer-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
+.answer-q{font-size:14px;color:#0e0c09;line-height:1.7;margin-bottom:10px;font-style:italic;}
+.name-input{width:100%;padding:10px 12px;border:1.5px solid #e0d8cc;background:#f9f6f0;font-family:'Nanum Myeongjo',serif;font-size:15px;color:#0e0c09;outline:none;border-radius:4px;}
+.name-input:focus{border-color:#0e0c09;}
+.ans-textarea{width:100%;padding:12px;border:1.5px solid #e0d8cc;background:#f9f6f0;font-family:'Nanum Myeongjo',serif;font-size:14px;color:#0e0c09;outline:none;resize:none;border-radius:4px;line-height:1.75;height:100px;}
+.ans-textarea:focus{border-color:#0e0c09;}
+.ans-textarea::placeholder{color:#c8bfb0;font-size:12px;}
+.char-count{font-family:'DM Mono',monospace;font-size:9px;color:#c8bfb0;text-align:right;margin-top:4px;}
+
+/* Response buttons */
+.resp-wrap{flex-shrink:0;padding:14px 22px 0;}
+.resp-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a7e74;margin-bottom:10px;}
+.resp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.resp-btn{padding:12px 8px;border:1.5px solid #e0d8cc;background:#fff;color:#0e0c09;font-family:'Nanum Myeongjo',serif;font-size:13px;cursor:pointer;border-radius:4px;transition:all .15s;text-align:center;line-height:1.4;}
+.resp-btn:active,.resp-btn.on{background:#0e0c09;color:#f5f0e8;border-color:#0e0c09;}
+
+/* Seed planted */
+.seed-page{background:#0e0c09;align-items:center;justify-content:center;text-align:center;}
+.seed-text{font-family:'Nanum Myeongjo',serif;font-size:20px;color:#f5f0e8;opacity:.85;line-height:1.5;margin-top:24px;opacity:0;animation:fadeUp .6s ease 2s forwards;}
+.seed-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;margin-top:10px;opacity:0;animation:fadeUp .6s ease 2.3s forwards;}
+
+/* Garden */
+.garden-page{background:#0e0c09;overflow:hidden;}
+.garden-header{padding:36px 22px 10px;flex-shrink:0;}
+.garden-title{font-size:clamp(18px,5vw,26px);font-weight:400;color:#f5f0e8;opacity:.85;}
+.garden-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#4a4038;margin-top:5px;}
+.garden-body{flex:1;position:relative;overflow:hidden;}
+.garden-ground{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,#1a1410);z-index:2;}
+.plant-container{position:absolute;bottom:40px;left:0;right:0;display:flex;align-items:flex-end;justify-content:space-around;padding:0 20px;gap:8px;flex-wrap:wrap;}
+.plant{display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translateY(20px);opacity:0;transition:transform .6s ease,opacity .6s ease;}
+.plant.grown{transform:translateY(0);opacity:1;}
+.plant-img{object-fit:cover;display:block;mix-blend-mode:screen;border-radius:3px;}
+.plant-name{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:#4a4038;margin-top:4px;text-align:center;}
+
+/* Answer bubble */
+.answer-bubble{position:absolute;z-index:50;pointer-events:none;opacity:0;transition:opacity .5s;max-width:200px;}
+.answer-bubble.show{opacity:1;}
+.bubble-inner{padding:12px 14px;border-radius:50% 40% 55% 45% / 45% 55% 40% 50%;font-family:'Nanum Myeongjo',serif;font-size:12px;line-height:1.75;color:#f5f0e8;border:1px solid rgba(255,255,255,.15);}
+.bubble-q{font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,.4);margin-bottom:5px;line-height:1.5;}
+.bubble-name{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.12em;text-transform:uppercase;margin-top:5px;opacity:.5;}
+
+.garden-footer{padding:10px 18px 32px;flex-shrink:0;border-top:1px solid #1e1a14;}
+.btn-light{width:100%;padding:13px;border:1px solid #3a3028;background:transparent;color:#d4c9b0;font-family:'Nanum Myeongjo',serif;font-size:14px;cursor:pointer;}
+.btn-light:active{background:#1e1a14;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- P1: Topic -->
+<div class="page active" id="p1">
+  <div class="ph">
+    <div class="step">JungOne · Topic</div>
+    <div class="prog"><div class="prog-fill" id="prog1" style="width:20%;background:#0e0c09;"></div></div>
+    <div class="title">Choose<br>a topic</div>
+    <div class="sub">What do you want to open today?</div>
+  </div>
+  <div class="pb">
+    <div class="topic-grid" id="topicGrid"><div class="topic-card" data-topic="body" data-color="#c4845a" onclick="selectTopic(this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t02.png" alt="Body & Senses"/>
+      <div class="card-label" style="background:linear-gradient(transparent,#c4845acc);">Body & Senses</div>
+    </div>
+<div class="topic-card" data-topic="space" data-color="#5c6b3a" onclick="selectTopic(this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t01.png" alt="Space"/>
+      <div class="card-label" style="background:linear-gradient(transparent,#5c6b3acc);">Space</div>
+    </div>
+<div class="topic-card" data-topic="objects" data-color="#8a7e6a" onclick="selectTopic(this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t01.png" alt="Objects & Order"/>
+      <div class="card-label" style="background:linear-gradient(transparent,#8a7e6acc);">Objects & Order</div>
+    </div>
+<div class="topic-card" data-topic="taste" data-color="#9aab9e" onclick="selectTopic(this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t03.png" alt="Taste & Preference"/>
+      <div class="card-label" style="background:linear-gradient(transparent,#9aab9ecc);">Taste & Preference</div>
+    </div>
+<div class="topic-card" data-topic="safety" data-color="#6a5e7a" onclick="selectTopic(this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t04.png" alt="Safety & Trust"/>
+      <div class="card-label" style="background:linear-gradient(transparent,#6a5e7acc);">Safety & Trust</div>
+    </div>
+</div>
+  </div>
+  <div class="pf">
+    <button class="btn" id="btn1" onclick="goTo('p2')" disabled>Next →</button>
+  </div>
+</div>
+
+<!-- P2: Question -->
+<div class="page" id="p2">
+  <div class="ph">
+    <div class="step">JungOne · Question</div>
+    <div class="prog"><div class="prog-fill" id="prog2" style="width:40%;background:#0e0c09;"></div></div>
+    <div class="title">Choose<br>a question</div>
+    <div class="sub" id="p2sub"></div>
+  </div>
+  <div class="pb">
+    <div class="q-grid" id="qGrid">
+      <div class="q-section" id="qs-body" style="display:none;">
+  <div class="q-card" data-q="body-0" data-qtext="Was there a moment this week when your body felt most uncomfortable?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q01.png" alt="Q1"/>
+    <div class="q-overlay"><div class="q-text">Was there a moment this week when your body felt most uncomfortable?</div></div>
+  </div>
+  <div class="q-card" data-q="body-1" data-qtext="Any discomfort in your daily routine lately?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q02.png" alt="Q2"/>
+    <div class="q-overlay"><div class="q-text">Any discomfort in your daily routine lately?</div></div>
+  </div>
+  <div class="q-card" data-q="body-2" data-qtext="When does your body feel most at ease during the day?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q03.png" alt="Q3"/>
+    <div class="q-overlay"><div class="q-text">When does your body feel most at ease during the day?</div></div>
+  </div>
+  <div class="q-card" data-q="body-3" data-qtext="How has your sleep or appetite been? Anything different from before?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q04.png" alt="Q4"/>
+    <div class="q-overlay"><div class="q-text">How has your sleep or appetite been? Anything different from before?</div></div>
+  </div>
+  <div class="q-card" data-q="body-4" data-qtext="Is there a change in your body you used to ignore but now pay more attention to?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q05.png" alt="Q5"/>
+    <div class="q-overlay"><div class="q-text">Is there a change in your body you used to ignore but now pay more attention to?</div></div>
+  </div>
+  <div class="q-card" data-q="body-5" data-qtext="Even if it seems like nothing, is there something you'd want me to notice?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q06.png" alt="Q6"/>
+    <div class="q-overlay"><div class="q-text">Even if it seems like nothing, is there something you'd want me to notice?</div></div>
+  </div>
+  <div class="q-card" data-q="body-6" data-qtext="Is there a reason you tend to brush things off rather than say something when you're not well?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q07.png" alt="Q7"/>
+    <div class="q-overlay"><div class="q-text">Is there a reason you tend to brush things off rather than say something when you're not well?</div></div>
+  </div>
+  <div class="q-card" data-q="body-7" data-qtext="When something feels off — physically or emotionally — what's the first thing you'd want me to catch?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q08.png" alt="Q8"/>
+    <div class="q-overlay"><div class="q-text">When something feels off — physically or emotionally — what's the first thing you'd want me to catch?</div></div>
+  </div>
+  <div class="q-card q-open" data-q="body-open" data-qtext="open" onclick="selectQOpen(this)">
+    <div class="chk">✓</div>
+    <div class="q-open-inner">
+      <div class="q-open-label">Ask anything</div>
+      <textarea class="q-open-input" placeholder="What do you want to ask today?" maxlength="120" onclick="event.stopPropagation()" oninput="updateOpenQ(this)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="q-section" id="qs-space" style="display:none;">
+  <div class="q-card" data-q="space-0" data-qtext="Where in the house do you feel most at ease these days — physically and mentally?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q03.png" alt="Q1"/>
+    <div class="q-overlay"><div class="q-text">Where in the house do you feel most at ease these days — physically and mentally?</div></div>
+  </div>
+  <div class="q-card" data-q="space-1" data-qtext="Is there a reason that spot feels comfortable to you?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q04.png" alt="Q2"/>
+    <div class="q-overlay"><div class="q-text">Is there a reason that spot feels comfortable to you?</div></div>
+  </div>
+  <div class="q-card" data-q="space-2" data-qtext="Is there a space that feels less comfortable than it used to?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q05.png" alt="Q3"/>
+    <div class="q-overlay"><div class="q-text">Is there a space that feels less comfortable than it used to?</div></div>
+  </div>
+  <div class="q-card" data-q="space-3" data-qtext="Is there anywhere you find yourself being more careful when moving around at night?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q06.png" alt="Q4"/>
+    <div class="q-overlay"><div class="q-text">Is there anywhere you find yourself being more careful when moving around at night?</div></div>
+  </div>
+  <div class="q-card" data-q="space-4" data-qtext="Is there a space that didn't used to bother you but now feels like something to watch?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q07.png" alt="Q5"/>
+    <div class="q-overlay"><div class="q-text">Is there a space that didn't used to bother you but now feels like something to watch?</div></div>
+  </div>
+  <div class="q-card" data-q="space-5" data-qtext="Is there somewhere in the house we should look at together eventually?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q08.png" alt="Q6"/>
+    <div class="q-overlay"><div class="q-text">Is there somewhere in the house we should look at together eventually?</div></div>
+  </div>
+  <div class="q-card" data-q="space-6" data-qtext="Is there a space you'd like to change but aren't ready to touch yet?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q09.png" alt="Q7"/>
+    <div class="q-overlay"><div class="q-text">Is there a space you'd like to change but aren't ready to touch yet?</div></div>
+  </div>
+  <div class="q-card" data-q="space-7" data-qtext="When I visit, what change would you want me to notice first?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q10.png" alt="Q8"/>
+    <div class="q-overlay"><div class="q-text">When I visit, what change would you want me to notice first?</div></div>
+  </div>
+  <div class="q-card q-open" data-q="space-open" data-qtext="open" onclick="selectQOpen(this)">
+    <div class="chk">✓</div>
+    <div class="q-open-inner">
+      <div class="q-open-label">Ask anything</div>
+      <textarea class="q-open-input" placeholder="What do you want to ask today?" maxlength="120" onclick="event.stopPropagation()" oninput="updateOpenQ(this)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="q-section" id="qs-objects" style="display:none;">
+  <div class="q-card" data-q="objects-0" data-qtext="Is there something you use often that you'd really miss if it were gone?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q05.png" alt="Q1"/>
+    <div class="q-overlay"><div class="q-text">Is there something you use often that you'd really miss if it were gone?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-1" data-qtext="Is there something that might look ordinary to me but matters a lot to you?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q06.png" alt="Q2"/>
+    <div class="q-overlay"><div class="q-text">Is there something that might look ordinary to me but matters a lot to you?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-2" data-qtext="Is there anything that should never be moved or thrown away without asking?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q07.png" alt="Q3"/>
+    <div class="q-overlay"><div class="q-text">Is there anything that should never be moved or thrown away without asking?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-3" data-qtext="Is there something you've held onto for a long time because it means something?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q08.png" alt="Q4"/>
+    <div class="q-overlay"><div class="q-text">Is there something you've held onto for a long time because it means something?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-4" data-qtext="Is there something you don't use much anymore but still want to keep?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q09.png" alt="Q5"/>
+    <div class="q-overlay"><div class="q-text">Is there something you don't use much anymore but still want to keep?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-5" data-qtext="Is there something that looks like it should go but still feels necessary to you?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q10.png" alt="Q6"/>
+    <div class="q-overlay"><div class="q-text">Is there something that looks like it should go but still feels necessary to you?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-6" data-qtext="Is there something we could look at together again someday?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q11.png" alt="Q7"/>
+    <div class="q-overlay"><div class="q-text">Is there something we could look at together again someday?</div></div>
+  </div>
+  <div class="q-card" data-q="objects-7" data-qtext="When does having a lot of things feel like too much — and when does it feel like enough?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q12.png" alt="Q8"/>
+    <div class="q-overlay"><div class="q-text">When does having a lot of things feel like too much — and when does it feel like enough?</div></div>
+  </div>
+  <div class="q-card q-open" data-q="objects-open" data-qtext="open" onclick="selectQOpen(this)">
+    <div class="chk">✓</div>
+    <div class="q-open-inner">
+      <div class="q-open-label">Ask anything</div>
+      <textarea class="q-open-input" placeholder="What do you want to ask today?" maxlength="120" onclick="event.stopPropagation()" oninput="updateOpenQ(this)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="q-section" id="qs-taste" style="display:none;">
+  <div class="q-card" data-q="taste-0" data-qtext="Is there a food or drink you've been enjoying most lately?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q07.png" alt="Q1"/>
+    <div class="q-overlay"><div class="q-text">Is there a food or drink you've been enjoying most lately?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-1" data-qtext="Is there a small pleasure in your daily routine — exercise, a habit, something simple?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q08.png" alt="Q2"/>
+    <div class="q-overlay"><div class="q-text">Is there a small pleasure in your daily routine — exercise, a habit, something simple?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-2" data-qtext="Is there a flavor or smell you keep coming back to these days?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q09.png" alt="Q3"/>
+    <div class="q-overlay"><div class="q-text">Is there a flavor or smell you keep coming back to these days?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-3" data-qtext="Is there something you've liked for a long time that you still enjoy now?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q10.png" alt="Q4"/>
+    <div class="q-overlay"><div class="q-text">Is there something you've liked for a long time that you still enjoy now?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-4" data-qtext="Is there a food preference of yours you'd want me to remember?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q11.png" alt="Q5"/>
+    <div class="q-overlay"><div class="q-text">Is there a food preference of yours you'd want me to remember?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-5" data-qtext="Compared to before, is there something you crave more — or less — these days?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q12.png" alt="Q6"/>
+    <div class="q-overlay"><div class="q-text">Compared to before, is there something you crave more — or less — these days?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-6" data-qtext="Is there a meal habit or daily preference you'd want to keep going?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q01.png" alt="Q7"/>
+    <div class="q-overlay"><div class="q-text">Is there a meal habit or daily preference you'd want to keep going?</div></div>
+  </div>
+  <div class="q-card" data-q="taste-7" data-qtext="Could you show me or tell me about it? A photo, a story — anything." onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q02.png" alt="Q8"/>
+    <div class="q-overlay"><div class="q-text">Could you show me or tell me about it? A photo, a story — anything.</div></div>
+  </div>
+  <div class="q-card q-open" data-q="taste-open" data-qtext="open" onclick="selectQOpen(this)">
+    <div class="chk">✓</div>
+    <div class="q-open-inner">
+      <div class="q-open-label">Ask anything</div>
+      <textarea class="q-open-input" placeholder="What do you want to ask today?" maxlength="120" onclick="event.stopPropagation()" oninput="updateOpenQ(this)"></textarea>
+    </div>
+  </div>
+</div>
+<div class="q-section" id="qs-safety" style="display:none;">
+  <div class="q-card" data-q="safety-0" data-qtext="Is there something on your mind lately that you haven't said out loud?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q09.png" alt="Q1"/>
+    <div class="q-overlay"><div class="q-text">Is there something on your mind lately that you haven't said out loud?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-1" data-qtext="Was there a moment recently when you thought — do I have to handle this alone?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q10.png" alt="Q2"/>
+    <div class="q-overlay"><div class="q-text">Was there a moment recently when you thought — do I have to handle this alone?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-2" data-qtext="Is there something that used to feel easy to say but feels harder now?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q11.png" alt="Q3"/>
+    <div class="q-overlay"><div class="q-text">Is there something that used to feel easy to say but feels harder now?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-3" data-qtext="Is there someone in the family you've been especially worried about lately?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q12.png" alt="Q4"/>
+    <div class="q-overlay"><div class="q-text">Is there someone in the family you've been especially worried about lately?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-4" data-qtext="Has there been something you stayed quiet about that ended up becoming bigger?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q01.png" alt="Q5"/>
+    <div class="q-overlay"><div class="q-text">Has there been something you stayed quiet about that ended up becoming bigger?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-5" data-qtext="Is there a worry you'd want me to catch before it gets too late?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q02.png" alt="Q6"/>
+    <div class="q-overlay"><div class="q-text">Is there a worry you'd want me to catch before it gets too late?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-6" data-qtext="When something feels off or unsettling — what kind of response from me feels most comfortable?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q03.png" alt="Q7"/>
+    <div class="q-overlay"><div class="q-text">When something feels off or unsettling — what kind of response from me feels most comfortable?</div></div>
+  </div>
+  <div class="q-card" data-q="safety-7" data-qtext="When you don't say something out loud, how would you want me to notice?" onclick="selectQ(this)">
+    <div class="chk">✓</div>
+    <img src="https://jj1lize-crypto.github.io/jungone/q04.png" alt="Q8"/>
+    <div class="q-overlay"><div class="q-text">When you don't say something out loud, how would you want me to notice?</div></div>
+  </div>
+  <div class="q-card q-open" data-q="safety-open" data-qtext="open" onclick="selectQOpen(this)">
+    <div class="chk">✓</div>
+    <div class="q-open-inner">
+      <div class="q-open-label">Ask anything</div>
+      <textarea class="q-open-input" placeholder="What do you want to ask today?" maxlength="120" onclick="event.stopPropagation()" oninput="updateOpenQ(this)"></textarea>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" id="btn2" onclick="goTo('p3')" disabled>See your card →</button>
+    <button class="btn-ghost" onclick="goBack('p1')">← Back</button>
+  </div>
+</div>
+
+<!-- P3: Card view -->
+<div class="page" id="p3">
+  <div class="ph" style="padding-bottom:8px;">
+    <div class="step">JungOne · Your card</div>
+    <div class="prog"><div class="prog-fill" id="prog3" style="width:60%;background:#0e0c09;"></div></div>
+    <div class="title">Today's<br>card</div>
+    <div class="sub">Tap to see the question</div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:12px;">
+    <div style="width:min(240px,70vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;cursor:pointer;" onclick="flipCard()">
+      <div id="cFront" style="position:absolute;inset:0;background:#0e0c09;">
+        <img id="imgQ" src="" style="width:100%;height:100%;object-fit:cover;mix-blend-mode:screen;opacity:.85;"/>
+        <div style="position:absolute;bottom:10px;right:12px;font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.35);padding:3px 7px;border-radius:2px;">Tap to flip ↺</div>
+      </div>
+      <div id="cBack" style="position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:center;padding:22px 18px;opacity:0;transition:opacity .35s;">
+        <div id="cTopic" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8a7e74;margin-bottom:10px;"></div>
+        <div id="cQ" style="font-size:clamp(13px,3.2vw,16px);color:#0e0c09;line-height:1.8;font-style:italic;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" onclick="goTo('p4')">Answer this →</button>
+    <button class="btn-ghost" onclick="flipCard()">↺ Flip</button>
+    <button class="btn-ghost" onclick="goBack('p2')">← Back</button>
+  </div>
+</div>
+
+<!-- P4: Answer + Response -->
+<div class="page" id="p4">
+  <div class="ph" style="padding-bottom:8px;">
+    <div class="step">JungOne · Answer</div>
+    <div class="prog"><div class="prog-fill" id="prog4" style="width:80%;background:#0e0c09;"></div></div>
+    <div class="title">Your<br>answer</div>
+  </div>
+  <div class="answer-wrap">
+    <input class="name-input" id="nameInput" type="text" placeholder="Your name"/>
+    <div class="answer-section">
+      <div class="answer-label">Today's question</div>
+      <div class="answer-q" id="ansQ"></div>
+      <textarea class="ans-textarea" id="answerText" placeholder="Answer yourself first." maxlength="150" oninput="updateCount()"></textarea>
+      <div class="char-count"><span id="charCount">0</span> / 150</div>
+    </div>
+  </div>
+  <div class="resp-wrap">
+    <div class="resp-label">What would you want from the other person?</div>
+    <div class="resp-grid"><button class="resp-btn" data-resp="remember" onclick="selectResp(this)">I'll remember this</button>
+<button class="resp-btn" data-resp="ask_again" onclick="selectResp(this)">Ask me again next time</button>
+<button class="resp-btn" data-resp="find_together" onclick="selectResp(this)">Let's look into it together</button>
+<button class="resp-btn" data-resp="just_this" onclick="selectResp(this)">That's all for now</button>
+</div>
+  </div>
+  <div class="pf" style="margin-top:12px;">
+    <button class="btn" id="btn4" onclick="submitAnswer()" disabled>Send to garden →</button>
+    <button class="btn-ghost" onclick="goBack('p3')">← Back</button>
+  </div>
+</div>
+
+<!-- P55: Seed planted -->
+<div class="page seed-page" id="p55">
+  <svg width="100" height="140" viewBox="0 0 120 168" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="sg"><stop offset="0%" stop-color="#9aab9e" stop-opacity="0.18"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="60" cy="84" r="58" fill="url(#sg)"/>
+    <circle cx="60" cy="128" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.7" dur="0.4s" begin="0.3s" fill="freeze"/></circle>
+    <line x1="60" y1="128" x2="60" y2="38" stroke="#9aab9e" stroke-width="1.2" opacity="0" stroke-dasharray="90" stroke-dashoffset="90">
+      <animate attributeName="opacity" values="0;0.5" dur="0.2s" begin="0.6s" fill="freeze"/>
+      <animate attributeName="stroke-dashoffset" from="90" to="0" dur="0.8s" begin="0.6s" fill="freeze"/>
+    </line>
+    <path d="M 60 88 Q 38 78 35 62 Q 48 72 60 76" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.3s" fill="freeze"/></path>
+    <path d="M 60 68 Q 82 58 85 42 Q 72 52 60 56" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.5s" fill="freeze"/></path>
+    <circle cx="60" cy="32" r="8" fill="#9aab9e" fill-opacity="0.15" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.5" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
+  </svg>
+  <div class="seed-text">A trace was added<br>to your garden.</div>
+  <div class="seed-sub">Opening garden →</div>
+</div>
+
+<!-- P6: Garden -->
+<div class="page garden-page" id="p6">
+  <div class="garden-header">
+    <div class="garden-title">JungOne · 정원</div>
+    <div class="garden-sub" id="gardenSub"></div>
+  </div>
+  <div class="garden-body">
+    <div class="plant-container" id="plantContainer"></div>
+    <div class="garden-ground"></div>
+    <div class="answer-bubble" id="answerBubble">
+      <div class="bubble-q" id="bubbleQ"></div>
+      <div class="bubble-inner" id="bubbleInner"></div>
+      <div class="bubble-name" id="bubbleName"></div>
+    </div>
+  </div>
+  <div class="garden-footer">
+    <button class="btn-light" onclick="goTo('p1');resetAll()">Plant another seed</button>
+  </div>
+</div>
+
+<script>
+const TCOLORS={"body":"#c4845a","space":"#5c6b3a","objects":"#8a7e6a","taste":"#9aab9e","safety":"#6a5e7a"};
+const TNAMES={"body":"Body & Senses","space":"Space","objects":"Objects & Order","taste":"Taste & Preference","safety":"Safety & Trust"};
+const QIMGS=["https://jj1lize-crypto.github.io/jungone/q01.png","https://jj1lize-crypto.github.io/jungone/q02.png","https://jj1lize-crypto.github.io/jungone/q03.png","https://jj1lize-crypto.github.io/jungone/q04.png","https://jj1lize-crypto.github.io/jungone/q05.png","https://jj1lize-crypto.github.io/jungone/q06.png","https://jj1lize-crypto.github.io/jungone/q07.png","https://jj1lize-crypto.github.io/jungone/q08.png","https://jj1lize-crypto.github.io/jungone/q09.png","https://jj1lize-crypto.github.io/jungone/q10.png","https://jj1lize-crypto.github.io/jungone/q11.png","https://jj1lize-crypto.github.io/jungone/q12.png"];
+
+let S={topic:null,question:null,qtopic:null,qtext:null,qimg:null,response:null};
+let entries=[];
+let flipped=false;
+let bubbleTimer=null,bubbleIdx=0;
+
+function selectTopic(el){
+  document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('topicGrid').classList.add('picked');
+  S.topic=el.dataset.topic;
+  const color=el.dataset.color;
+  document.getElementById('prog1').style.background=color;
+  document.getElementById('btn1').disabled=false;
+
+  // Pre-filter questions
+  document.querySelectorAll('.q-section').forEach(s=>s.style.display='none');
+  const qs=document.getElementById('qs-'+S.topic);
+  if(qs) qs.style.display='contents';
+  document.getElementById('p2sub').textContent=TNAMES[S.topic];
+  document.getElementById('qGrid').classList.remove('picked');
+  S.question=null;S.qtext=null;S.qimg=null;
+  document.getElementById('btn2').disabled=true;
+  document.querySelectorAll('.q-card').forEach(c=>c.classList.remove('on'));
+}
+
+function selectQ(el){
+  document.querySelectorAll('.q-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('qGrid').classList.add('picked');
+  S.question=el.dataset.q;
+  S.qtext=el.dataset.qtext;
+  S.qimg=el.querySelector('img')?.src||'';
+  document.getElementById('btn2').disabled=false;
+}
+
+function selectQOpen(el){
+  document.querySelectorAll('.q-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('qGrid').classList.add('picked');
+  S.question=el.dataset.q;
+  const input=el.querySelector('.q-open-input');
+  S.qtext=input?input.value.trim():'';
+  S.qimg='';
+  document.getElementById('btn2').disabled=!(S.qtext.length>2);
+}
+
+function updateOpenQ(textarea){
+  S.qtext=textarea.value.trim();
+  const card=textarea.closest('.q-card');
+  if(card&&card.classList.contains('on')){
+    document.getElementById('btn2').disabled=S.qtext.length<3;
+  }
+}
+
+function goTo(id){
+  document.querySelectorAll('.page').forEach(p=>{
+    if(p.classList.contains('active')){p.classList.remove('active');p.classList.add('exit');setTimeout(()=>p.classList.remove('exit'),420);}
+  });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='p3') buildCard();
+  if(id==='p4') buildAnswerPage();
+  if(id==='p6') buildGarden();
+}
+
+function goBack(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function buildCard(){
+  flipped=false;
+  const col=TCOLORS[S.topic]||'#9aab9e';
+  document.getElementById('cFront').style.borderBottom='3px solid '+col;
+  if(S.qimg) document.getElementById('imgQ').src=S.qimg;
+  document.getElementById('cBack').style.opacity='0';
+  document.getElementById('cTopic').textContent=TNAMES[S.topic];
+  document.getElementById('cTopic').style.color=col;
+  document.getElementById('cQ').textContent=S.qtext||'';
+}
+
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById('cBack').style.opacity=flipped?'1':'0';
+}
+
+function buildAnswerPage(){
+  document.getElementById('ansQ').textContent=S.qtext||'';
+  document.getElementById('nameInput').value='';
+  document.getElementById('answerText').value='';
+  document.getElementById('charCount').textContent='0';
+  document.getElementById('btn4').disabled=true;
+  document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('on'));
+  S.response=null;
+}
+
+function updateCount(){
+  const v=document.getElementById('answerText').value;
+  document.getElementById('charCount').textContent=v.length;
+  checkReady();
+}
+
+function checkReady(){
+  const name=document.getElementById('nameInput').value.trim();
+  const ans=document.getElementById('answerText').value.trim();
+  document.getElementById('btn4').disabled=!(name&&ans.length>=2&&S.response);
+}
+
+function selectResp(el){
+  document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  S.response=el.dataset.resp;
+  checkReady();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('nameInput').addEventListener('input',checkReady);
+});
+setTimeout(()=>{
+  const ni=document.getElementById('nameInput');
+  if(ni) ni.addEventListener('input',checkReady);
+},100);
+
+function submitAnswer(){
+  const name=document.getElementById('nameInput').value.trim();
+  const ans=document.getElementById('answerText').value.trim();
+  const col=TCOLORS[S.topic]||'#9aab9e';
+  entries.push({
+    name,topic:S.topic,qtext:S.qtext,qimg:S.qimg,
+    answer:ans,response:S.response,color:col
+  });
+  goTo('p55');
+  setTimeout(()=>goTo('p6'),2500);
+}
+
+// Garden - plants grow from bottom
+function buildGarden(){
+  const container=document.getElementById('plantContainer');
+  container.innerHTML='';
+  document.getElementById('gardenSub').textContent=entries.length+' seed'+(entries.length!==1?'s':'')+' planted';
+
+  const sizes=[80,70,90,75,85,72,88,76,82,78,86,74];
+
+  entries.forEach((e,i)=>{
+    const plant=document.createElement('div');
+    plant.className='plant';
+    const sz=sizes[i%sizes.length];
+    const col=e.color||'#9aab9e';
+
+    let imgHtml='';
+    if(e.qimg){
+      imgHtml=`<img class="plant-img" src="${e.qimg}" style="width:${sz}px;height:${Math.round(sz*1.4)}px;filter:sepia(.3) saturate(1.5);opacity:.9;" />`;
+    } else {
+      imgHtml=`<div style="width:${sz}px;height:${Math.round(sz*1.4)}px;background:${col}33;border:1px solid ${col}66;border-radius:4px;display:flex;align-items:center;justify-content:center;"><span style="font-size:20px;">✦</span></div>`;
+    }
+
+    plant.innerHTML=`${imgHtml}<div class="plant-name" style="color:${col};">${e.name}</div>`;
+    plant.onclick=()=>showBubble(e,plant);
+    container.appendChild(plant);
+
+    // Grow animation staggered
+    setTimeout(()=>plant.classList.add('grown'), i*150+100);
+  });
+
+  clearInterval(bubbleTimer);
+  bubbleIdx=0;
+  if(entries.length>0){
+    setTimeout(showBubbleAuto, 1500);
+    bubbleTimer=setInterval(()=>{bubbleIdx=(bubbleIdx+1)%entries.length;showBubbleAuto();},5000);
+  }
+}
+
+function showBubbleAuto(){
+  if(!entries.length)return;
+  const plants=document.querySelectorAll('.plant');
+  if(!plants[bubbleIdx])return;
+  showBubble(entries[bubbleIdx],plants[bubbleIdx]);
+}
+
+function showBubble(e,el){
+  const bub=document.getElementById('answerBubble');
+  const col=e.color||'#9aab9e';
+  const rect=el.getBoundingClientRect();
+  document.getElementById('bubbleQ').textContent=e.qtext?'"'+e.qtext.substring(0,40)+(e.qtext.length>40?'...':'')+'"':'';
+  document.getElementById('bubbleInner').textContent=e.answer;
+  document.getElementById('bubbleInner').style.background=col+'22';
+  document.getElementById('bubbleInner').style.borderColor=col+'55';
+  document.getElementById('bubbleName').textContent=e.name+' · '+getRespLabel(e.response);
+  document.getElementById('bubbleName').style.color=col;
+
+  const bw=200;
+  let lx=rect.left+rect.width/2-bw/2;
+  lx=Math.max(10,Math.min(lx,window.innerWidth-bw-10));
+  const ly=Math.max(10,rect.top-120);
+  bub.style.left=lx+'px';bub.style.top=ly+'px';
+  bub.classList.remove('show');
+  requestAnimationFrame(()=>bub.classList.add('show'));
+}
+
+function getRespLabel(r){
+  const map={remember:"I'll remember",ask_again:"Ask me again",find_together:"Let's find out",just_this:"Just this for now"};
+  return map[r]||r||'';
+}
+
+function resetAll(){
+  S={topic:null,question:null,qtopic:null,qtext:null,qimg:null,response:null};
+  flipped=false;
+  document.querySelectorAll('.topic-card,.q-card').forEach(c=>c.classList.remove('on'));
+  document.getElementById('topicGrid').classList.remove('picked');
+  document.getElementById('qGrid').classList.remove('picked');
+  document.querySelectorAll('.q-section').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.resp-btn').forEach(b=>b.classList.remove('on'));
+  ['btn1','btn2','btn4'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
+  clearInterval(bubbleTimer);
+}
+</script>
+</body>
+</html>

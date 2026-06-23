@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JungOne · Garden</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Nanum Myeongjo',serif;background:#0c0a08;}
+
+.scene{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 75% 65% at 50% 50%, #251a14 0%, #14100c 55%, #0a0806 100%);
+  overflow:hidden;
+}
+
+/* Subtle noise texture overlay */
+.scene::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.5 0 0 0 0 0.4 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.4;mix-blend-mode:overlay;pointer-events:none;
+}
+
+/* Garden stage — parent that holds all garden elements */
+.garden-stage{
+  position:absolute;
+  inset:0;
+  z-index:10;
+  pointer-events:none;
+}
+.garden-stage .plant{pointer-events:auto;}
+
+/* Header — minimal */
+.head{
+  position:absolute;top:0;left:0;right:0;
+  padding:36px 24px 0;z-index:30;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.head-title{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:#8a7e6a;
+}
+.head-count{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;
+  color:#5a4e3a;text-align:right;line-height:1.6;
+}
+
+/* Plants container */
+.plants{
+  position:absolute;inset:0;z-index:10;
+}
+.plant{
+  position:absolute;
+  cursor:pointer;
+  transform:translate(-50%,-50%);
+  transform-origin:center;
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+  animation:sway 6s ease-in-out infinite;
+}
+.plant:hover{transform:translate(-50%,-50%) scale(1.04);}
+.plant:active{transform:translate(-50%,-50%) scale(.97);}
+.plant svg{display:block;overflow:visible;}
+.plant img{
+  display:block;
+  filter:sepia(.35) saturate(var(--p-saturate,1.55)) brightness(var(--p-brightness,1.08)) contrast(1.05) blur(var(--p-blur,0));
+  mix-blend-mode:screen;
+  opacity:var(--p-opacity,.92);
+  -webkit-mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
+  mask-image:radial-gradient(ellipse 65% 78% at center 55%, #000 45%, transparent 92%);
+}
+
+/* Each plant gets a slight individual sway delay/duration */
+.plant:nth-child(1){animation-duration:5.5s;animation-delay:0s;}
+.plant:nth-child(2){animation-duration:7s;animation-delay:-.8s;}
+.plant:nth-child(3){animation-duration:6.2s;animation-delay:-2.1s;}
+.plant:nth-child(4){animation-duration:5.8s;animation-delay:-1.4s;}
+.plant:nth-child(5){animation-duration:7.4s;animation-delay:-3.2s;}
+.plant:nth-child(6){animation-duration:6.6s;animation-delay:-.5s;}
+.plant:nth-child(7){animation-duration:5.2s;animation-delay:-2.8s;}
+
+@keyframes sway{
+  0%,100%{transform:translate(-50%,-50%) rotate(-1.2deg);}
+  50%{transform:translate(-50%,-50%) rotate(1.2deg);}
+}
+
+/* Trace bubbles — drifting beside plants */
+.trace-float{
+  position:absolute;z-index:20;pointer-events:none;
+  opacity:0;
+  transition:opacity .8s;
+}
+.trace-float.visible{opacity:1;}
+.trace-inner{
+  animation:driftFloat 8s ease-in-out infinite;
+}
+.trace-float .bubble{
+  padding:8px 14px;
+  background:rgba(245,240,232,.06);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  border:.5px solid rgba(245,240,232,.18);
+  border-radius:60% 40% 55% 45% / 50% 55% 45% 50%;
+  color:#e8dfd0;
+  font-family:'Nanum Myeongjo',serif;
+  font-size:11.5px;line-height:1.55;
+  max-width:160px;
+  font-style:italic;
+  letter-spacing:.01em;
+}
+.trace-float.audio .bubble{
+  display:flex;align-items:center;gap:8px;
+  font-style:normal;
+  font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#c8bfaa;
+}
+.trace-float.audio .wave{
+  display:inline-flex;align-items:center;gap:1.5px;height:11px;
+}
+.trace-float.audio .wave span{
+  display:block;width:1.5px;background:currentColor;border-radius:1px;
+  animation:wave 1.4s ease-in-out infinite;
+}
+.trace-float.audio .wave span:nth-child(1){height:35%;animation-delay:0s;}
+.trace-float.audio .wave span:nth-child(2){height:70%;animation-delay:.18s;}
+.trace-float.audio .wave span:nth-child(3){height:50%;animation-delay:.36s;}
+.trace-float.audio .wave span:nth-child(4){height:85%;animation-delay:.54s;}
+
+@keyframes wave{0%,100%{transform:scaleY(.35);}50%{transform:scaleY(1);}}
+
+@keyframes driftFloat{
+  0%,100%{transform:translateY(0px);}
+  50%{transform:translateY(-6px);}
+}
+
+/* Author label under bubble */
+.trace-float .author{
+  font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.16em;
+  text-transform:uppercase;color:#7a6e5a;margin-top:4px;padding-left:8px;
+}
+
+/* Detail panel — appears when plant tapped */
+.detail{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);
+  z-index:80;
+  background:rgba(20,16,12,.96);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(245,240,232,.15);
+  padding:28px 24px 22px;
+  width:min(320px,84vw);
+  border-radius:6px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .3s cubic-bezier(.4,0,.2,1);
+}
+.detail.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+.detail-q{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;color:#8a7e6a;margin-bottom:10px;line-height:1.6;}
+.detail-text{font-size:15px;line-height:1.75;color:#f5efe2;font-style:italic;margin-bottom:14px;}
+.detail-audio{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;
+  background:rgba(245,240,232,.05);border:1px solid rgba(245,240,232,.1);
+  border-radius:60% 40% 55% 45% / 50% 55% 45% 50%;
+  margin-bottom:14px;
+}
+.detail-audio .play-circle{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(245,240,232,.4);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.detail-audio .play-circle svg{width:11px;height:11px;color:#f5efe2;}
+.detail-audio .audio-meta{
+  font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:#c8bfaa;
+}
+.detail-meta{display:flex;justify-content:space-between;align-items:center;
+  margin-top:14px;padding-top:12px;border-top:1px solid rgba(245,240,232,.08);
+  font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:#7a6e5a;}
+.detail-close{
+  position:absolute;top:12px;right:14px;
+  background:transparent;border:none;color:#7a6e5a;
+  font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;padding:6px;
+}
+.detail-close:hover{color:#c8bfaa;}
+
+/* Backdrop when detail is open */
+.backdrop{
+  position:absolute;inset:0;z-index:70;
+  background:rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.backdrop.show{opacity:1;pointer-events:auto;}
+
+/* Bottom entry — Online / Offline */
+.entry-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:40;
+  padding:20px 24px 36px;
+  display:flex;gap:14px;
+  background:linear-gradient(180deg, transparent 0%, rgba(10,8,6,.65) 60%, rgba(10,8,6,.9) 100%);
+}
+.entry-btn{
+  flex:1;
+  padding:16px 14px;
+  background:rgba(245,240,232,.04);
+  border:1px solid rgba(245,240,232,.18);
+  color:#e8dfd0;
+  font-family:'DM Mono',monospace;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  cursor:pointer;
+  border-radius:2px;
+  transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.entry-btn:hover{background:rgba(245,240,232,.08);border-color:rgba(245,240,232,.32);}
+.entry-btn:active{transform:scale(.98);}
+.entry-btn svg{width:13px;height:13px;flex-shrink:0;}
+.entry-btn.primary{background:rgba(245,240,232,.92);color:#0e0c09;border-color:transparent;}
+.entry-btn.primary:hover{background:#fff;}
+
+/* Empty hint near horizon when first plant grows */
+.welcome{
+  position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;color:#5a4e3a;font-family:'Nanum Myeongjo',serif;
+  font-size:13px;line-height:1.8;font-style:italic;letter-spacing:.02em;
+  opacity:0;animation:fadeIn 2s ease 1s forwards;
+}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* Fireflies — tiny ambient light points */
+.firefly{
+  position:absolute;width:3px;height:3px;border-radius:50%;
+  background:#d4c08a;box-shadow:0 0 6px #d4c08a,0 0 12px rgba(212,192,138,.5);
+  opacity:0;animation:firefly 12s ease-in-out infinite;pointer-events:none;
+  z-index:15;
+}
+@keyframes firefly{
+  0%,100%{opacity:0;transform:translate(0,0);}
+  20%{opacity:.6;}
+  50%{opacity:.9;transform:translate(20px,-30px);}
+  80%{opacity:.4;transform:translate(-10px,-60px);}
+}
+.firefly:nth-of-type(1){top:30%;left:20%;animation-delay:0s;}
+.firefly:nth-of-type(2){top:42%;left:75%;animation-delay:-4s;}
+.firefly:nth-of-type(3){top:55%;left:40%;animation-delay:-8s;}
+.firefly:nth-of-type(4){top:25%;left:60%;animation-delay:-6s;}
+
+@media(min-width:600px){
+  .head{padding:42px 36px 0;}
+  .entry-bar{padding:24px 36px 42px;}
+}
+</style>
+</head>
+<body>
+
+<div class="scene">
+
+  <!-- Header -->
+  <div class="head">
+    <div class="head-title">JUNG ONE</div>
+    <div class="head-count">
+      <span id="traceCount">0</span> traces<br>
+      <span style="color:#3a3024;">growing since may</span>
+    </div>
+  </div>
+
+  <!-- Garden stage — wraps the living garden -->
+  <div class="garden-stage" id="gardenStage">
+    <!-- Ambient fireflies -->
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+    <div class="firefly"></div>
+
+    <!-- Plants (traces) -->
+    <div class="plants" id="plants"></div>
+
+    <!-- Trace floats (text/audio bubbles drifting near plants) -->
+    <div id="traceFloats"></div>
+  </div>
+
+  <!-- Welcome line (subtle, fades in) -->
+  <!-- (left commented; uncomment to show) -->
+  <!-- <div class="welcome">what has grown since you last visited</div> -->
+
+  <!-- Detail panel -->
+  <div class="backdrop" id="backdrop" onclick="closeDetail()"></div>
+  <div class="detail" id="detail">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-q" id="detailQ"></div>
+    <div id="detailContent"></div>
+    <div class="detail-meta">
+      <span id="detailAuthor"></span>
+      <span id="detailDate"></span>
+    </div>
+  </div>
+
+  <!-- Entry bar -->
+  <div class="entry-bar">
+    <button class="entry-btn" onclick="alert('Offline entry — QR scan flow (next build)')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/>
+        <path d="M14 14h3v3h-3zM18 14h3M14 18v3M18 18h3v3"/>
+      </svg>
+      Offline
+    </button>
+    <button class="entry-btn primary" onclick="alert('Online entry — cards or video (next build)')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Online
+    </button>
+  </div>
+
+</div>
+
+<script>
+// Mock trace data — plants in the garden, rendered from q01-q12.png
+// Position, size, depth decided at runtime for organic distribution
+const QIMG_BASE = "https://jj1lize-crypto.github.io/jungone/";
+const traces = [
+  {
+    id:1,
+    name:"Mother",
+    type:"text",
+    qtext:"Where in the house do you feel most at ease these days?",
+    content:"The corner sofa by the window every morning. The light comes in slow.",
+    qimg:"q01.png",
+    color:"#9aab9e",
+    date:"may 12"
+  },
+  {
+    id:2,
+    name:"Jiwon",
+    type:"audio",
+    qtext:"Was there a moment your body felt most uncomfortable?",
+    duration:"0:18",
+    qimg:"q04.png",
+    color:"#c4845a",
+    date:"may 14"
+  },
+  {
+    id:3,
+    name:"Hyun",
+    type:"text",
+    qtext:"Is there anything that should never be moved or thrown away?",
+    content:"The chipped ceramic bowl. It was your grandmother's.",
+    qimg:"q03.png",
+    color:"#a89878",
+    date:"may 13"
+  },
+  {
+    id:4,
+    name:"Mother",
+    type:"text",
+    qtext:"A food or drink you've been enjoying most lately?",
+    content:"Barley tea before bed. It helps me sleep.",
+    qimg:"q07.png",
+    color:"#7a8a4e",
+    date:"may 16"
+  },
+  {
+    id:5,
+    name:"Brother",
+    type:"audio",
+    qtext:"Something on your mind you haven't said out loud?",
+    duration:"0:24",
+    qimg:"q10.png",
+    color:"#6a5e7a",
+    date:"may 17"
+  },
+  {
+    id:6,
+    name:"Father",
+    type:"audio",
+    qtext:"When does your body feel most at ease during the day?",
+    duration:"0:15",
+    qimg:"q06.png",
+    color:"#7a8a6e",
+    date:"may 18"
+  },
+  {
+    id:7,
+    name:"Father",
+    type:"text",
+    qtext:"When I visit, what change would you want me to notice first?",
+    content:"The garden. I moved the pots closer to the door.",
+    qimg:"q12.png",
+    color:"#b87878",
+    date:"may 18"
+  }
+];
+
+// Radial layout — plants grow outward from screen center toward edges.
+// Center has the largest, most vivid plants; edges have smaller, dimmer ones.
+function layoutTraces(N){
+  const positions = [];
+  const minDist = 13;     // min distance between any two plants (in % units, mixed axes)
+  const TRIES = 80;
+
+  // Center of the garden — slightly above middle so the layout sits visually balanced
+  // (since header is at top and entry-bar at bottom, true center is fine)
+  const CX = 50, CY = 50;
+
+  // Radial range — how far from center plants can grow
+  const minR = 6, maxR = 38;
+
+  // Safe zone — avoid placing plants over header or entry bar
+  const safeMinY = 14, safeMaxY = 82;
+  const safeMinX = 6, safeMaxX = 94;
+
+  for(let i = 0; i < N; i++){
+    let placed = null;
+
+    for(let t = 0; t < TRIES; t++){
+      // Random angle in full circle
+      const angle = Math.random() * 2 * Math.PI;
+      // Random radius — uniform in radial distance (not area)
+      // so plants are slightly more evenly spread along radius
+      const r = minR + Math.random() * (maxR - minR);
+
+      const x = CX + r * Math.cos(angle);
+      const y = CY + r * Math.sin(angle);
+
+      // Stay in safe zone
+      if(x < safeMinX || x > safeMaxX || y < safeMinY || y > safeMaxY) continue;
+
+      const candidate = { x, y, r, angle };
+
+      // Avoid placing too close to other plants
+      let conflict = false;
+      for(const p of positions){
+        const dx = candidate.x - p.x;
+        const dy = candidate.y - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < minDist){ conflict = true; break; }
+      }
+
+      if(!conflict){ placed = candidate; break; }
+    }
+
+    // Fallback: distribute evenly on a ring
+    if(!placed){
+      const angle = (2 * Math.PI / N) * i + Math.random() * 0.3;
+      const r = 22 + Math.random() * 8;
+      placed = {
+        x: Math.max(safeMinX, Math.min(safeMaxX, CX + r * Math.cos(angle))),
+        y: Math.max(safeMinY, Math.min(safeMaxY, CY + r * Math.sin(angle))),
+        r, angle
+      };
+    }
+
+    // Proximity: 1 at center, 0 at edge
+    const proximity = 1 - (placed.r - minR) / (maxR - minR);
+
+    // Size by proximity — center plants are largest
+    const baseW = 78 + proximity * 90;     // 78–168px
+    placed.w = Math.max(70, Math.round(baseW + (Math.random() - .5) * 18));
+    placed.h = Math.round(placed.w * (1.35 + Math.random() * 0.22));
+
+    // Z-index — center plants on top, edge plants behind (also a bit of randomness)
+    placed.z = Math.round(proximity * 18 + Math.random() * 4);
+    placed.proximity = proximity;
+
+    positions.push(placed);
+  }
+
+  return positions;
+}
+
+// Render plants
+function renderGarden(){
+  const plantsContainer = document.getElementById('plants');
+  const floatsContainer = document.getElementById('traceFloats');
+  const layouts = layoutTraces(traces.length);
+
+  // Set dynamic trace count
+  const countEl = document.getElementById('traceCount');
+  if(countEl) countEl.textContent = traces.length;
+
+  traces.forEach((t, i) => {
+    const L = layouts[i];
+
+    // Plant — positioned by its CENTER at (L.x%, L.y%) via translate(-50%,-50%) in CSS
+    const plant = document.createElement('div');
+    plant.className = 'plant';
+    plant.style.left = L.x + '%';
+    plant.style.top = L.y + '%';
+    plant.style.zIndex = L.z;
+
+    // Proximity-based filters: center plants vivid, edge plants soft
+    const opacity = (0.62 + L.proximity * 0.33).toFixed(3);
+    const brightness = (0.85 + L.proximity * 0.28).toFixed(3);
+    const saturate = (1.15 + L.proximity * 0.45).toFixed(3);
+    const blur = ((1 - L.proximity) * 0.7).toFixed(2);
+    plant.style.setProperty('--p-opacity', opacity);
+    plant.style.setProperty('--p-brightness', brightness);
+    plant.style.setProperty('--p-saturate', saturate);
+    plant.style.setProperty('--p-blur', blur + 'px');
+
+    plant.innerHTML = `<img src="${QIMG_BASE}${t.qimg}" style="width:${L.w}px;height:${L.h}px;" alt="" />`;
+    plant.onclick = () => openDetail(t);
+    plantsContainer.appendChild(plant);
+
+    // Drift in animation (staggered)
+    plant.style.opacity = '0';
+    plant.style.transition = 'opacity 1.4s ease, transform .35s cubic-bezier(.4,0,.2,1)';
+    setTimeout(() => { plant.style.opacity = '1'; }, 200 + i * 180);
+
+    // Trace float — only for plants closer to center (proximity > 0.35)
+    if(L.proximity > 0.35 && (i % 2 === 0 || i === 3 || i === 5)){
+      const float = document.createElement('div');
+      float.className = 'trace-float' + (t.type === 'audio' ? ' audio' : '');
+
+      // Position float above the plant: place wrapper at plant center, then shift it up & sideways
+      // The wrapper itself carries the positioning transform; .trace-inner inside handles driftFloat
+      const offsetX = (i % 2 === 0) ? -60 : 50;
+      const offsetY = -(L.h * 0.55 + 28); // above the plant's top edge
+      float.style.left = L.x + '%';
+      float.style.top = L.y + '%';
+      float.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+      float.style.zIndex = 25 + L.z;
+
+      let bubbleHTML;
+      if(t.type === 'audio'){
+        bubbleHTML = `
+          <div class="bubble">
+            <span class="wave"><span></span><span></span><span></span><span></span></span>
+            ${t.duration}
+          </div>
+          <div class="author">${t.name}</div>`;
+      } else {
+        const preview = t.content.length > 60 ? t.content.substring(0, 58) + '…' : t.content;
+        bubbleHTML = `
+          <div class="bubble">${preview}</div>
+          <div class="author">${t.name}</div>`;
+      }
+      float.innerHTML = `<div class="trace-inner">${bubbleHTML}</div>`;
+      floatsContainer.appendChild(float);
+
+      setTimeout(() => float.classList.add('visible'), 1200 + i * 280);
+    }
+  });
+}
+
+// Detail panel
+function openDetail(t){
+  const d = document.getElementById('detail');
+  const b = document.getElementById('backdrop');
+  document.getElementById('detailQ').textContent = '"' + t.qtext + '"';
+
+  const content = document.getElementById('detailContent');
+  if(t.type === 'audio'){
+    content.innerHTML = `
+      <div class="detail-audio">
+        <div class="play-circle">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        <div class="audio-meta">voice trace · ${t.duration}</div>
+      </div>`;
+  } else {
+    content.innerHTML = `<div class="detail-text">${t.content}</div>`;
+  }
+
+  document.getElementById('detailAuthor').textContent = t.name;
+  document.getElementById('detailDate').textContent = t.date;
+
+  d.classList.add('open');
+  b.classList.add('show');
+}
+
+function closeDetail(){
+  document.getElementById('detail').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('show');
+}
+
+// Init
+renderGarden();
+</script>
+
+</body>
+</html>

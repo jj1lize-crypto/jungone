@@ -458,10 +458,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 </div>
 
 <script>
-const TOPIC_IMAGE_BASE = "assets/images/topics/";
-const QUESTION_IMAGE_BASE = "assets/images/questions/";
-const LISTENING_IMAGE_BASE = "assets/images/listening/";
-const MEDIA_BASE = "assets/media/";
+const BASE = "https://jj1lize-crypto.github.io/jungone/";
 
 // 4 Topics — new names
 const TNAMES = {
@@ -483,14 +480,14 @@ const TCOLORS = {
   safety: '#6a5e7a'
 };
 const TSRCS = {
-  space:  TOPIC_IMAGE_BASE + "t01.webp",
-  body:   TOPIC_IMAGE_BASE + "t02.webp",
-  taste:  TOPIC_IMAGE_BASE + "t03.webp",
-  safety: TOPIC_IMAGE_BASE + "t04.webp"
+  space:  BASE + "t01.png",
+  body:   BASE + "t02.png",
+  taste:  BASE + "t03.png",
+  safety: BASE + "t04.png"
 };
 
 // 12 question images — recycled across topics
-const QSRCS = Array.from({length:12}, (_,i)=> QUESTION_IMAGE_BASE + "q" + String(i+1).padStart(2,'0') + ".webp");
+const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
 
 // 6 Actions — "이렇게 들어주세요" (how to listen)
 const ANAMES = {
@@ -509,13 +506,15 @@ const ADESC = {
   a05: "비교하거나 바로잡기보다, 먼저 있는 그대로 들어주세요.",
   a06: "오늘은 여기까지만 나누고 싶어요. 나중에 준비되면 다시 이야기할게요."
 };
+// 부족한 a05, a06 이미지는 a01~a04 중 매번 랜덤 두 장 골라서 씀
+const _aPool = ['a01','a02','a03','a04'].sort(()=>Math.random()-0.5);
 const ASRCS = {
-  a01: LISTENING_IMAGE_BASE + "listencard1.png",
-  a02: LISTENING_IMAGE_BASE + "listencard2.png",
-  a03: LISTENING_IMAGE_BASE + "listencard3.png",
-  a04: LISTENING_IMAGE_BASE + "listencard4.png",
-  a05: LISTENING_IMAGE_BASE + "listencard5.png",
-  a06: LISTENING_IMAGE_BASE + "listencard6.png"
+  a01: BASE + "a01.png",
+  a02: BASE + "a02.png",
+  a03: BASE + "a03.png",
+  a04: BASE + "a04.png",
+  a05: BASE + _aPool[0] + ".png",
+  a06: BASE + _aPool[1] + ".png"
 };
 
 // 4 topics × 9 questions = 36, each with main q + sub q (follow-up)
@@ -570,8 +569,8 @@ const QDATA = {
 const DEMO = [
   {name:"엄마", topic:"space",  q:"space-1",  a:"a02", answer:"창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",       date:"2026.05.18", color:TCOLORS.space},
   {name:"아빠", topic:"body",   q:"body-1",   a:"a01", answer:"허리가 좀 안 좋은데, 조용히 알아만 주면 돼.",          date:"2026.05.19", color:TCOLORS.body},
-  {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: MEDIA_BASE+"trace-photo.jpg",                  date:"2026.05.20", color:TCOLORS.safety},
-  {name:"오빠", topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: MEDIA_BASE+"trace-voice.mp3",                  date:"2026.05.21", color:TCOLORS.taste},
+  {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                       date:"2026.05.20", color:TCOLORS.safety},
+  {name:"오빠", topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                       date:"2026.05.21", color:TCOLORS.taste},
   {name:"현",   topic:"taste",  q:"taste-1",  a:"a04", answer:"보리차 한 잔이면 충분해. 자기 전에.",                    date:"2026.05.21", color:TCOLORS.taste},
   {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
 ];

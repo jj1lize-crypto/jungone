@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JungOne · 정원</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+@media(min-width:600px){.grid2{grid-template-columns:repeat(4,1fr)!important;}.sel-card{max-height:28vh!important;}.ph{padding:28px 32px 8px!important;}.pb{padding:8px 32px!important;}.pf{padding:10px 32px 32px!important;}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo',serif;overflow:hidden;}
+.page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
+.page.active{transform:translateX(0);}
+.page.exit{transform:translateX(-100%);}
+.ph{padding:44px 22px 10px;flex-shrink:0;}
+.step{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:7px;}
+.prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:12px;}
+.prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
+.title{font-size:clamp(22px,6vw,32px);font-weight:700;line-height:1.18;color:#0e0c09;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px 8px;}
+.pf{padding:10px 18px 36px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.btn{width:100%;padding:15px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Nanum Myeongjo',serif;font-size:16px;font-weight:700;cursor:pointer;}
+.btn:active{opacity:.75;}
+.btn:disabled{opacity:.2;pointer-events:none;}
+.btn-ghost{width:100%;padding:10px;border:none;background:transparent;color:#8a7e74;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sel-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;max-height:34vh;}
+.sel-card:active{transform:scale(.92);}
+.sel-card.on{border-color:#0e0c09;transform:scale(.96);}
+.sel-card img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .18s;}
+.grid2.picked .sel-card:not(.on) img{filter:brightness(.4);}
+.chk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;font-size:17px;color:#fff;z-index:5;}
+.sel-card.on .chk{display:flex;}
+.card-overlay{position:absolute;bottom:0;left:0;right:0;padding:8px 8px 10px;background:linear-gradient(transparent,rgba(0,0,0,.82));}
+.card-name{font-family:'Nanum Myeongjo',serif;font-size:13px;font-weight:700;color:#fff;}
+.q-num{position:absolute;top:6px;left:6px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.75);background:rgba(0,0,0,.4);padding:2px 5px;border-radius:2px;}
+
+/* Final card */
+.final-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;}
+.card-box{width:min(240px,70vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;cursor:pointer;}
+.card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
+.card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.img-t{z-index:1;}
+.img-q{z-index:2;opacity:0.7;}
+.img-a{z-index:3;opacity:0.85;}
+.tap-hint{position:absolute;bottom:8px;right:10px;z-index:10;font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.35);padding:2px 6px;border-radius:2px;}
+.card-back{position:absolute;inset:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:18px 16px;opacity:0;transition:opacity .35s;z-index:0;}
+.card-back.show{opacity:1;z-index:20;}
+.card-front.hide{opacity:0;transition:opacity .35s;}
+.back-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#8a7e74;margin-bottom:5px;}
+.back-section{margin-bottom:12px;}
+.back-q{font-size:clamp(12px,3vw,14px);color:#0e0c09;line-height:1.75;font-weight:700;}
+.back-sub{font-family:'DM Mono',monospace;font-size:10px;color:#6a5e54;line-height:1.65;margin-top:8px;padding-top:8px;border-top:1px solid #e0d8cc;}
+.back-action{font-size:12px;color:#0e0c09;line-height:1.6;margin-top:6px;}
+.back-badges{display:flex;gap:4px;flex-wrap:wrap;}
+.back-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
+
+/* Answer page */
+.answer-wrap{flex:1;padding:14px 22px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.answer-section{background:#fff;border:1px solid #e0d8cc;border-radius:4px;padding:14px;}
+.answer-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
+.answer-q{font-size:14px;color:#0e0c09;line-height:1.7;margin-bottom:10px;font-weight:700;}
+.name-input{width:100%;padding:10px 12px;border:1.5px solid #e0d8cc;background:#f9f6f0;font-family:'Nanum Myeongjo',serif;font-size:15px;color:#0e0c09;outline:none;border-radius:4px;}
+.name-input:focus{border-color:#0e0c09;}
+.answer-textarea{width:100%;padding:12px;border:1.5px solid #e0d8cc;background:#f9f6f0;font-family:'Nanum Myeongjo',serif;font-size:14px;color:#0e0c09;outline:none;resize:none;border-radius:4px;line-height:1.75;height:90px;}
+.answer-textarea:focus{border-color:#0e0c09;}
+.answer-textarea::placeholder{color:#c8bfb0;font-size:13px;}
+.char-count{font-family:'DM Mono',monospace;font-size:9px;color:#c8bfb0;text-align:right;margin-top:4px;}
+
+/* Seed planted */
+.seed-page{background:#0e0c09;align-items:center;justify-content:center;text-align:center;}
+.seed-text{font-family:'Nanum Myeongjo',serif;font-size:20px;color:#f5f0e8;opacity:.85;line-height:1.5;margin-top:24px;opacity:0;animation:fadeUp .6s ease 2s forwards;}
+.seed-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;margin-top:10px;opacity:0;animation:fadeUp .6s ease 2.3s forwards;}
+
+/* Garden */
+.garden-page{background:#0e0c09;}
+.garden-header{padding:36px 22px 14px;flex-shrink:0;}
+.garden-title{font-size:clamp(18px,5vw,26px);font-weight:400;color:#f5f0e8;opacity:.85;}
+.garden-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#4a4038;margin-top:5px;}
+.garden-body{flex:1;position:relative;overflow:hidden;}
+.seeds-container{position:absolute;inset:0;}
+.seed{position:absolute;transform:translate(-50%,-50%);cursor:pointer;}
+.seed-img{width:72px;aspect-ratio:5/7;border-radius:4px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+.seed-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.seed-img img.sq{position:absolute;inset:0;opacity:.65;}
+.seed-img img.sa{position:absolute;inset:0;opacity:.85;}
+.seed-name{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:#4a4038;text-align:center;margin-top:4px;}
+.answer-bubble{position:absolute;z-index:50;pointer-events:none;opacity:0;transition:opacity .5s;max-width:200px;}
+.answer-bubble.show{opacity:1;}
+.bubble-inner{padding:12px 14px;border-radius:50% 40% 55% 45% / 45% 55% 40% 50%;font-family:'Nanum Myeongjo',serif;font-size:12px;line-height:1.75;color:#f5f0e8;border:1px solid rgba(255,255,255,.15);}
+.bubble-name{font-family:'DM Mono',monospace;font-size:7px;letter-spacing:.12em;text-transform:uppercase;margin-top:5px;opacity:.5;padding-left:4px;}
+.garden-footer{padding:10px 18px 32px;flex-shrink:0;border-top:1px solid #1e1a14;}
+.btn-light{width:100%;padding:13px;border:1px solid #3a3028;background:transparent;color:#d4c9b0;font-family:'Nanum Myeongjo',serif;font-size:14px;cursor:pointer;}
+.btn-light:active{background:#1e1a14;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- P1: 주제 -->
+<div class="page active" id="p1">
+  <div class="ph">
+    <div class="step">JungOne · 1 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:25%"></div></div>
+    <div class="title">주제를<br>고르세요</div>
+  </div>
+  <div class="pb"><div class="grid2" id="tGrid"><div class="sel-card" onclick="pick('topic','space',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t01.png" alt="공간 & 집"/>
+      <div class="card-overlay"><div class="card-name">공간 & 집</div></div>
+    </div>
+<div class="sel-card" onclick="pick('topic','body',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t02.png" alt="몸 & 감각"/>
+      <div class="card-overlay"><div class="card-name">몸 & 감각</div></div>
+    </div>
+<div class="sel-card" onclick="pick('topic','taste',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t03.png" alt="맛 & 색깔"/>
+      <div class="card-overlay"><div class="card-name">맛 & 색깔</div></div>
+    </div>
+<div class="sel-card" onclick="pick('topic','safety',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/t04.png" alt="안전 & 신뢰"/>
+      <div class="card-overlay"><div class="card-name">안전 & 신뢰</div></div>
+    </div>
+</div></div>
+  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>다음 →</button></div>
+</div>
+
+<!-- P2: 질문 -->
+<div class="page" id="p2">
+  <div class="ph">
+    <div class="step">JungOne · 2 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:50%"></div></div>
+    <div class="title">질문을<br>고르세요</div>
+  </div>
+  <div class="pb"><div class="grid2" id="qGrid"><div class="sel-card" data-q="q01" onclick="pick('question','q01',this)" data-q="q01">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q01.png" alt="Q01"/>
+      <div class="q-num">Q · 01</div>
+    </div>
+<div class="sel-card" data-q="q02" onclick="pick('question','q02',this)" data-q="q02">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q02.png" alt="Q02"/>
+      <div class="q-num">Q · 02</div>
+    </div>
+<div class="sel-card" data-q="q03" onclick="pick('question','q03',this)" data-q="q03">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q03.png" alt="Q03"/>
+      <div class="q-num">Q · 03</div>
+    </div>
+<div class="sel-card" data-q="q04" onclick="pick('question','q04',this)" data-q="q04">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q04.png" alt="Q04"/>
+      <div class="q-num">Q · 04</div>
+    </div>
+<div class="sel-card" data-q="q05" onclick="pick('question','q05',this)" data-q="q05">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q05.png" alt="Q05"/>
+      <div class="q-num">Q · 05</div>
+    </div>
+<div class="sel-card" data-q="q06" onclick="pick('question','q06',this)" data-q="q06">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q06.png" alt="Q06"/>
+      <div class="q-num">Q · 06</div>
+    </div>
+<div class="sel-card" data-q="q07" onclick="pick('question','q07',this)" data-q="q07">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q07.png" alt="Q07"/>
+      <div class="q-num">Q · 07</div>
+    </div>
+<div class="sel-card" data-q="q08" onclick="pick('question','q08',this)" data-q="q08">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q08.png" alt="Q08"/>
+      <div class="q-num">Q · 08</div>
+    </div>
+<div class="sel-card" data-q="q09" onclick="pick('question','q09',this)" data-q="q09">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q09.png" alt="Q09"/>
+      <div class="q-num">Q · 09</div>
+    </div>
+<div class="sel-card" data-q="q10" onclick="pick('question','q10',this)" data-q="q10">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q10.png" alt="Q10"/>
+      <div class="q-num">Q · 10</div>
+    </div>
+<div class="sel-card" data-q="q11" onclick="pick('question','q11',this)" data-q="q11">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q11.png" alt="Q11"/>
+      <div class="q-num">Q · 11</div>
+    </div>
+<div class="sel-card" data-q="q12" onclick="pick('question','q12',this)" data-q="q12">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/q12.png" alt="Q12"/>
+      <div class="q-num">Q · 12</div>
+    </div>
+</div></div>
+  <div class="pf">
+    <button class="btn" id="btn2" onclick="goTo('p3')" disabled>다음 →</button>
+    <button class="btn-ghost" onclick="goBack('p1')">← 뒤로</button>
+  </div>
+</div>
+
+<!-- P3: 액션 -->
+<div class="page" id="p3">
+  <div class="ph">
+    <div class="step">JungOne · 3 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:75%"></div></div>
+    <div class="title">액션을<br>고르세요</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:#8a7e74;margin-top:6px;line-height:1.7;">질문이 대화를 열고,<br>액션이 반응 방식을 정해요.</div>
+  </div>
+  <div class="pb"><div class="grid2" id="aGrid"><div class="sel-card" onclick="pick('action','a01',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/a01.png" alt="물어보기"/>
+      <div class="card-overlay"><div class="card-name">물어보기</div></div>
+    </div>
+<div class="sel-card" onclick="pick('action','a02',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/a02.png" alt="같이 해요"/>
+      <div class="card-overlay"><div class="card-name">같이 해요</div></div>
+    </div>
+<div class="sel-card" onclick="pick('action','a03',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/a03.png" alt="같이 해요"/>
+      <div class="card-overlay"><div class="card-name">같이 해요</div></div>
+    </div>
+<div class="sel-card" onclick="pick('action','a04',this)">
+      <div class="chk">✓</div>
+      <img src="https://jj1lize-crypto.github.io/jungone/a04.png" alt="아이디어"/>
+      <div class="card-overlay"><div class="card-name">아이디어</div></div>
+    </div>
+</div></div>
+  <div class="pf">
+    <button class="btn" id="btn3" onclick="goTo('p4')" disabled>카드 완성하기 →</button>
+    <button class="btn-ghost" onclick="goBack('p2')">← 뒤로</button>
+  </div>
+</div>
+
+<!-- P4: 완성 카드 -->
+<div class="page" id="p4">
+  <div class="ph" style="padding-bottom:8px;">
+    <div class="step">JungOne · 오늘의 카드</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">오늘의 카드</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10px;color:#8a7e74;margin-top:5px;">탭해서 질문 보기</div>
+  </div>
+  <div class="final-stage">
+    <div class="card-box" onclick="flipCard()">
+      <div class="card-front" id="cFront">
+        <img class="img-t" id="imgT" src="" alt=""/>
+        <img class="img-q" id="imgQ" src="" alt=""/>
+        <img class="img-a" id="imgA" src="" alt=""/>
+        <div class="tap-hint">탭해서 뒤집기 ↺</div>
+      </div>
+      <div class="card-back" id="cBack">
+        <div>
+          <div class="back-badges" id="bBadges"></div>
+          <div class="back-section" style="margin-top:10px;">
+            <div class="back-label">나의 이야기</div>
+            <div class="back-q" id="bQ"></div>
+          </div>
+          <div class="back-section">
+            <div class="back-label">상대에게 묻기</div>
+            <div class="back-sub" id="bSub"></div>
+          </div>
+        </div>
+        <div>
+          <div class="back-label">액션</div>
+          <div class="back-action" id="bAction"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" onclick="goTo('p5')">내 생각 남기기 →</button>
+    <button class="btn-ghost" onclick="flipCard()">↺ 뒤집기</button>
+  </div>
+</div>
+
+<!-- P5: 답변 -->
+<div class="page" id="p5">
+  <div class="ph" style="padding-bottom:8px;">
+    <div class="step">JungOne · 기록</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">내 생각<br>남기기</div>
+  </div>
+  <div class="answer-wrap">
+    <input class="name-input" id="nameInput" type="text" placeholder="이름"/>
+    <div class="answer-section">
+      <div class="answer-label">나의 이야기</div>
+      <div class="answer-q" id="ansQ"></div>
+      <textarea class="answer-textarea" id="answerText1" placeholder="먼저 내 생각/마음을 써보세요." maxlength="100" oninput="updateCount()"></textarea>
+      <div class="char-count"><span id="charCount1">0</span> / 100</div>
+    </div>
+    <div class="answer-section">
+      <div class="answer-label">액션</div>
+      <div class="answer-q" id="ansAction"></div>
+      <textarea class="answer-textarea" id="answerText2" placeholder="액션에 대한 생각을 써보세요. (선택)" maxlength="100" oninput="updateCount2()"></textarea>
+      <div class="char-count"><span id="charCount2">0</span> / 100</div>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" id="btn5" onclick="submitAnswer()" disabled>정원으로 보내기 →</button>
+    <button class="btn-ghost" onclick="goBack('p4')">← 뒤로</button>
+  </div>
+</div>
+
+<!-- P55: 씨앗 심기 -->
+<div class="page seed-page" id="p55">
+  <svg width="100" height="140" viewBox="0 0 120 168" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="sg"><stop offset="0%" stop-color="#9aab9e" stop-opacity="0.18"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="60" cy="84" r="58" fill="url(#sg)"/>
+    <circle cx="60" cy="128" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.7" dur="0.4s" begin="0.3s" fill="freeze"/></circle>
+    <line x1="60" y1="128" x2="60" y2="38" stroke="#9aab9e" stroke-width="1.2" opacity="0" stroke-dasharray="90" stroke-dashoffset="90">
+      <animate attributeName="opacity" values="0;0.5" dur="0.2s" begin="0.6s" fill="freeze"/>
+      <animate attributeName="stroke-dashoffset" from="90" to="0" dur="0.8s" begin="0.6s" fill="freeze"/>
+    </line>
+    <path d="M 60 88 Q 38 78 35 62 Q 48 72 60 76" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.3s" fill="freeze"/></path>
+    <path d="M 60 68 Q 82 58 85 42 Q 72 52 60 56" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.6" dur="0.4s" begin="1.5s" fill="freeze"/></path>
+    <circle cx="60" cy="32" r="8" fill="#9aab9e" fill-opacity="0.15" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.5" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
+  </svg>
+  <div class="seed-text">정원에 심어졌어요.</div>
+  <div class="seed-sub">정원 열기 →</div>
+</div>
+
+<!-- P6: 정원 -->
+<div class="page garden-page" id="p6">
+  <div class="garden-header">
+    <div class="garden-title">JungOne · 정원</div>
+    <div class="garden-sub" id="gardenSub">오늘의 씨앗</div>
+  </div>
+  <div class="garden-body">
+    <div class="seeds-container" id="seedsContainer"></div>
+    <div class="answer-bubble" id="answerBubble">
+      <div class="bubble-inner" id="bubbleInner"></div>
+      <div class="bubble-name" id="bubbleName"></div>
+    </div>
+  </div>
+  <div class="garden-footer">
+    <button class="btn-light" onclick="goTo('p1');resetAll()">씨앗 하나 더 심기</button>
+  </div>
+</div>
+
+<script>
+const TSRCS={"space":"https://jj1lize-crypto.github.io/jungone/t01.png","body":"https://jj1lize-crypto.github.io/jungone/t02.png","taste":"https://jj1lize-crypto.github.io/jungone/t03.png","safety":"https://jj1lize-crypto.github.io/jungone/t04.png"};
+const QSRCS=["https://jj1lize-crypto.github.io/jungone/q01.png","https://jj1lize-crypto.github.io/jungone/q02.png","https://jj1lize-crypto.github.io/jungone/q03.png","https://jj1lize-crypto.github.io/jungone/q04.png","https://jj1lize-crypto.github.io/jungone/q05.png","https://jj1lize-crypto.github.io/jungone/q06.png","https://jj1lize-crypto.github.io/jungone/q07.png","https://jj1lize-crypto.github.io/jungone/q08.png","https://jj1lize-crypto.github.io/jungone/q09.png","https://jj1lize-crypto.github.io/jungone/q10.png","https://jj1lize-crypto.github.io/jungone/q11.png","https://jj1lize-crypto.github.io/jungone/q12.png"];
+const ASRCS={"a01":"https://jj1lize-crypto.github.io/jungone/a01.png","a02":"https://jj1lize-crypto.github.io/jungone/a02.png","a03":"https://jj1lize-crypto.github.io/jungone/a03.png","a04":"https://jj1lize-crypto.github.io/jungone/a04.png"};
+const TNAMES={"space":"공간 & 집","body":"몸 & 감각","taste":"맛 & 색깔","safety":"안전 & 신뢰"};
+const TCOLORS={"space":"#5c6b3a","body":"#c4845a","taste":"#9aab9e","safety":"#6a5e7a"};
+const QDATA={
+  q01:{q:"내가 좋아하는 우리 집 공간은? 더 행복하게 보내기 위해 필요한 게 있다면?",topic:"space"},
+  q02:{q:"나에게 소중한 물건 하나는?",topic:"space"},
+  q03:{q:"가족들이랑 했을 때 기분 좋았던 순간은? 함께 뭘 했으면 좋겠나요?",topic:"space"},
+  q04:{q:"요즘 몸 상태는? 부모/자식이 말하지 않았을 때 속상할 것을 생각하며 공유해주세요.",topic:"body"},
+  q05:{q:"요즘 먹고 있는 약이나 복용 상태는?",topic:"body"},
+  q06:{q:"요즘 누군가 도와줬으면 하는 게 있어요?",topic:"body"},
+  q07:{q:"요즘 입에 맞는 음식은?",topic:"taste"},
+  q08:{q:"요즘 자신에게 행복한 것은?",topic:"taste"},
+  q09:{q:"요즘 가족한테 들려주고 싶은 것이 있어요?",topic:"taste"},
+  q10:{q:"요즘 보안 등 걱정되는 뉴스는?",topic:"safety"},
+  q11:{q:"요즘 특히 가족/구성원 한 명에게 궁금한 건?",topic:"safety"},
+  q12:{q:"내가 더 진실되게 이 대화에 참여하기 위해서는 가족들의 어떤 태도가 도움이 될까요? 딱 한 가지만.",topic:"safety"}
+};
+const ADATA={
+  a01:{name:"물어보기",desc:"같은 질문, 이제 당신 차례예요.",sub:"물어볼게요 —"},
+  a02:{name:"같이 해요",desc:"이야기만이 아니라 같이 하고 싶어요.",sub:"같이 해봐요 —"},
+  a03:{name:"아이디어",desc:"이 대화에서 아이디어가 생겼어요.",sub:"아이디어가 있어요 —"},
+  a04:{name:"해보기",desc:"이번 주 안에 딱 한 가지만 해봐요.",sub:"해볼게요 —"}
+};
+const ACTION_SUBS={
+  space:{
+    a01:'당신에게 소중한 공간이나 물건은 뭐예요?',
+    a02:'각자 집에서 좋아하는 공간 사진 찍어서 보내봐요.',
+    a03:'집에서 바꾸거나 더하고 싶은 것 하나 같이 찾아봐요.',
+    a04:'그 공간에서 시간을 좀 더 보내고 사진 찍어 공유해봐요.'
+  },
+  body:{
+    a01:'당신 몸은 요즘 어때요? 솔직하게 말해줄 수 있어요?',
+    a02:'언제 영상통화하면서 같이 밥 먹어요.',
+    a03:'몸에 좋을 것 같은 거 하나 같이 찾아서 공유해봐요.',
+    a04:'이번 주 한 가지만 — 일찍 자거나, 뭔가 챙겨봐요.'
+  },
+  taste:{
+    a01:'당신은 요즘 뭐가 맛있어요?',
+    a02:'좋았던 음식 이야기나 추억 공유해봐요.',
+    a03:'그 음식 레시피 같이 찾아봐요.',
+    a04:'그 레시피 한번 만들어보고 사진 찍어 보내봐요.'
+  },
+  safety:{
+    a01:'당신은 요즘 어떤 게 걱정돼요?',
+    a02:'이번 주 짧게라도 전화 한 번 해봐요.',
+    a03:'걱정되는 것 하나 같이 해결 방법 찾아봐요.',
+    a04:'이번 주 그 걱정 한 가지, 작게라도 행동으로 옮겨봐요.'
+  }
+};
+
+let S={topic:null,question:null,action:null};
+let flipped=false;
+let entries=[];
+let bubbleTimer=null;
+let bubbleIdx=0;
+
+// Q cards grouped by topic
+const Q_BY_TOPIC={
+  space:['q01','q02','q03'],
+  body:['q04','q05','q06'],
+  taste:['q07','q08','q09'],
+  safety:['q10','q11','q12']
+};
+
+function pick(type,val,el){
+  const g=el.closest('.grid2');
+  g.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');g.classList.add('picked');
+  S[type]=val;
+  const b=document.getElementById({topic:'btn1',question:'btn2',action:'btn3'}[type]);
+  if(b) b.disabled=false;
+
+  // Filter question cards when topic is picked
+  if(type==='topic'){
+    S.question=null;
+    document.getElementById('btn2').disabled=true;
+    document.getElementById('qGrid').querySelectorAll('.sel-card').forEach(card=>{
+      card.classList.remove('on');
+      const qval=card.getAttribute('data-q');
+      const visible=Q_BY_TOPIC[val].includes(qval);
+      card.style.display=visible?'':'none';
+    });
+    document.getElementById('qGrid').classList.remove('picked');
+    // Show topic context
+    const bar=document.getElementById('topicCtxBar');
+    const labels={space:'공간과 집의 관점에서',body:'몸과 감각의 관점에서',taste:'맛과 색깔의 관점에서',safety:'안전과 신뢰의 관점에서'};
+    if(bar){bar.textContent=labels[val];bar.style.display='block';}
+  }
+}
+
+function goTo(id){
+  document.querySelectorAll('.page').forEach(p=>{
+    if(p.classList.contains('active')){p.classList.remove('active');p.classList.add('exit');setTimeout(()=>p.classList.remove('exit'),420);}
+  });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='p4') buildFinalCard();
+  if(id==='p5') buildAnswerPage();
+  if(id==='p6') buildGarden();
+}
+
+function goBack(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function buildFinalCard(){
+  const t=S.topic,q=S.question,a=S.action;
+  const qi=parseInt(q.replace('q',''))-1;
+  document.getElementById('imgT').src=TSRCS[t];
+  document.getElementById('imgQ').src=QSRCS[qi];
+  document.getElementById('imgA').src=ASRCS[a];
+  flipped=false;
+  document.getElementById('cFront').classList.remove('hide');
+  document.getElementById('cBack').classList.remove('show');
+  const d=QDATA[q];
+  const ad=ADATA[a];
+  document.getElementById('bBadges').innerHTML=
+    '<span class="back-badge">'+TNAMES[t]+'</span>'+
+    '<span class="back-badge">'+q.toUpperCase()+'</span>'+
+    '<span class="back-badge">'+ad.name+'</span>';
+  document.getElementById('bQ').textContent=d.q;
+  document.getElementById('bSub').textContent=ACTION_SUBS[QDATA[q].topic][a];
+  document.getElementById('bAction').textContent=ad.desc;
+}
+
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById('cFront').classList.toggle('hide',flipped);
+  document.getElementById('cBack').classList.toggle('show',flipped);
+}
+
+function buildAnswerPage(){
+  const q=S.question,a=S.action;
+  document.getElementById('ansQ').textContent=QDATA[q].q;
+  document.getElementById('ansAction').textContent=ADATA[a].name+' — '+ACTION_SUBS[QDATA[S.question].topic][a];
+  document.getElementById('nameInput').value='';
+  document.getElementById('answerText1').value='';
+  document.getElementById('answerText2').value='';
+  document.getElementById('charCount1').textContent='0';
+  document.getElementById('charCount2').textContent='0';
+  document.getElementById('btn5').disabled=true;
+}
+
+function updateCount(){
+  const v=document.getElementById('answerText1').value;
+  document.getElementById('charCount1').textContent=v.length;
+  checkReady();
+}
+function updateCount2(){
+  const v=document.getElementById('answerText2').value;
+  document.getElementById('charCount2').textContent=v.length;
+}
+function checkReady(){
+  const name=document.getElementById('nameInput').value.trim();
+  const ans=document.getElementById('answerText1').value.trim();
+  document.getElementById('btn5').disabled=!(name&&ans.length>=2);
+}
+document.getElementById && document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('nameInput').addEventListener('input',checkReady);
+});
+
+function submitAnswer(){
+  const name=document.getElementById('nameInput').value.trim();
+  const ans1=document.getElementById('answerText1').value.trim();
+  const ans2=document.getElementById('answerText2').value.trim();
+  const col=TCOLORS[S.topic]||'#9aab9e';
+  entries.push({
+    name,topic:S.topic,q:S.question,a:S.action,
+    answer:ans1,answer2:ans2,color:col
+  });
+  goTo('p55');
+  setTimeout(()=>goTo('p6'),2500);
+}
+
+function buildGarden(){
+  const container=document.getElementById('seedsContainer');
+  container.innerHTML='';
+  document.getElementById('gardenSub').textContent=entries.length+'개의 씨앗';
+  const W=window.innerWidth,H=window.innerHeight-180;
+  const SW=110,SH=140;
+  const cols=Math.min(entries.length,Math.floor((W-40)/SW));
+  const rows=Math.ceil(entries.length/cols);
+  const totalW=cols*SW,totalH=rows*SH;
+  const startX=(W-totalW)/2+SW/2;
+  const startY=Math.max(50,(H-totalH)/2+SH/2);
+
+  entries.forEach((e,i)=>{
+    const col=i%cols,row=Math.floor(i/cols);
+    const jx=(Math.random()-.5)*12,jy=(Math.random()-.5)*12;
+    const x=startX+col*SW+jx,y=startY+row*SH+jy;
+    const qi=parseInt(e.q.replace('q',''))-1;
+    const seed=document.createElement('div');
+    seed.className='seed';
+    seed.style.left=x+'px';seed.style.top=y+'px';
+    seed.innerHTML=`
+      <div class="seed-img">
+        <img src="${TSRCS[e.topic]}" alt=""/>
+        <img class="sq" src="${QSRCS[qi]}" alt=""/>
+        <img class="sa" src="${ASRCS[e.a]}" alt=""/>
+      </div>
+      <div class="seed-name">${e.name}</div>`;
+    seed.onclick=()=>showBubbleAt(e,x,y);
+    container.appendChild(seed);
+  });
+
+  clearInterval(bubbleTimer);
+  bubbleIdx=0;
+  if(entries.length>0){
+    showBubbleAuto();
+    bubbleTimer=setInterval(()=>{bubbleIdx=(bubbleIdx+1)%entries.length;showBubbleAuto();},5000);
+  }
+}
+
+function showBubbleAuto(){
+  if(!entries.length)return;
+  const seeds=document.querySelectorAll('.seed');
+  if(!seeds[bubbleIdx])return;
+  const e=entries[bubbleIdx];
+  const rect=seeds[bubbleIdx].getBoundingClientRect();
+  showBubbleAt(e,rect.left+rect.width/2,rect.top-10);
+}
+
+function showBubbleAt(e,x,y){
+  const bub=document.getElementById('answerBubble');
+  const col=e.color||'#9aab9e';
+  const inner=document.getElementById('bubbleInner');
+  inner.style.background=col+'22';
+  inner.style.borderColor=col+'44';
+  inner.textContent=e.answer;
+  document.getElementById('bubbleName').textContent=e.name;
+  document.getElementById('bubbleName').style.color=col;
+  const bw=200;
+  let lx=x-bw/2;
+  lx=Math.max(10,Math.min(lx,window.innerWidth-bw-10));
+  bub.style.left=lx+'px';
+  bub.style.top=Math.max(10,y-80)+'px';
+  bub.classList.remove('show');
+  requestAnimationFrame(()=>bub.classList.add('show'));
+}
+
+function resetAll(){
+  S={topic:null,question:null,action:null};flipped=false;
+  document.querySelectorAll('.sel-card').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.grid2').forEach(g=>g.classList.remove('picked'));
+  ['btn1','btn2','btn3'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
+  clearInterval(bubbleTimer);
+}
+
+// nameInput event after DOM ready
+setTimeout(()=>{
+  const ni=document.getElementById('nameInput');
+  if(ni) ni.addEventListener('input',checkReady);
+},100);
+</script>
+</body>
+</html>

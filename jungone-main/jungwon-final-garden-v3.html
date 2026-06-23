@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JungWon — 정원 · Today's Garden</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+
+  :root {
+    --ink: #0e0c09;
+    --paper: #f5f0e8;
+    --moss: #5c6b3a;
+    --clay: #c4845a;
+    --mist: #9aab9e;
+    --grey: #8a9a8e;
+    --trace: #d4c9b0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--ink);
+    overflow: hidden;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Grain */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.5;
+  }
+
+  /* Atmospheric bg */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Stage */
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  #gardenSvg {
+    width: min(880px, 96vw);
+    height: min(880px, 96vh);
+  }
+
+  /* Header */
+  .header {
+    position: fixed;
+    top: 28px;
+    left: 36px;
+    z-index: 20;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+
+  .header-title {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: clamp(14px, 1.8vw, 20px);
+    font-weight: 400;
+    color: var(--paper);
+    opacity: 0.55;
+  }
+
+  .header-sub {
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #4a4038;
+    margin-top: 5px;
+  }
+
+  /* Person labels */
+  .plabel {
+    position: fixed;
+    z-index: 20;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+  }
+
+  .plabel .pname {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: 12px;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  .plabel .pcards {
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    line-height: 1.9;
+    display: block;
+  }
+
+  .pl1 { top: 28px; right: 36px; text-align: right; color: var(--moss); animation-delay: 1s; }
+  .pl2 { bottom: 70px; right: 36px; text-align: right; color: var(--clay); animation-delay: 1.2s; }
+  .pl3 { bottom: 70px; left: 36px; color: var(--mist); animation-delay: 1.4s; }
+  .pl4 { top: 80px; left: 36px; color: var(--grey); animation-delay: 1.6s; }
+
+  /* Bottom note */
+  .bottom-note {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #3a3028;
+    z-index: 20;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 2s forwards;
+    white-space: nowrap;
+  }
+
+  /* ── FLOATING TRACES ── */
+  .trace-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .trace {
+    position: absolute;
+    opacity: 0;
+  }
+
+  /* Organic bubble base */
+  .trace-bubble {
+    position: relative;
+    padding: 14px 18px;
+    border-radius: 62% 38% 54% 46% / 48% 52% 48% 52%;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  /* Text trace */
+  .trace-text {
+    font-family: 'Nanum Myeongjo', serif;
+    font-size: clamp(10px, 1.3vw, 13px);
+    line-height: 1.85;
+    max-width: 200px;
+  }
+
+  /* Wave trace */
+  .trace-wave-inner {
+    padding: 12px 16px;
+  }
+
+  /* Photo trace */
+  .trace-photo-inner {
+    overflow: hidden;
+    border-radius: 58% 42% 52% 48% / 46% 54% 46% 54%;
+  }
+
+  .trace-photo-inner img {
+    width: clamp(90px, 12vw, 148px);
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    mix-blend-mode: luminosity;
+    opacity: 0.8;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes growIn {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes traceAppear {
+    0% { opacity: 0; transform: scale(0.88) translateY(8px); }
+    14% { opacity: 1; transform: scale(1) translateY(0); }
+    78% { opacity: 1; transform: scale(1) translateY(0); }
+    100% { opacity: 0; transform: scale(0.94) translateY(-5px); }
+  }
+
+  @keyframes traceFloat {
+    0% { opacity: 0; transform: scale(0.9); }
+    12% { opacity: 1; transform: scale(1); }
+    82% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.96); }
+  }
+
+  @keyframes waveDraw {
+    0% { opacity: 0; transform: scale(0.9); }
+    10% { opacity: 1; transform: scale(1); }
+    82% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.95); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Atmospheric background -->
+<svg class="bg-glow" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg1" cx="32%" cy="42%"><stop offset="0%" stop-color="#5c6b3a" stop-opacity="0.13"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient>
+    <radialGradient id="bg2" cx="68%" cy="58%"><stop offset="0%" stop-color="#c4845a" stop-opacity="0.1"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient>
+    <radialGradient id="bg3" cx="50%" cy="50%"><stop offset="0%" stop-color="#9aab9e" stop-opacity="0.07"/><stop offset="100%" stop-color="#0e0c09" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="100" height="100" fill="url(#bg1)"/>
+  <rect width="100" height="100" fill="url(#bg2)"/>
+  <rect width="100" height="100" fill="url(#bg3)"/>
+</svg>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">정원 · JungWon</div>
+  <div class="header-sub" id="todayDate"></div>
+</div>
+
+<!-- Person labels -->
+<div class="plabel pl1">
+  <span class="pname">Jiwon</span>
+  <span class="pcards">Space & Home · Q03 · Shift</span>
+</div>
+<div class="plabel pl2">
+  <span class="pname">Father</span>
+  <span class="pcards">Body & Senses · Q09 · Next</span>
+</div>
+<div class="plabel pl3">
+  <span class="pname">Mother</span>
+  <span class="pcards">Taste & Color · Q01 · Make Something</span>
+</div>
+<div class="plabel pl4">
+  <span class="pname">Brother</span>
+  <span class="pcards">Safety & Trust · Q06 · Do It Together</span>
+</div>
+
+<!-- Garden SVG -->
+<div class="stage">
+  <svg id="gardenSvg" viewBox="0 0 880 880" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="deep-glow">
+        <feGaussianBlur stdDeviation="18" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- ── PERSON 1: Jiwon — moss — old spreading tree ── -->
+    <g style="animation: growIn 1.4s ease 0.15s both">
+      <line x1="310" y1="610" x2="232" y2="690" stroke="#3a4a22" stroke-width="1.5" opacity="0.5"/>
+      <line x1="310" y1="610" x2="282" y2="710" stroke="#3a4a22" stroke-width="1.2" opacity="0.4"/>
+      <line x1="310" y1="610" x2="338" y2="705" stroke="#3a4a22" stroke-width="1.2" opacity="0.4"/>
+      <line x1="232" y1="690" x2="195" y2="730" stroke="#3a4a22" stroke-width="0.8" opacity="0.28"/>
+      <line x1="338" y1="705" x2="368" y2="735" stroke="#3a4a22" stroke-width="0.8" opacity="0.28"/>
+
+      <path d="M 310 610 Q 306 528 302 445 Q 298 365 295 288" fill="none" stroke="#5c6b3a" stroke-width="5.5" stroke-linecap="round"/>
+
+      <path d="M 302 510 Q 232 480 182 430 Q 145 392 128 344" fill="none" stroke="#5c6b3a" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M 300 468 Q 368 440 408 390 Q 438 352 448 302" fill="none" stroke="#5c6b3a" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M 298 428 Q 218 398 178 350 Q 148 312 138 264" fill="none" stroke="#5c6b3a" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 299 388 Q 375 360 414 312 Q 442 274 450 226" fill="none" stroke="#5c6b3a" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M 297 350 Q 224 322 194 274 Q 170 236 168 188" fill="none" stroke="#5c6b3a" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M 298 318 Q 368 292 402 244 Q 426 206 428 160" fill="none" stroke="#5c6b3a" stroke-width="1.3" stroke-linecap="round"/>
+
+      <path d="M 128 344 Q 98 314 84 275" fill="none" stroke="#5c6b3a" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M 448 302 Q 468 264 472 224" fill="none" stroke="#5c6b3a" stroke-width="1" stroke-linecap="round"/>
+      <path d="M 138 264 Q 112 228 108 190" fill="none" stroke="#5c6b3a" stroke-width="0.9" stroke-linecap="round"/>
+
+      <ellipse cx="112" cy="292" rx="32" ry="22" fill="#5c6b3a" fill-opacity="0.1" stroke="#5c6b3a" stroke-width="0.5" opacity="0.4" transform="rotate(-22 112 292)"/>
+      <ellipse cx="448" cy="256" rx="28" ry="18" fill="#5c6b3a" fill-opacity="0.08" stroke="#5c6b3a" stroke-width="0.5" opacity="0.35" transform="rotate(14 448 256)"/>
+      <ellipse cx="162" cy="194" rx="22" ry="16" fill="#5c6b3a" fill-opacity="0.09" opacity="0.32" transform="rotate(-8 162 194)"/>
+      <ellipse cx="424" cy="164" rx="20" ry="14" fill="#5c6b3a" fill-opacity="0.08" opacity="0.3" transform="rotate(18 424 164)"/>
+
+      <circle cx="302" cy="448" r="45" fill="#5c6b3a" fill-opacity="0.04" filter="url(#deep-glow)"/>
+    </g>
+
+    <!-- ── PERSON 2: Father — clay — dense tendrils ── -->
+    <g style="animation: growIn 1.4s ease 0.3s both">
+      <line x1="612" y1="640" x2="597" y2="678" stroke="#7a4a2a" stroke-width="1" opacity="0.4"/>
+      <line x1="612" y1="640" x2="627" y2="676" stroke="#7a4a2a" stroke-width="1" opacity="0.4"/>
+
+      <path d="M 612 640 Q 617 558 610 476 Q 604 396 614 318 Q 622 250 610 175" fill="none" stroke="#c4845a" stroke-width="1.5" stroke-linecap="round"/>
+
+      <path d="M 612 592 Q 652 577 680 557 Q 702 537 712 512" fill="none" stroke="#c4845a" stroke-width="0.9" stroke-linecap="round"/>
+      <path d="M 610 562 Q 567 544 550 522 Q 537 504 540 480" fill="none" stroke="#c4845a" stroke-width="0.85" stroke-linecap="round"/>
+      <path d="M 611 532 Q 657 514 680 492 Q 698 474 698 450" fill="none" stroke="#c4845a" stroke-width="0.85" stroke-linecap="round"/>
+      <path d="M 609 502 Q 564 484 547 460 Q 535 442 538 418" fill="none" stroke="#c4845a" stroke-width="0.8" stroke-linecap="round"/>
+      <path d="M 611 472 Q 654 454 674 432 Q 690 414 690 390" fill="none" stroke="#c4845a" stroke-width="0.8" stroke-linecap="round"/>
+      <path d="M 608 440 Q 564 422 546 398 Q 534 380 537 356" fill="none" stroke="#c4845a" stroke-width="0.75" stroke-linecap="round"/>
+      <path d="M 610 410 Q 650 392 668 370 Q 682 352 680 328" fill="none" stroke="#c4845a" stroke-width="0.75" stroke-linecap="round"/>
+      <path d="M 607 378 Q 564 360 547 336 Q 535 318 539 294" fill="none" stroke="#c4845a" stroke-width="0.7" stroke-linecap="round"/>
+      <path d="M 611 348 Q 648 330 664 308 Q 676 290 674 266" fill="none" stroke="#c4845a" stroke-width="0.7" stroke-linecap="round"/>
+      <path d="M 608 316 Q 566 298 549 274 Q 538 256 542 232" fill="none" stroke="#c4845a" stroke-width="0.65" stroke-linecap="round"/>
+      <path d="M 611 286 Q 646 268 660 246 Q 670 228 668 204" fill="none" stroke="#c4845a" stroke-width="0.65" stroke-linecap="round"/>
+
+      <path d="M 712 512 Q 720 502 716 492" fill="none" stroke="#c4845a" stroke-width="0.5" opacity="0.5"/>
+      <path d="M 698 450 Q 706 440 702 430" fill="none" stroke="#c4845a" stroke-width="0.5" opacity="0.45"/>
+
+      <path d="M 610 175 Q 602 158 600 142 Q 606 154 610 175" fill="none" stroke="#c4845a" stroke-width="1.1" opacity="0.7"/>
+      <path d="M 610 175 Q 618 158 620 142 Q 614 154 610 175" fill="none" stroke="#c4845a" stroke-width="1.1" opacity="0.7"/>
+      <circle cx="610" cy="138" r="5" fill="#c4845a" fill-opacity="0.28" stroke="#c4845a" stroke-width="0.8" opacity="0.65"/>
+
+      <circle cx="610" cy="408" r="50" fill="#c4845a" fill-opacity="0.03" filter="url(#deep-glow)"/>
+    </g>
+
+    <!-- ── PERSON 3: Mother — mist — generous flowering ── -->
+    <g style="animation: growIn 1.4s ease 0.5s both">
+      <line x1="440" y1="718" x2="400" y2="758" stroke="#5a6a5e" stroke-width="1.2" opacity="0.45"/>
+      <line x1="440" y1="718" x2="425" y2="765" stroke="#5a6a5e" stroke-width="1" opacity="0.38"/>
+      <line x1="440" y1="718" x2="450" y2="768" stroke="#5a6a5e" stroke-width="1" opacity="0.38"/>
+      <line x1="440" y1="718" x2="480" y2="756" stroke="#5a6a5e" stroke-width="1.2" opacity="0.45"/>
+
+      <line x1="440" y1="718" x2="440" y2="238" stroke="#9aab9e" stroke-width="1.7"/>
+
+      <path d="M 440 668 Q 370 643 335 603 Q 308 570 315 536 Q 335 558 370 578 Q 400 596 440 603" fill="#9aab9e" fill-opacity="0.09" stroke="#9aab9e" stroke-width="0.95" opacity="0.58"/>
+      <path d="M 440 638 Q 510 613 545 573 Q 568 540 560 506 Q 540 528 505 548 Q 475 566 440 573" fill="#9aab9e" fill-opacity="0.09" stroke="#9aab9e" stroke-width="0.95" opacity="0.58"/>
+      <path d="M 440 588 Q 365 563 330 520 Q 305 486 312 452 Q 332 474 365 493 Q 398 510 440 516" fill="#9aab9e" fill-opacity="0.08" stroke="#9aab9e" stroke-width="0.88" opacity="0.52"/>
+      <path d="M 440 556 Q 515 531 548 488 Q 571 454 562 420 Q 542 442 507 460 Q 474 478 440 483" fill="#9aab9e" fill-opacity="0.08" stroke="#9aab9e" stroke-width="0.88" opacity="0.52"/>
+      <path d="M 440 506 Q 366 481 332 438 Q 308 404 316 370 Q 336 392 368 410 Q 400 426 440 431" fill="#9aab9e" fill-opacity="0.07" stroke="#9aab9e" stroke-width="0.8" opacity="0.48"/>
+      <path d="M 440 473 Q 514 448 546 404 Q 568 370 558 336 Q 538 358 504 375 Q 472 391 440 396" fill="#9aab9e" fill-opacity="0.07" stroke="#9aab9e" stroke-width="0.8" opacity="0.48"/>
+      <path d="M 440 423 Q 368 398 335 355 Q 312 321 320 287 Q 340 308 372 325 Q 404 340 440 344" fill="#9aab9e" fill-opacity="0.06" stroke="#9aab9e" stroke-width="0.72" opacity="0.43"/>
+      <path d="M 440 388 Q 512 363 543 320 Q 564 286 553 252 Q 533 273 500 289 Q 468 304 440 308" fill="#9aab9e" fill-opacity="0.06" stroke="#9aab9e" stroke-width="0.72" opacity="0.43"/>
+
+      <circle cx="320" cy="548" r="9" fill="#9aab9e" fill-opacity="0.18" stroke="#9aab9e" stroke-width="0.75" opacity="0.48"/>
+      <circle cx="320" cy="548" r="4" fill="#9aab9e" opacity="0.28"/>
+      <circle cx="562" cy="513" r="8" fill="#9aab9e" fill-opacity="0.16" stroke="#9aab9e" stroke-width="0.75" opacity="0.43"/>
+      <circle cx="562" cy="513" r="3.5" fill="#9aab9e" opacity="0.25"/>
+      <circle cx="315" cy="458" r="7" fill="#9aab9e" fill-opacity="0.14" opacity="0.38"/>
+      <circle cx="564" cy="423" r="7" fill="#9aab9e" fill-opacity="0.14" opacity="0.36"/>
+
+      <circle cx="440" cy="224" r="20" fill="#9aab9e" fill-opacity="0.11" stroke="#9aab9e" stroke-width="0.75" opacity="0.48"/>
+      <circle cx="440" cy="224" r="11" fill="#9aab9e" fill-opacity="0.18" stroke="#9aab9e" stroke-width="0.75" opacity="0.55"/>
+      <circle cx="440" cy="224" r="4.5" fill="#9aab9e" opacity="0.48"/>
+
+      <circle cx="440" cy="478" r="58" fill="#9aab9e" fill-opacity="0.03" filter="url(#deep-glow)"/>
+    </g>
+
+    <!-- ── PERSON 4: Brother — warm grey — two stems ── -->
+    <g style="animation: growIn 1.4s ease 0.7s both">
+      <line x1="688" y1="738" x2="666" y2="766" stroke="#5a4a38" stroke-width="1" opacity="0.38"/>
+      <line x1="688" y1="738" x2="688" y2="768" stroke="#5a4a38" stroke-width="1" opacity="0.38"/>
+      <line x1="728" y1="738" x2="728" y2="768" stroke="#5a4a38" stroke-width="1" opacity="0.38"/>
+      <line x1="728" y1="738" x2="750" y2="766" stroke="#5a4a38" stroke-width="1" opacity="0.38"/>
+
+      <path d="M 688 738 Q 693 658 706 578 Q 716 508 733 438 Q 746 376 750 308" fill="none" stroke="#8a9a8e" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M 728 738 Q 723 658 710 578 Q 700 508 683 438 Q 670 376 666 308" fill="none" stroke="#8a9a8e" stroke-width="1.2" stroke-linecap="round"/>
+
+      <path d="M 698 668 Q 676 658 670 644" fill="none" stroke="#8a9a8e" stroke-width="0.7" opacity="0.5"/>
+      <path d="M 718 668 Q 740 658 746 644" fill="none" stroke="#8a9a8e" stroke-width="0.7" opacity="0.5"/>
+      <path d="M 704 618 Q 682 608 676 594" fill="none" stroke="#8a9a8e" stroke-width="0.65" opacity="0.45"/>
+      <path d="M 712 618 Q 734 608 740 594" fill="none" stroke="#8a9a8e" stroke-width="0.65" opacity="0.45"/>
+      <path d="M 710 566 Q 688 556 682 542" fill="none" stroke="#8a9a8e" stroke-width="0.6" opacity="0.42"/>
+      <path d="M 706 566 Q 728 556 734 542" fill="none" stroke="#8a9a8e" stroke-width="0.6" opacity="0.42"/>
+      <path d="M 716 514 Q 694 504 688 490" fill="none" stroke="#8a9a8e" stroke-width="0.55" opacity="0.38"/>
+      <path d="M 700 514 Q 722 504 728 490" fill="none" stroke="#8a9a8e" stroke-width="0.55" opacity="0.38"/>
+      <path d="M 722 462 Q 700 452 694 438" fill="none" stroke="#8a9a8e" stroke-width="0.52" opacity="0.35"/>
+      <path d="M 694 462 Q 716 452 722 438" fill="none" stroke="#8a9a8e" stroke-width="0.52" opacity="0.35"/>
+      <path d="M 728 410 Q 706 400 700 386" fill="none" stroke="#8a9a8e" stroke-width="0.5" opacity="0.32"/>
+      <path d="M 688 410 Q 710 400 716 386" fill="none" stroke="#8a9a8e" stroke-width="0.5" opacity="0.32"/>
+      <path d="M 734 358 Q 712 348 706 334" fill="none" stroke="#8a9a8e" stroke-width="0.48" opacity="0.3"/>
+      <path d="M 682 358 Q 704 348 710 334" fill="none" stroke="#8a9a8e" stroke-width="0.48" opacity="0.3"/>
+
+      <circle cx="750" cy="304" r="7" stroke="#8a9a8e" stroke-width="0.85" fill="none" opacity="0.58"/>
+      <circle cx="750" cy="304" r="2.5" fill="#8a9a8e" opacity="0.38"/>
+      <circle cx="666" cy="304" r="7" stroke="#8a9a8e" stroke-width="0.85" fill="none" opacity="0.58"/>
+      <circle cx="666" cy="304" r="2.5" fill="#8a9a8e" opacity="0.38"/>
+      <line x1="673" y1="304" x2="743" y2="304" stroke="#8a9a8e" stroke-width="0.5" stroke-dasharray="3 5" opacity="0.38"/>
+
+      <circle cx="708" cy="518" r="44" fill="#8a9a8e" fill-opacity="0.03" filter="url(#deep-glow)"/>
+    </g>
+
+    <!-- ── OVERLAP ZONE ── -->
+    <g style="animation: growIn 1.8s ease 0.9s both" opacity="0.5">
+      <circle cx="440" cy="410" r="75" fill="none" stroke="#d4c9b0" stroke-width="0.3" opacity="0.12"/>
+      <circle cx="440" cy="410" r="45" fill="#d4c9b0" fill-opacity="0.015" filter="url(#deep-glow)"/>
+      <path d="M 302 368 Q 370 388 440 378" fill="none" stroke="#d4c9b0" stroke-width="0.3" stroke-dasharray="2 8" opacity="0.18"/>
+      <path d="M 610 408 Q 525 398 440 408" fill="none" stroke="#d4c9b0" stroke-width="0.3" stroke-dasharray="2 8" opacity="0.18"/>
+      <path d="M 440 418 Q 440 490 440 548" fill="none" stroke="#d4c9b0" stroke-width="0.3" stroke-dasharray="2 8" opacity="0.14"/>
+      <path d="M 440 388 Q 574 368 668 346" fill="none" stroke="#d4c9b0" stroke-width="0.3" stroke-dasharray="2 8" opacity="0.14"/>
+    </g>
+
+    <!-- ── SEED DOTS ── -->
+    <g style="animation: growIn 2s ease 1.2s both">
+      <circle cx="310" cy="610" r="4.5" fill="#5c6b3a" opacity="0.7"/>
+      <circle cx="310" cy="610" r="11" fill="none" stroke="#5c6b3a" stroke-width="0.5" opacity="0.28"/>
+      <circle cx="612" cy="640" r="4.5" fill="#c4845a" opacity="0.65"/>
+      <circle cx="612" cy="640" r="11" fill="none" stroke="#c4845a" stroke-width="0.5" opacity="0.25"/>
+      <circle cx="440" cy="718" r="4.5" fill="#9aab9e" opacity="0.7"/>
+      <circle cx="440" cy="718" r="11" fill="none" stroke="#9aab9e" stroke-width="0.5" opacity="0.28"/>
+      <circle cx="708" cy="738" r="4.5" fill="#8a9a8e" opacity="0.6"/>
+      <circle cx="708" cy="738" r="11" fill="none" stroke="#8a9a8e" stroke-width="0.5" opacity="0.22"/>
+    </g>
+
+    <!-- ── FLOATING SPORES ── -->
+    <g style="animation: growIn 2s ease 1.8s both" opacity="0.35">
+      <circle cx="195" cy="440" r="1.4" fill="#5c6b3a"/>
+      <circle cx="515" cy="175" r="1" fill="#9aab9e"/>
+      <circle cx="745" cy="415" r="1.4" fill="#c4845a"/>
+      <circle cx="158" cy="592" r="1" fill="#5c6b3a"/>
+      <circle cx="672" cy="198" r="1.4" fill="#8a9a8e"/>
+      <circle cx="375" cy="158" r="1" fill="#9aab9e"/>
+      <circle cx="815" cy="542" r="1" fill="#c4845a"/>
+      <circle cx="96" cy="345" r="1.4" fill="#5c6b3a"/>
+      <circle cx="552" cy="792" r="1" fill="#9aab9e"/>
+      <circle cx="792" cy="692" r="1.4" fill="#8a9a8e"/>
+      <circle cx="248" cy="220" r="1" fill="#5c6b3a"/>
+      <circle cx="832" cy="310" r="1" fill="#c4845a"/>
+    </g>
+
+  </svg>
+</div>
+
+<!-- Floating traces container -->
+<div class="trace-container" id="traceContainer"></div>
+
+<!-- Bottom note -->
+<div class="bottom-note" id="bottomNote"></div>
+
+<script>
+  // Date
+  const now = new Date();
+  const formatted = now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}).toUpperCase();
+  document.getElementById('todayDate').textContent = formatted;
+  document.getElementById('bottomNote').textContent = `Today's garden · 4 seeds planted · ${formatted}`;
+
+  // ── TRACE DATA ──
+  const traces = [
+    // Text traces
+    {
+      type: 'text',
+      color: '#5c6b3a',
+      content: '엄마 김치 레시피 드디어 배웠다',
+      person: 'Jiwon',
+      positions: [
+        { left: '8%', top: '28%' },
+        { left: '12%', top: '52%' },
+        { left: '6%', top: '42%' }
+      ]
+    },
+    {
+      type: 'text',
+      color: '#c4845a',
+      content: '허리가 1년 반 동안 아팠는데 말을 못했어.',
+      person: 'Father',
+      positions: [
+        { left: '68%', top: '35%' },
+        { left: '72%', top: '55%' },
+        { left: '65%', top: '45%' }
+      ]
+    },
+    {
+      type: 'text',
+      color: '#9aab9e',
+      content: '같이 만든 여름 김치.\n우리 집 맛이 맞아.',
+      person: 'Mother',
+      positions: [
+        { left: '42%', top: '18%' },
+        { left: '38%', top: '72%' },
+        { left: '44%', top: '62%' }
+      ]
+    },
+    {
+      type: 'text',
+      color: '#8a9a8e',
+      content: '이상하면 먼저 물어봐.',
+      person: 'Brother',
+      positions: [
+        { left: '74%', top: '22%' },
+        { left: '76%', top: '68%' }
+      ]
+    },
+    {
+      type: 'text',
+      color: '#5c6b3a',
+      content: '아빠 방 청소하다가\n귀이개 버릴 뻔 했어.',
+      person: 'Jiwon',
+      positions: [
+        { left: '4%', top: '62%' },
+        { left: '10%', top: '35%' }
+      ]
+    },
+    // Waveform traces — audio
+    {
+      type: 'wave',
+      color: '#c4845a',
+      label: 'Father · 0:32',
+      positions: [
+        { left: '58%', top: '25%' },
+        { left: '62%', top: '62%' }
+      ]
+    },
+    {
+      type: 'wave',
+      color: '#9aab9e',
+      label: 'Mother · 1:04',
+      positions: [
+        { left: '32%', top: '78%' },
+        { left: '44%', top: '14%' }
+      ]
+    },
+    {
+      type: 'wave',
+      color: '#5c6b3a',
+      label: 'Jiwon · 0:18',
+      positions: [
+        { left: '14%', top: '18%' },
+        { left: '8%', top: '68%' }
+      ]
+    },
+    // Photo placeholders
+    {
+      type: 'photo',
+      color: '#9aab9e',
+      label: '김치 making · Mother',
+      bg: 'linear-gradient(135deg, #2a3a2e 0%, #1a2a1e 100%)',
+      positions: [
+        { left: '34%', top: '8%' },
+        { left: '28%', top: '68%' }
+      ]
+    },
+    {
+      type: 'photo',
+      color: '#5c6b3a',
+      label: 'Dad\'s shelf · Jiwon',
+      bg: 'linear-gradient(135deg, #1e2a14 0%, #141e0e 100%)',
+      positions: [
+        { left: '6%', top: '14%' },
+        { left: '14%', top: '76%' }
+      ]
+    },
+    {
+      type: 'photo',
+      color: '#c4845a',
+      label: 'Hospital visit · Father',
+      bg: 'linear-gradient(135deg, #2a1e10 0%, #1e160a 100%)',
+      positions: [
+        { left: '65%', top: '14%' },
+        { left: '70%', top: '72%' }
+      ]
+    }
+  ];
+
+  // Organic bubble border-radius variants — slightly different each time
+  const bubbleShapes = [
+    '62% 38% 54% 46% / 48% 52% 48% 52%',
+    '48% 52% 38% 62% / 54% 46% 54% 46%',
+    '58% 42% 62% 38% / 42% 58% 46% 54%',
+    '44% 56% 48% 52% / 60% 40% 56% 44%',
+    '52% 48% 44% 56% / 38% 62% 50% 50%',
+    '66% 34% 50% 50% / 50% 50% 44% 56%',
+  ];
+
+  function getBubbleShape() {
+    return bubbleShapes[Math.floor(Math.random() * bubbleShapes.length)];
+  }
+
+  // Generate waveform SVG
+  function makeWave(color, label, width=160) {
+    const h = 36;
+    const pts = Array.from({length:55}, (_,i) => {
+      const x = (i/54)*width;
+      const amp = (Math.sin(i*0.4)*0.5 + Math.sin(i*0.85)*0.3 + Math.sin(i*1.7)*0.2) * (h/2-5);
+      return `${x.toFixed(1)},${(h/2 + amp).toFixed(1)}`;
+    }).join(' ');
+    return `
+      <div class="trace-wave-inner trace-bubble" style="
+        background: ${color}18;
+        border-radius: ${getBubbleShape()};
+        border: 1px solid ${color}40;
+      ">
+        <svg width="${width}" height="${h}" viewBox="0 0 ${width} ${h}" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"/>
+        </svg>
+        <div style="font-size:7px;letter-spacing:0.14em;text-transform:uppercase;color:${color};opacity:0.55;margin-top:5px">${label}</div>
+      </div>
+    `;
+  }
+
+  // Generate photo bubble
+  function makePhoto(item) {
+    return `
+      <div class="trace-bubble" style="
+        background: ${item.color}15;
+        border-radius: ${getBubbleShape()};
+        border: 1px solid ${item.color}35;
+        padding: 10px;
+        overflow: hidden;
+      ">
+        <div style="width:clamp(88px,11vw,140px);aspect-ratio:4/3;background:${item.bg};position:relative;border-radius:${getBubbleShape()};overflow:hidden;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-55%)" width="32" height="32" viewBox="0 0 32 32" opacity="0.25">
+            <line x1="16" y1="28" x2="16" y2="4" stroke="${item.color}" stroke-width="1.4"/>
+            <path d="M 16 20 Q 6 15 5 8" fill="none" stroke="${item.color}" stroke-width="0.9"/>
+            <path d="M 16 16 Q 26 11 27 4" fill="none" stroke="${item.color}" stroke-width="0.9"/>
+            <circle cx="16" cy="4" r="2.5" fill="${item.color}" opacity="0.5"/>
+          </svg>
+        </div>
+        <div style="font-size:6px;letter-spacing:0.13em;text-transform:uppercase;color:${item.color};opacity:0.5;margin-top:6px;padding:0 2px">${item.label}</div>
+      </div>
+    `;
+  }
+
+  // Create a trace element
+  function createTrace(item, posIdx) {
+    const pos = item.positions[posIdx % item.positions.length];
+    const el = document.createElement('div');
+    el.className = 'trace';
+    el.style.left = pos.left;
+    el.style.top = pos.top;
+
+    if (item.type === 'text') {
+      const shape = getBubbleShape();
+      el.innerHTML = `
+        <div class="trace-text trace-bubble" style="
+          color: ${item.color};
+          background: ${item.color}18;
+          border-radius: ${shape};
+          border: 1px solid ${item.color}40;
+        ">${item.content.replace(/\n/g,'<br/>')}</div>
+      `;
+    } else if (item.type === 'wave') {
+      el.innerHTML = makeWave(item.color, item.label);
+    } else if (item.type === 'photo') {
+      el.innerHTML = makePhoto(item);
+    }
+
+    return el;
+  }
+
+  // Animate traces in sequence
+  const container = document.getElementById('traceContainer');
+  let queue = [];
+
+  // Build a shuffled queue
+  traces.forEach((item, ti) => {
+    item.positions.forEach((_, pi) => {
+      queue.push({ traceIdx: ti, posIdx: pi });
+    });
+  });
+
+  // Shuffle
+  for (let i = queue.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [queue[i],queue[j]] = [queue[j],queue[i]];
+  }
+
+  let qIdx = 0;
+
+  function showNextTrace() {
+    if (queue.length === 0) return;
+    const { traceIdx, posIdx } = queue[qIdx % queue.length];
+    qIdx++;
+
+    const item = traces[traceIdx];
+    const el = createTrace(item, posIdx);
+    container.appendChild(el);
+
+    // Duration
+    const dur = item.type === 'photo' ? 5000 : item.type === 'wave' ? 4500 : 6000;
+    const anim = item.type === 'wave' ? 'waveDraw' : item.type === 'photo' ? 'traceFloat' : 'traceAppear';
+
+    el.style.animation = `${anim} ${dur}ms ease forwards`;
+
+    setTimeout(() => {
+      if (el.parentNode) container.removeChild(el);
+    }, dur + 100);
+  }
+
+  // Start after garden loads
+  setTimeout(() => {
+    showNextTrace();
+    // Stagger subsequent traces
+    let delay = 1200;
+    for (let i = 1; i < queue.length * 2; i++) {
+      const gap = 2500 + Math.random() * 3000;
+      delay += gap;
+      setTimeout(showNextTrace, delay);
+    }
+  }, 2200);
+
+</script>
+</body>
+</html>

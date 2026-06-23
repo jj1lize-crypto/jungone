@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>정원</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo',serif;overflow:hidden;}
+.page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .42s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
+.page.active{transform:translateX(0);}
+.page.exit{transform:translateX(-100%);}
+.ph{padding:52px 24px 18px;flex-shrink:0;}
+.step{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:10px;}
+.prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:16px;}
+.prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
+.title{font-size:clamp(28px,7vw,40px);font-weight:700;line-height:1.18;color:#0e0c09;}
+.sub{font-family:'DM Mono',monospace;font-size:12px;color:#8a7e74;margin-top:7px;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 18px 16px;}
+.pf{padding:14px 18px 42px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.btn{width:100%;padding:17px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Nanum Myeongjo',serif;font-size:18px;font-weight:700;cursor:pointer;}
+.btn:active{opacity:.75;}
+.btn:disabled{opacity:.2;pointer-events:none;}
+.btn-back{width:100%;padding:11px;border:none;background:transparent;color:#8a7e74;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:9px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.sel-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;}
+.sel-card:active{transform:scale(.92);}
+.sel-card.on{border-color:#0e0c09;transform:scale(.96);}
+.sel-card img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .18s;}
+.grid2.picked .sel-card:not(.on) img{filter:brightness(.45);}
+.chk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;font-size:20px;color:#fff;z-index:5;}
+.sel-card.on .chk{display:flex;}
+.lbl{position:absolute;bottom:0;left:0;right:0;padding:9px 8px 11px;background:linear-gradient(transparent,rgba(0,0,0,.78));font-size:14px;font-weight:700;color:#fff;text-align:center;}
+.final-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:14px;}
+.card-box{width:min(272px,76vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;cursor:pointer;}
+.card-front{position:absolute;inset:0;z-index:1;background:#000;}
+.card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.img-topic{z-index:1;}
+.img-q{z-index:2;opacity:0.8;mix-blend-mode:screen;}
+.img-a{z-index:3;opacity:0.65;mix-blend-mode:screen;}
+.tap-hint{position:absolute;bottom:10px;right:12px;z-index:10;font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.35);padding:3px 7px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase;}
+.card-back{position:absolute;inset:0;z-index:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:22px 18px;opacity:0;transition:opacity .4s;}
+.card-back.show{opacity:1;z-index:20;}
+.card-front.hide{opacity:0;transition:opacity .4s;}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
+.q-text{font-size:clamp(15px,4vw,19px);color:#0e0c09;line-height:1.78;flex:1;display:flex;align-items:center;}
+.f-text{font-family:'DM Mono',monospace;font-size:11px;color:#6a5e54;line-height:1.7;padding-top:12px;border-top:1.5px solid #e0d8cc;margin-top:12px;}
+.a-text{font-family:'DM Mono',monospace;font-size:10px;color:#8a7e74;margin-top:8px;}
+.final-footer{padding:12px 18px 42px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.flip-note{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8a7e74;text-align:center;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div class="page active" id="p1">
+  <div class="ph">
+    <div class="step">정원 · 1단계 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
+    <div class="title">주제를<br>고르세요</div>
+    <div class="sub">오늘 이야기하고 싶은 것</div>
+  </div>
+  <div class="pb"><div class="grid2" id="tGrid"><div class="sel-card" onclick="pick('topic','space',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z1.png" crossorigin="anonymous"/><div class="lbl">공간 & 집</div></div>
+<div class="sel-card" onclick="pick('topic','body',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z2.png" crossorigin="anonymous"/><div class="lbl">몸 & 감각</div></div>
+<div class="sel-card" onclick="pick('topic','taste',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z3.png" crossorigin="anonymous"/><div class="lbl">맛 & 색깔</div></div>
+<div class="sel-card" onclick="pick('topic','safety',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z4.png" crossorigin="anonymous"/><div class="lbl">안전 & 신뢰</div></div>
+</div></div>
+  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>다음 → 질문 고르기</button></div>
+</div>
+<div class="page" id="p2">
+  <div class="ph">
+    <div class="step">정원 · 2단계 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:66%"></div></div>
+    <div class="title">질문을<br>고르세요</div>
+    <div class="sub">가장 끌리는 카드 하나</div>
+  </div>
+  <div class="pb"><div class="grid2" id="qGrid"><div class="sel-card" onclick="pick('question','q01',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-1.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q02',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-2.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q03',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-3.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q04',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-4.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q05',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-5.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q06',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-6.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q07',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-7.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q08',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-8.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q09',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-9.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q10',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-10.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q11',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-11.png" crossorigin="anonymous"/></div>
+<div class="sel-card" onclick="pick('question','q12',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-12.png" crossorigin="anonymous"/></div>
+</div></div>
+  <div class="pf">
+    <button class="btn" id="btn2" onclick="goTo('p3')" disabled>다음 → 액션 고르기</button>
+    <button class="btn-back" onclick="goBack('p1')">← 뒤로</button>
+  </div>
+</div>
+<div class="page" id="p3">
+  <div class="ph">
+    <div class="step">정원 · 3단계 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">액션을<br>고르세요</div>
+    <div class="sub">대화 후 함께 할 것</div>
+  </div>
+  <div class="pb"><div class="grid2" id="aGrid"><div class="sel-card" onclick="pick('action','a01',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-a.png" crossorigin="anonymous"/><div class="lbl">바꿔보기</div></div>
+<div class="sel-card" onclick="pick('action','a02',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-b.png" crossorigin="anonymous"/><div class="lbl">같이 하기</div></div>
+<div class="sel-card" onclick="pick('action','a03',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-c.png" crossorigin="anonymous"/><div class="lbl">만들기</div></div>
+<div class="sel-card" onclick="pick('action','a04',this)"><div class="chk">✓</div><img src="https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-d.png" crossorigin="anonymous"/><div class="lbl">다음에 또</div></div>
+</div></div>
+  <div class="pf">
+    <button class="btn" id="btn3" onclick="buildFinal()" disabled>카드 완성하기 →</button>
+    <button class="btn-back" onclick="goBack('p2')">← 뒤로</button>
+  </div>
+</div>
+<div class="page" id="p4">
+  <div class="ph" style="padding-bottom:12px;">
+    <div class="step">정원 · 완성</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">오늘의 카드</div>
+    <div class="sub">탭해서 뒤집어 보세요</div>
+  </div>
+  <div class="final-stage">
+    <div class="card-box" id="cardBox" onclick="flipCard()">
+      <div class="card-front" id="cFront">
+        <img class="img-topic" id="imgT" src="" crossorigin="anonymous" alt=""/>
+        <img class="img-q" id="imgQ" src="" crossorigin="anonymous" alt=""/>
+        <img class="img-a" id="imgA" src="" crossorigin="anonymous" alt=""/>
+        <div class="tap-hint">탭해서 뒤집기 ↺</div>
+      </div>
+      <div class="card-back" id="cBack">
+        <div>
+          <div class="badges" id="bBadges"></div>
+          <div class="q-text" id="bQ"></div>
+        </div>
+        <div>
+          <div class="f-text" id="bF"></div>
+          <div class="a-text" id="bA"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="final-footer">
+    <div class="flip-note">앞 · 오늘의 조합 &nbsp;/&nbsp; 뒤 · 질문</div>
+    <button class="btn" onclick="goTo('p1');resetAll()">처음부터 다시</button>
+  </div>
+</div>
+<script>
+const TSRCS={"space":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z1.png","body":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z2.png","taste":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z3.png","safety":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-z4.png"};
+const QSRCS=["https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-1.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-2.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-3.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-4.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-5.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-6.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-7.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-8.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-9.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-10.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-11.png","https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-12.png"];
+const ASRCS={"a01":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-a.png","a02":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-b.png","a03":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-c.png","a04":"https://jj1lize-crypto.github.io/jungwon/%EC%A0%9C%EB%AA%A9_%EC%97%86%EB%8A%94_%EC%95%84%ED%8A%B8%EC%9B%8C%ED%81%AC-d.png"};
+const TNAMES={space:"공간 & 집",body:"몸 & 감각",taste:"맛 & 색깔",safety:"안전 & 신뢰"};
+const ANAMES={a01:"바꿔보기",a02:"같이 하기",a03:"만들기",a04:"다음에 또"};
+const ATEXTS={a01:"이 대화 후에 하나만 다르게 해보고 싶은 것은 ___",a02:"요리, 산책, 전화, 혹은 그냥 같이 있어요.",a03:"사진 하나, 레시피, 음성 메시지 — 뭔가 함께 남겨요.",a04:"다시 이야기해요. 언제가 좋을까요?"};
+const QDATA={q01:{kr:"잃고 싶지 않은 것이 있다면 ___",f:"당신은 이미 잃어버린 것 중에 아쉬운 게 있나요?"},q02:{kr:"나도 모르게 자꾸 하게 되는 작은 습관은 ___",f:"그만하려 해도 계속 하게 되는 것이 있나요?"},q03:{kr:"가장 나답다고 느끼는 순간은 ___",f:"숨이 트이는 것 같은 장소나 순간이 있나요?"},q04:{kr:"당신과 나를 연결하는 것은 ___",f:"내가 하는 것 중에 당신에게 의미 있는 게 있나요?"},q05:{kr:"요즘 내가 눈치챈 것이 있다면 ___",f:"몸이 보내는 신호 중 무시하고 있는 것이 있나요?"},q06:{kr:"지금 가장 걱정되는 것은 ___",f:"자꾸 머릿속에 떠오르는 것이 있나요?"},q07:{kr:"도움을 청하기 어려운 이유는 ___",f:"내가 어떻게 하면 더 청하기 쉬워질까요?"},q08:{kr:"혼자 상상해봤지만 말하지 못한 것은 ___",f:"혼자만 알고 있는 것이 있나요?"},q09:{kr:"꺼내지 못하고 있던 것은 ___",f:"적절한 순간을 기다리고 있는 말이 있나요?"},q10:{kr:"압박처럼 느껴지는 것이 있다면 ___",f:"한때는 돌봄이었는데 지금은 부담이 된 것이 있나요?"},q11:{kr:"가장 잃기 두려운 것은 ___",f:"아직 사라지기 전부터 이미 그리워하는 것이 있나요?"},q12:{kr:"당신의 지지가 가장 필요한 순간은 ___",f:"내가 도우려 할 때 오히려 더 힘들어지는 상황이 있나요?"}};
+let S={topic:null,question:null,action:null};
+let flipped=false;
+function pick(type,val,el){
+  const g=el.closest(".grid2");
+  g.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on");g.classList.add("picked");
+  S[type]=val;
+  const b=document.getElementById({topic:"btn1",question:"btn2",action:"btn3"}[type]);
+  if(b) b.disabled=false;
+}
+function goTo(id){
+  document.querySelectorAll(".page").forEach(p=>{
+    if(p.classList.contains("active")){p.classList.remove("active");p.classList.add("exit");setTimeout(()=>p.classList.remove("exit"),450);}
+  });
+  document.getElementById(id).classList.add("active");window.scrollTo(0,0);
+}
+function goBack(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");window.scrollTo(0,0);
+}
+function buildFinal(){
+  const t=S.topic,q=S.question,a=S.action;
+  const qi=parseInt(q.replace("q",""))-1;
+  document.getElementById("imgT").src=TSRCS[t];
+  document.getElementById("imgQ").src=QSRCS[qi];
+  document.getElementById("imgA").src=ASRCS[a];
+  flipped=false;
+  document.getElementById("cFront").classList.remove("hide");
+  document.getElementById("cBack").classList.remove("show");
+  const qd=QDATA[q];
+  document.getElementById("bBadges").innerHTML='<span class="badge">'+TNAMES[t]+'</span><span class="badge">'+q.toUpperCase()+'</span><span class="badge">'+ANAMES[a]+'</span>';
+  document.getElementById("bQ").textContent=qd.kr;
+  document.getElementById("bF").textContent="→ "+qd.f;
+  document.getElementById("bA").textContent="⚡ "+ATEXTS[a];
+  goTo("p4");
+}
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById("cFront").classList.toggle("hide",flipped);
+  document.getElementById("cBack").classList.toggle("show",flipped);
+}
+function resetAll(){
+  S={topic:null,question:null,action:null};flipped=false;
+  document.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
+  document.querySelectorAll(".grid2").forEach(g=>g.classList.remove("picked"));
+  ["btn1","btn2","btn3"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
+}
+</script>
+</body>
+</html>

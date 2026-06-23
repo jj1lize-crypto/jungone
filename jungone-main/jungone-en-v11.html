@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>정원: The Garden</title>
+<title>JungOne · Garden</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;700&display=swap');
 @media(min-width:600px){.grid2{grid-template-columns:repeat(4,1fr)!important;}.sel-card{max-height:30vh!important;}.ph{padding:28px 32px 8px!important;}.pb{padding:8px 32px!important;}.pf{padding:10px 32px 24px!important;}}
@@ -12,13 +12,13 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
 .page.active{transform:translateX(0);}
 .page.exit{transform:translateX(-100%);}
-.ph{padding:28px 20px 10px;flex-shrink:0;}
+.ph{padding:36px 24px 8px;flex-shrink:0;}
 .step{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
 .prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:14px;}
 .prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
-.title{font-size:clamp(24px,6vw,30px);font-weight:700;line-height:1.2;color:#0e0c09;letter-spacing:-.015em;}
+.title{font-size:clamp(20px,5vw,28px);font-weight:700;line-height:1.18;color:#0e0c09;}
 .sub{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:11px;color:#8a7e74;margin-top:6px;line-height:1.6;}
-.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px 14px;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 14px 8px;}
 .pf{padding:12px 18px 40px;border-top:2px solid #e0d8cc;flex-shrink:0;}
 .btn{width:100%;padding:16px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:17px;font-weight:700;cursor:pointer;}
 .btn-multiline{padding:14px 16px;font-size:15px;line-height:1.5;font-weight:500;}
@@ -51,7 +51,6 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .p4-final-note .p4-final-list{list-style:none;padding:0;margin:0;}
 .p4-final-note .p4-final-list li{position:relative;padding-left:14px;margin-bottom:4px;color:#3a3028;}
 .p4-final-note .p4-final-list li::before{content:'·';position:absolute;left:2px;top:-2px;color:#8a7e74;font-weight:700;}
-.p4-final-helper{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14px;line-height:1.6;color:#3a3028;font-style:italic;text-align:left;padding:0 6px;margin:0;}
 .card-pair{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;}
 .card-box{width:min(50vw,280px);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;}
 .card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
@@ -191,33 +190,6 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 .intro-content .how-to-list li{font-size:13.5px;line-height:1.75;color:#0e0c09;margin-bottom:7px;}
 .intro-content .how-to-list li::marker{font-family:'Crimson Pro',serif;color:#8a7e74;font-size:13px;}
 .intro-content .closing-note{font-style:italic;color:#3a3028;font-size:13.5px;line-height:1.75;padding-top:6px;}
-.intro-content .principle-note{font-size:13px;line-height:1.7;color:#0e0c09;padding:14px 16px;background:#faf6ee;border-left:2px solid #c8bfb0;margin-top:2px;}
-
-/* P0 simplified — tagline, 4-step overview, collapsible details */
-.opening-tagline{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:15px;line-height:1.6;color:#3a3028;margin-top:12px;font-style:italic;letter-spacing:-.005em;}
-.steps-overview{list-style:none;padding:0;margin:8px 0 0;counter-reset:step;display:flex;flex-direction:column;gap:0;}
-.steps-overview li{counter-increment:step;display:grid;grid-template-columns:auto 1fr;column-gap:14px;align-items:baseline;padding:18px 4px;border-top:1px solid #e0d8cc;}
-.steps-overview li:last-child{border-bottom:1px solid #e0d8cc;}
-.steps-overview li::before{content:counter(step,decimal-leading-zero);font-family:'Crimson Pro',serif;font-size:11px;letter-spacing:.18em;color:#8a7e74;grid-row:span 2;align-self:center;}
-.steps-overview .s-name{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:18px;font-weight:500;color:#0e0c09;letter-spacing:-.01em;}
-.steps-overview .s-desc{display:block;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:13px;color:#6a5e54;line-height:1.5;margin-top:3px;grid-column:2;}
-
-.what-is-this{margin-top:18px;}
-.what-is-this summary{font-family:'Crimson Pro','Noto Serif KR',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#8a7e74;cursor:pointer;padding:14px 0;list-style:none;border-top:1px solid #e0d8cc;text-align:center;}
-.what-is-this summary::-webkit-details-marker{display:none;}
-.what-is-this summary::after{content:' +';color:#c8bfb0;}
-.what-is-this[open] summary::after{content:' −';}
-.what-is-this-body{padding:6px 4px 12px;display:flex;flex-direction:column;gap:14px;}
-.what-is-this-body p{font-size:13.5px;line-height:1.75;color:#0e0c09;letter-spacing:-.005em;margin:0;}
-.what-is-this-body .principle-note{font-size:12.5px;line-height:1.7;color:#0e0c09;padding:12px 14px;background:#faf6ee;border-left:2px solid #c8bfb0;}
-.what-is-this-body .closing-note{font-style:italic;color:#3a3028;font-size:13px;line-height:1.7;}
-
-/* Step indicator at top of each working page */
-.step-indicator{display:flex;justify-content:space-between;font-family:'Crimson Pro',serif;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#c8bfb0;margin-top:8px;padding-bottom:2px;}
-.step-indicator .si{flex:1;text-align:center;padding:6px 0;border-top:1.5px solid #e0d8cc;transition:all .3s;}
-.step-indicator .si.active{color:#0e0c09;border-top-color:#0e0c09;}
-.tone-prompt{margin-top:6px;text-align:center;font-family:'Crimson Pro','Noto Serif KR',serif;font-size:14.5px;line-height:1.65;color:#0e0c09;padding:14px 12px 12px;}
-.tone-prompt span{display:block;margin-top:10px;font-size:12px;color:#8a7e74;font-style:italic;letter-spacing:.02em;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -227,102 +199,96 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 <!-- P0: Opening -->
 <div class="page active" id="p0">
   <div class="ph">
-    <div class="title">정원: The Garden</div>
-    <div class="opening-tagline">위기가 오기 전, 가족이 돌봄을 이야기해보는 카드와 온라인 정원입니다.</div>
+    <div class="opening-brand">JUNGONE</div>
+    <div class="title">Garden</div>
   </div>
   <div class="pb">
-    <ol class="steps-overview">
-      <li>
-        <span class="s-name">고르기</span>
-        <span class="s-desc">색이나 이미지로 카드를 고르세요.</span>
-      </li>
-      <li>
-        <span class="s-name">읽기</span>
-        <span class="s-desc">질문을 조용히 읽어보세요.</span>
-      </li>
-      <li>
-        <span class="s-name">듣기</span>
-        <span class="s-desc">듣고 싶은 방식을 고르세요.</span>
-      </li>
-      <li>
-        <span class="s-name">남기기</span>
-        <span class="s-desc">흔적을 남기거나, 그냥 두세요.</span>
-      </li>
-    </ol>
-
-    <details class="what-is-this">
-      <summary>이 프로젝트는 무엇인가요?</summary>
-      <div class="what-is-this-body">
-        <p>정원은 가족이 질문하고, 듣고, 멈추고, 다시 돌아오며 서로의 대화를 작은 정원처럼 가꿔보는 툴입니다.</p>
-        <p>돌봄은 때로 관심이 되고, 때로 간섭이 됩니다. 정원은 서로를 고치거나 설득하기보다, 필요한 거리와 도움의 기준을 작게 조율하도록 돕습니다. 말하지 않는 것도 대답이고, 남기지 않는 것도 선택입니다.</p>
-        <p class="principle-note">반응 카드는 한쪽을 맞추기 위한 카드가 아니라, 서로가 대화의 속도와 방식을 조율하기 위한 카드입니다.</p>
-        <p class="closing-note">서로의 삶이 가진 색과 향을 지키기 위해, 정원은 건강한 거리에서 돌보는 법을 연습합니다.</p>
+    <div class="intro-content">
+      <p>Garden is a tool where families ask, listen, pause, and return — tending their conversations like a small garden.</p>
+      <p>Care can be attention, but sometimes intrusion. Rather than fix or convince each other, Garden helps you gently adjust the distance and the level of help you need. Not speaking is also an answer. Not leaving a trace is also a choice.</p>
+      <div class="how-to">
+        <div class="how-to-label">How to use</div>
+        <ol class="how-to-list">
+          <li>Decide who speaks first.</li>
+          <li>Open one question.</li>
+          <li>Choose how you want to be listened to.</li>
+          <li>Only one person speaks until they say "I'm done."</li>
+          <li>Family responds only in the way the card owner chose.</li>
+          <li>Pass to the next person or close the round.</li>
+          <li>Leave only what you want to leave in the garden.</li>
+        </ol>
       </div>
-    </details>
+      <p class="closing-note">To preserve the color and scent of each other's lives, Garden practices caring from a healthy distance.</p>
+    </div>
   </div>
   <div class="pf">
-    <button class="btn" onclick="goTo('p1')">시작하기 →</button>
+    <button class="btn" onclick="goTo('p1')">Choose a question →</button>
   </div>
 </div>
 
 <!-- P1: Topic -->
 <div class="page" id="p1">
   <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si active">고르기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-    <div class="title">색이나 이미지로 골라주세요</div>
+    <div class="step">JungOne · 1 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
+    <div class="title">Choose a topic</div>
   </div>
   <div class="pb"><div class="grid2" id="tGrid"></div></div>
-  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>다음 →</button></div>
+  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>Next →</button></div>
 </div>
 
 <!-- P2: Question -->
 <div class="page" id="p2">
   <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si active">고르기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si">남기기</span></div>
-    <div class="title">색이나 이미지로 골라주세요</div>
+    <div class="step">JungOne · 2 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:66%"></div></div>
+    <div class="title">Choose a question</div>
   </div>
   <div class="pb">
     <div class="grid2" id="qGrid"></div>
   </div>
   <div class="pf">
-    <button class="btn" id="btn2" onclick="goTo('p4')" disabled>다음 →</button>
-    <button class="btn-back" onclick="goBack('p1')">← 뒤로</button>
+    <button class="btn" id="btn2" onclick="goTo('p4')" disabled>See your card →</button>
+    <button class="btn-back" onclick="goBack('p1')">← Back</button>
   </div>
 </div>
 
 <!-- P3: Action (optional, entered from P4) -->
 <div class="page" id="p3">
   <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si">고르기</span><span class="si">읽기</span><span class="si active">듣기</span><span class="si">남기기</span></div>
-    <div class="title">어떻게 들어주길 바라나요?</div>
-    <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">가족이 어떤 방식으로 들어주면 좋을지 골라주세요.</div>
+    <div class="step" style="display:none;">JungOne · Action</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">How to listen</div>
+    <div class="sub" style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:clamp(13px,3.4vw,16px);color:#3a3028;margin-top:10px;line-height:1.6;">Choose how you'd like your family to listen.</div>
   </div>
   <div class="pb"><div class="grid2" id="aGrid"></div></div>
   <div class="pf">
-    <button class="btn" id="btn3" onclick="afterAction()" disabled>다음 →</button>
-    <button class="btn-back" onclick="backFromP3()">← 뒤로</button>
+    <button class="btn" id="btn3" onclick="afterAction()" disabled>Next →</button>
+    <button class="btn-back" onclick="backFromP3()">← Back</button>
   </div>
 </div>
 
 <!-- P4: Final card -->
 <div class="page" id="p4">
   <div class="ph" style="padding-bottom:8px;">
-    <div class="step" id="p4Step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si">고르기</span><span class="si active" id="p4SiRead">읽기</span><span class="si" id="p4SiListen">듣기</span><span class="si">남기기</span></div>
-    <div class="title" id="p4Title">질문을 조용히 읽어보세요</div>
+    <div class="step" id="p4Step" style="display:none;">JungOne · Preparing</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title" id="p4Title">Preparing</div>
   </div>
   <div class="final-stage">
     <div id="p4Intro" class="p4-final-note">
       <ul class="p4-final-list">
-        <li>1분 동안 답을 생각해 보세요.</li>
-        <li>가족에게 원하는 반응을 골라주세요.</li>
+        <li>Take a minute to think of your answer.</li>
+        <li>Choose how you'd like family to respond.</li>
       </ul>
     </div>
     <div id="p4FinalNote" class="p4-final-note" style="display:none;">
-      <p class="p4-final-helper">상대는 답변이 끝날 때까지 들어주세요.</p>
+      <div class="p4-final-title">Now let's begin the conversation</div>
+      <ul class="p4-final-list">
+        <li>The card owner speaks first.</li>
+        <li>Wait until they say "I'm done"</li>
+        <li>Family responds only in the way the card owner chose.</li>
+      </ul>
     </div>
     <div class="card-pair">
       <div class="card-box">
@@ -347,18 +313,18 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     </div>
   </div>
   <div class="pf" style="display:flex;flex-direction:column;gap:8px;">
-    <button class="btn" id="btnAction" onclick="goTo('p3')">Listen →</button>
-    <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">다 말했어요</button>
-    <button class="btn-back" onclick="backFromP4()">← 뒤로</button>
+    <button class="btn" id="btnAction" onclick="goTo('p3')">Choose a listening card →</button>
+    <button class="btn" id="btnSave" onclick="askAnswerConfirm()" style="display:none;">I'm done</button>
+    <button class="btn-back" onclick="backFromP4()">← Back</button>
   </div>
 </div>
 
 <!-- P5: Answer -->
 <div class="page" id="p5">
   <div class="ph">
-    <div class="step" style="display:none;">JUNG ONE</div>
-    <div class="step-indicator"><span class="si">고르기</span><span class="si">읽기</span><span class="si">듣기</span><span class="si active">남기기</span></div>
-    <div class="title">무엇을 남기고 싶나요?</div>
+    <div class="step" style="display:none;">JungOne · Answer</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">How was today?</div>
   </div>
   <div class="answer-wrap">
     <div class="answer-card-mini" id="miniCard">
@@ -367,30 +333,30 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     </div>
 
     <div class="answer-section">
-      <div class="answer-section-label">글로</div>
-      <textarea class="answer-textarea" id="answerText" placeholder="오늘 마음에 남은 것을 적어주세요." maxlength="200" oninput="updateSubmitState()"></textarea>
+      <div class="answer-section-label">Leave words</div>
+      <textarea class="answer-textarea" id="answerText" placeholder="Leave a memorable answer or reflection from today." maxlength="200" oninput="updateSubmitState()"></textarea>
       <div class="char-count"><span id="charCount">0</span> / 200</div>
     </div>
 
-    <div class="answer-divider">또는</div>
+    <div class="answer-divider">or</div>
 
     <div class="answer-section">
-      <div class="answer-section-label">파일로</div>
+      <div class="answer-section-label">Leave a file</div>
       <label class="file-drop" id="fileDrop">
         <input type="file" id="fileInput" accept="image/*,video/*,audio/*" onchange="handleFileUpload(this)" style="display:none;"/>
         <div class="file-drop-empty" id="fileDropEmpty">
           <div class="file-drop-icon">+</div>
-          <div class="file-drop-text">사진 · 영상 · 음성 파일</div>
-          <div class="file-drop-sub">눌러서 선택하기</div>
+          <div class="file-drop-text">Photo · Video · Voice</div>
+          <div class="file-drop-sub">Tap to choose</div>
         </div>
         <div class="file-preview" id="filePreview"></div>
       </label>
-      <button class="file-clear" id="fileClear" type="button" onclick="clearFile()" style="display:none;">× 파일 지우기</button>
+      <button class="file-clear" id="fileClear" type="button" onclick="clearFile()" style="display:none;">× Remove file</button>
     </div>
   </div>
   <div class="pf">
-    <button class="btn" id="btn5" onclick="submitAnswer()" disabled>정원에 심기 →</button>
-    <button class="btn-back" onclick="goBack('p4')">← 뒤로</button>
+    <button class="btn" id="btn5" onclick="submitAnswer()" disabled>Plant in garden →</button>
+    <button class="btn-back" onclick="goBack('p4')">← Back</button>
   </div>
 </div>
 
@@ -412,16 +378,16 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
       <circle cx="60" cy="32" r="10" fill="#9aab9e" fill-opacity="0.1" stroke="#9aab9e" stroke-width="0.7" opacity="0"><animate attributeName="opacity" from="0" to="0.5" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
       <circle cx="60" cy="32" r="4" fill="#9aab9e" opacity="0"><animate attributeName="opacity" from="0" to="0.65" dur="0.5s" begin="1.9s" fill="freeze"/></circle>
     </svg>
-    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:22px;color:#f5f0e8;opacity:0.85;line-height:1.4;opacity:0;animation:fadeUp .6s ease 2s forwards;">오늘의 질문이<br>정원에 심어졌습니다.<br><span style="font-size:14px;opacity:.7;font-style:italic;">언젠가 다시 새로운 질문으로 돌아올 수 있어요.</span></div>
-    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;opacity:0;animation:fadeUp .6s ease 2.3s forwards;">정원으로 이동 중 →</div>
+    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:22px;color:#f5f0e8;opacity:0.85;line-height:1.4;opacity:0;animation:fadeUp .6s ease 2s forwards;">A new trace has been<br>added to the garden.</div>
+    <div style="font-family:'Crimson Pro','Noto Serif KR',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#3a3028;opacity:0;animation:fadeUp .6s ease 2.3s forwards;">Opening garden →</div>
   </div>
 </div>
 
 <!-- P6: Garden -->
 <div class="page garden-page" id="p6">
   <div class="garden-header">
-    <div class="garden-title">JUNG ONE: The Garden</div>
-    <div class="garden-sub" id="gardenSub">오늘 심어진 씨앗</div>
+    <div class="garden-title">JungOne · Garden</div>
+    <div class="garden-sub" id="gardenSub">Seeds planted today</div>
   </div>
   <div class="garden-body">
     <div class="seeds-container" id="seedsContainer"></div>
@@ -431,7 +397,7 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     </div>
   </div>
   <div class="garden-footer">
-    <button class="btn-light" onclick="goTo('p0');resetAll()">또 심으러 가볼까요?</button>
+    <button class="btn-light" onclick="goTo('p0');resetAll()">Plant another?</button>
   </div>
 </div>
 
@@ -442,39 +408,36 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
     <img class="img-q" id="fImgQ" src="" alt=""/>
     <img class="img-a" id="fImgA" src="" alt=""/>
   </div>
-  <div class="flash-label">정원에 심는 중…</div>
+  <div class="flash-label">Planting in the garden…</div>
 </div>
 
 <!-- Modal: Ask if user wants to leave an answer -->
 <div class="modal-backdrop" id="answerModal" onclick="closeAnswerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-title">흔적을 같이 남기시겠어요?</div>
-    <div class="modal-sub">답변 없이 카드만 정원에 심을 수도 있어요.</div>
+    <div class="modal-title">Would you like to leave a trace too?</div>
+    <div class="modal-sub">You can plant just the card without an answer.</div>
     <div class="modal-buttons">
-      <button class="btn" onclick="answerYes()">흔적 남기기</button>
-      <button class="btn btn-secondary" onclick="answerNo()">질문만 심기</button>
+      <button class="btn" onclick="answerYes()">Yes, I'll leave a trace</button>
+      <button class="btn btn-secondary" onclick="answerNo()">No, plant directly</button>
     </div>
   </div>
 </div>
 
 <script>
-const TOPIC_IMAGE_BASE = "assets/images/topics/";
-const QUESTION_IMAGE_BASE = "assets/images/questions/";
-const LISTENING_IMAGE_BASE = "assets/images/listening/";
-const MEDIA_BASE = "assets/media/";
+const BASE = "https://jj1lize-crypto.github.io/jungone/";
 
 // 4 Topics — new names
 const TNAMES = {
-  space:  "공간 & 일상",
-  body:   "몸",
-  taste:  "취향 & 감정",
-  safety: "관계 & 마음"
+  space:  "Space & Daily Life",
+  body:   "Body",
+  taste:  "Taste & Feeling",
+  safety: "Relationships & Inner Life"
 };
 const TDESC = {
-  space:  "집·일상<br>지내는 자리",
-  body:   "건강·습관<br>몸의 변화",
-  taste:  "취향·감정<br>좋아하는 것",
-  safety: "관계·마음<br>나누고 싶은 것"
+  space:  "Home, objects<br>where you settle",
+  body:   "Health, habits<br>body's changes",
+  taste:  "Taste, feeling<br>what you love",
+  safety: "People, heart<br>what to share"
 };
 const TCOLORS = {
   space:  '#5c6b3a',
@@ -483,97 +446,99 @@ const TCOLORS = {
   safety: '#6a5e7a'
 };
 const TSRCS = {
-  space:  TOPIC_IMAGE_BASE + "t01.webp",
-  body:   TOPIC_IMAGE_BASE + "t02.webp",
-  taste:  TOPIC_IMAGE_BASE + "t03.webp",
-  safety: TOPIC_IMAGE_BASE + "t04.webp"
+  space:  BASE + "t01.png",
+  body:   BASE + "t02.png",
+  taste:  BASE + "t03.png",
+  safety: BASE + "t04.png"
 };
 
 // 12 question images — recycled across topics
-const QSRCS = Array.from({length:12}, (_,i)=> QUESTION_IMAGE_BASE + "q" + String(i+1).padStart(2,'0') + ".webp");
+const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
 
-// 6 Actions — "이렇게 들어주세요" (how to listen)
+// 6 Actions — "How to listen"
 const ANAMES = {
-  a01: "들어만 주세요",
-  a02: "질문은 하나만",
-  a03: "짧게 공유해주세요",
-  a04: "조언은 잠시 미뤄주세요",
-  a05: "판단은 잠시 멈춰주세요",
-  a06: "오늘은 여기까지만 나눌게요"
+  a01: "Just listen",
+  a02: "One question only",
+  a03: "Share briefly",
+  a04: "Hold the advice",
+  a05: "Hold the judgment",
+  a06: "Let's stop here for today"
 };
 const ADESC = {
-  a01: "지금은 해결책이 필요하지 않아요. 그냥 들어주세요.",
-  a02: "걱정은 고맙지만, 질문이 많으면 부담이 될 수 있어요.",
-  a03: "비슷한 경험을 하신다면, 조언이나 비교가 아닌 간략하게 공유해 주시기 바랍니다.",
-  a04: "지금은 조언보다 들어주는 것이 필요해요. 도움이 필요하면 제가 물어볼게요.",
-  a05: "비교하거나 바로잡기보다, 먼저 있는 그대로 들어주세요.",
-  a06: "오늘은 여기까지만 나누고 싶어요. 나중에 준비되면 다시 이야기할게요."
+  a01: "I don't need a solution right now. Just listen.",
+  a02: "I appreciate your care, but too many questions starts to feel heavy.",
+  a03: "If you've had a similar experience, share it briefly — not as advice or comparison.",
+  a04: "Right now I need listening, not advice. I'll ask if I need help.",
+  a05: "Before comparing or correcting, just hear it as it is.",
+  a06: "I'd like to stop here for today. We can come back to it when I'm ready."
 };
+// a05, a06 borrow random images from a01-a04
+const _aPool = ['a01','a02','a03','a04'].sort(()=>Math.random()-0.5);
 const ASRCS = {
-  a01: LISTENING_IMAGE_BASE + "listencard1.png",
-  a02: LISTENING_IMAGE_BASE + "listencard2.png",
-  a03: LISTENING_IMAGE_BASE + "listencard3.png",
-  a04: LISTENING_IMAGE_BASE + "listencard4.png",
-  a05: LISTENING_IMAGE_BASE + "listencard5.png",
-  a06: LISTENING_IMAGE_BASE + "listencard6.png"
+  a01: BASE + "a01.png",
+  a02: BASE + "a02.png",
+  a03: BASE + "a03.png",
+  a04: BASE + "a04.png",
+  a05: BASE + _aPool[0] + ".png",
+  a06: BASE + _aPool[1] + ".png"
 };
 
-// 4 topics × 9 questions = 36, each with main q + sub q (follow-up)
+// 4 topics × 9 questions = 36, each with main q + sub q (English)
 const QDATA = {
   space: [
-    {q:"요즘 제일 편하게 머무는 자리는 어디인가요?", f:"그 자리에 있을 때 몸은 어떤 자세가 되나요? (예: 누워있기, 기대앉기, 꼿꼿이 앉기)"},
-    {q:"요즘 더 눈에 들어오거나 신경 쓰이는 것이 있나요?", f:"공간, 물건, 사람, 고민 중 어디에 가까운가요?"},
-    {q:"최근 집에서 전보다 덜 쓰게 된 공간이나 물건이 있나요?", f:"마지막으로 손이 갔던 때가 기억나나요?"},
-    {q:"익숙해서 그냥 두고 있지만, 사실은 조금 불편한 것이 있나요?", f:"언제 그 불편함이 더 느껴지나요?"},
-    {q:"최근 새삼 좋다고 느낀 자리나 물건이 있나요?", f:"그게 왜 좋게 느껴졌나요?"},
-    {q:"요즘 일상에서 \"예전보다 조금 힘드네\" 싶었던 순간이 있나요?", f:"몸 때문인가요, 마음 때문인가요, 상황 때문인가요?"},
-    {q:"최근에 피식 웃음이 났던 일이 있나요?", f:"같이 웃고 싶은 장면이었나요?"},
-    {q:"요즘 근황을 한 단어나 한 문장으로 말하면 무엇인가요?", f:"그 말에 가까운 이유가 있나요?"},
-    {q:"요즘 하루 중 가장 좋아하는 순간은 언제인가요?", f:"그 순간이 가장 좋은 이유는 무엇인가요?"}
+    {q:"Where do you most enjoy settling down these days?", f:"When you're there, how does your body usually sit? (e.g., lying down, leaning back, sitting upright)"},
+    {q:"Is there something catching your eye or staying on your mind lately?", f:"Is it more of a space, an object, a person, or a worry?"},
+    {q:"Is there a space or object at home you've been using less than before?", f:"Do you remember the last time you reached for it?"},
+    {q:"Is there something you've gotten used to and left as it is, but that actually bothers you a little?", f:"When does the discomfort feel sharpest?"},
+    {q:"Have you noticed a spot or object lately that feels newly good to be around?", f:"Why does it feel good to you?"},
+    {q:"Has there been a moment recently that felt \"a bit harder than it used to\"?", f:"Was it your body, your mind, or the situation?"},
+    {q:"Has anything made you quietly smile recently?", f:"Was it a moment you'd want to share?"},
+    {q:"How would you sum up how you've been, in one word or one sentence?", f:"What's behind that word?"},
+    {q:"What's your favorite moment of the day lately?", f:"What makes that moment the best one?"}
   ],
   body: [
-    {q:"요즘 몸에서 사소하게 달라진 게 있나요?", f:"사소한 변화라도 알려주실 수 있나요?"},
-    {q:"최근 건강과 관련해 새로 신경 쓰이기 시작한 일이 있나요?", f:"주변 사람들의 건강 이야기를 들을 때 어떤 생각이 스치나요?"},
-    {q:"하루 중 몸이 가장 편한 시간대는 언제인가요?", f:"그때 몸의 느낌은 어떤가요?"},
-    {q:"요즘 새로 챙기게 된 약이나 건강 루틴이 있나요?", f:"언제, 어떻게 챙기고 있나요?"},
-    {q:"요즘 식욕이나 입맛은 어떤가요?", f:"평소와 달라진 점이 있나요?"},
-    {q:"요즘 속이 편하거나 불편한 때가 자주 있나요?", f:"어떤 음식이나 시간대와 관련이 있나요?"},
-    {q:"요즘 잠은 어떻게 자고 있나요?", f:"아침에 일어났을 때 몸은 어떤가요?"},
-    {q:"요즘 몸의 움직임이나 감각에서 달라진 점이 있나요?", f:"손, 무릎, 허리, 눈, 귀 중 신경 쓰이는 곳이 있나요?"},
-    {q:"새로 시작했거나 더 챙기게 된 생활 습관이 있나요?", f:"그걸 하고 나면 몸이나 마음이 조금 달라지나요?"}
+    {q:"Is there a small change in your body lately?", f:"Even something small — would you share it?"},
+    {q:"Is there something health-related that's started to weigh on you recently?", f:"When you hear health news about people around you, what thought passes through your mind?"},
+    {q:"What time of day does your body feel most at ease?", f:"What does it feel like in your body then?"},
+    {q:"Have you started any new medication or health routine recently?", f:"When and how do you do it?"},
+    {q:"How is your appetite these days?", f:"Is anything different from how it usually is?"},
+    {q:"Have you noticed your stomach feeling settled or unsettled often lately?", f:"Is it tied to certain foods or times of day?"},
+    {q:"How has your sleep been lately?", f:"How does your body feel when you wake up?"},
+    {q:"Have you noticed any change in how your body moves or feels?", f:"Your hands, knees, back, eyes, ears — is there a spot that's been on your mind?"},
+    {q:"Have you started, or started paying more attention to, any daily habit?", f:"After doing it, does anything feel a little different in your body or mind?"}
   ],
   taste: [
-    {q:"요즘 자주 찾는 음식, 음료, 노래, 영상, 글이 있나요?", f:"혼자 즐기나요, 누군가와 나누고 싶나요?"},
-    {q:"요즘 사소한 행복을 주는 습관이나 취미가 있나요?", f:"조금 더 자주 하고 싶은가요?"},
-    {q:"요즘 자주 반복하는 나만의 루틴이 있나요?", f:"하고 나면 상태가 어떻게 달라지나요?"},
-    {q:"남들은 잘 몰라도 내가 은근히 고집하는 방식이 있나요?", f:"가족이 그 방식을 알아주면 좋겠나요?"},
-    {q:"최근 시간 가는 줄 모르고 몰입해서 하는 일이 있나요?", f:"그 일을 할 때 어떤 에너지를 얻나요?"},
-    {q:"요즘 하루 중 가장 기다려지는 시간은 언제인가요?", f:"그 시간이 오기 전 마음은 어떤가요?"},
-    {q:"최근 일상 속에서 새롭게 발견한 것이 있나요?", f:"누군가에게 말해주고 싶었나요?"},
-    {q:"내가 은근히 꾸준히 하고 있는 작은 행동이 있나요?", f:"계속하게 되는 이유가 있나요?"},
-    {q:"요즘 \"아, 좀 살 것 같다\" 싶은 순간은 언제인가요?", f:"그 순간을 조금 더 자주 만들 수 있을까요?"}
+    {q:"Is there a food, drink, song, video, or piece of writing you keep coming back to lately?", f:"Do you enjoy it alone, or would you want to share it with someone?"},
+    {q:"Is there a habit or small pleasure that's been giving you joy lately?", f:"Would you want to do it a little more often?"},
+    {q:"Is there a routine of your own that you've been repeating lately?", f:"How does your state change after you do it?"},
+    {q:"Is there a way of doing something that others might not notice, but that you quietly insist on?", f:"Would you want the family to understand that about you?"},
+    {q:"Is there something recently you get absorbed in and lose track of time doing?", f:"What kind of energy does it give you?"},
+    {q:"What part of the day do you most look forward to lately?", f:"How do you feel in the lead-up to it?"},
+    {q:"Have you discovered something new in everyday life recently?", f:"Did you want to tell someone about it?"},
+    {q:"Is there a small action you've been quietly keeping up?", f:"Is there a reason you keep doing it?"},
+    {q:"When does a moment lately make you feel \"ah, that's better\"?", f:"Could we find ways to make that moment happen a bit more often?"}
   ],
   safety: [
-    {q:"마음에 걸리지만 말하지 않고 넘긴 일이 있나요?", f:"말하지 않은 이유가 걱정, 미안함, 타이밍 중 어디에 가까웠나요?"},
-    {q:"최근 가족에게 연락할까 말까 망설였던 순간이 있나요?", f:"그때 전하고 싶었던 건 무엇이었나요?"},
-    {q:"지금 가족 중 한 사람에게 물어보고 싶은 것이 있나요?", f:"아직 묻지 못한 이유가 있나요?"},
-    {q:"가족에게 조심스럽게 부탁하고 싶은 것이 있나요?", f:"어떤 방식으로 말하면 덜 부담스러울까요?"},
-    {q:"최근 가족에게 고마웠던 말이나 행동이 있나요?", f:"그때 바로 표현했나요, 아니면 마음에만 두었나요?"},
-    {q:"요즘 문득 떠오르는 걱정이 있나요?", f:"혼자 두고 싶은 걱정인가요, 나누고 싶은 걱정인가요?"},
-    {q:"최근 챙김이 간섭처럼 느껴진 적이 있나요?", f:"어떤 말투나 질문이 그렇게 느껴졌나요?"},
-    {q:"요즘 마음의 여유는 어느 정도인가요?", f:"0에서 10 사이로 말하면 어디쯤인가요?"},
-    {q:"지금 가족에게 살짝 꺼내보고 싶은 속마음이 있나요?", f:"언제쯤 말하면 가장 편할 것 같나요?"}
+    {q:"Is there something on your mind that you let slide without saying?", f:"Was the reason closer to worry, guilt, or timing?"},
+    {q:"Has there been a moment recently when you hesitated whether to contact the family?", f:"What was it you wanted to say then?"},
+    {q:"Is there something you'd like to ask one of your family members right now?", f:"Is there a reason you haven't asked yet?"},
+    {q:"Is there something you'd like to ask of your family, but carefully?", f:"How could you phrase it so it feels less heavy?"},
+    {q:"Was there a word or gesture from family recently that you were grateful for?", f:"Did you say so at the time, or did you keep it to yourself?"},
+    {q:"Is there a worry that's been quietly surfacing lately?", f:"Is it a worry you'd rather keep to yourself, or one you'd want to share?"},
+    {q:"Has \"being looked after\" felt like \"being intruded on\" recently?", f:"What kind of tone or question made it feel that way?"},
+    {q:"How much room is there in your mind these days?", f:"On a scale of 0 to 10, where are you?"},
+    {q:"Is there something you'd like to gently share with family right now?", f:"When do you think would be the easiest time to say it?"}
   ]
 };
 
-// Demo garden entries — adjusted to fit new question content
+// Demo garden entries (English)
 const DEMO = [
-  {name:"엄마", topic:"space",  q:"space-1",  a:"a02", answer:"창가 소파에 앉아 아침 햇살 받는 게 제일 편해.",       date:"2026.05.18", color:TCOLORS.space},
-  {name:"아빠", topic:"body",   q:"body-1",   a:"a01", answer:"허리가 좀 안 좋은데, 조용히 알아만 주면 돼.",          date:"2026.05.19", color:TCOLORS.body},
-  {name:"지원", topic:"safety", q:"safety-3", a:"a03", answer:"", photo: MEDIA_BASE+"trace-photo.jpg",                  date:"2026.05.20", color:TCOLORS.safety},
-  {name:"오빠", topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: MEDIA_BASE+"trace-voice.mp3",                  date:"2026.05.21", color:TCOLORS.taste},
-  {name:"현",   topic:"taste",  q:"taste-1",  a:"a04", answer:"보리차 한 잔이면 충분해. 자기 전에.",                    date:"2026.05.21", color:TCOLORS.taste},
-  {name:"딸",   topic:"safety", q:"safety-1", a:"a02", answer:"피곤할 때 짐이 되기 싫어서 말을 못 꺼낼 때가 있어.",    date:"2026.05.22", color:TCOLORS.safety}
+  {name:"Mom",      topic:"space",  q:"space-1",  a:"a02", answer:"Sitting on the window sofa catching morning light is most comfortable.",       date:"2026.05.18", color:TCOLORS.space},
+  {name:"Dad",      topic:"body",   q:"body-1",   a:"a01", answer:"My back isn't great, but quietly knowing is enough.",                          date:"2026.05.19", color:TCOLORS.body},
+  {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                                              date:"2026.05.20", color:TCOLORS.safety},
+  {name:"Brother",  topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                                              date:"2026.05.21", color:TCOLORS.taste},
+  {name:"Hyun",     topic:"taste",  q:"taste-1",  a:"a04", answer:"A cup of barley tea is enough. Before bed.",                                  date:"2026.05.21", color:TCOLORS.taste},
+  {name:"Daughter", topic:"safety", q:"safety-1", a:"a02", answer:"Sometimes I can't bring it up because I don't want to be a burden when tired.", date:"2026.05.22", color:TCOLORS.safety}
 ];
 
 let S={topic:null,question:null,action:null};
@@ -719,19 +684,15 @@ function buildFinalCard(){
   const btnAction = document.getElementById("btnAction");
   const btnSave   = document.getElementById("btnSave");
   if(a){
-    if(titleEl) titleEl.textContent = "답변을 나눠보세요";
-    var siR=document.getElementById("p4SiRead"),siL=document.getElementById("p4SiListen");
-    if(siR) siR.classList.remove("active"); if(siL) siL.classList.add("active");
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · 듣기";
+    if(titleEl) titleEl.textContent = "Today's card";
+    if(stepEl)  stepEl.textContent  = "JungOne · Today's card";
     if(intro) intro.style.display = "none";
     if(finalNote) finalNote.style.display = "";
     if(btnAction) btnAction.style.display = "none";
     if(btnSave) btnSave.style.display = "";
   } else {
-    if(titleEl) titleEl.textContent = "질문을 조용히 읽어보세요";
-    var siR2=document.getElementById("p4SiRead"),siL2=document.getElementById("p4SiListen");
-    if(siR2) siR2.classList.add("active"); if(siL2) siL2.classList.remove("active");
-    if(stepEl)  stepEl.textContent  = "JUNG ONE · 읽기";
+    if(titleEl) titleEl.textContent = "Preparing";
+    if(stepEl)  stepEl.textContent  = "JungOne · Preparing";
     if(intro) intro.style.display = "";
     if(finalNote) finalNote.style.display = "none";
     if(btnAction) btnAction.style.display = "";
@@ -766,7 +727,7 @@ function answerNo(){
   document.getElementById("answerModal").classList.remove("show");
   // Save without an answer
   const col = TCOLORS[S.topic] || '#9aab9e';
-  entries.push({name:"나", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col});
+  entries.push({name:"Me", topic:S.topic, q:S.question, a:S.action, answer:"", date:todayStr(), color:col});
   goTo("p55");
   setTimeout(()=> goTo("p6"), 2400);
 }
@@ -843,7 +804,7 @@ buildTopicGrid();
 function submitAnswer(){
   const answer = document.getElementById("answerText").value.trim();
   const col = TCOLORS[S.topic] || '#9aab9e';
-  const entry = {name:"나", topic:S.topic, q:S.question, a:S.action, answer, date:todayStr(), color:col};
+  const entry = {name:"Me", topic:S.topic, q:S.question, a:S.action, answer, date:todayStr(), color:col};
   if(S.uploadedFile){
     const t = S.uploadedFile.type;
     if(t.startsWith("image/"))      entry.photo = S.uploadedFile.url;
@@ -863,7 +824,7 @@ let bubbleIdx=0;
 function buildGarden(){
   const container=document.getElementById("seedsContainer");
   container.innerHTML="";
-  document.getElementById("gardenSub").textContent = entries.length + "개의 흔적이 정원에 자라고 있어요";
+  document.getElementById("gardenSub").textContent = entries.length + " traces growing";
 
   const W=window.innerWidth, H=window.innerHeight-180;
   const positions=getPositions(entries.length,W,H);
@@ -992,41 +953,5 @@ function resetAll(){
   clearInterval(bubbleTimer);
 }
 </script>
-
-<!-- ===== TRIAL NOTICE MODAL ===== -->
-<div class="modal-backdrop" id="trialNoticeModal" onclick="closeTrialNotice(event)">
-  <div class="modal-card" onclick="event.stopPropagation()">
-    <div class="modal-title">잠깐, 안내드려요.</div>
-    <div class="modal-sub" style="text-align:left;line-height:1.7;color:#5A4F3D;font-size:14px;font-style:normal;margin-top:6px;">
-      지금은 시범 운영 중이라<br>
-      <b>정원에 심은 흔적은 저장되지 않습니다.</b><br><br>
-      체험해보시고 피드백은 작가에게<br>
-      직접 전해주세요.<br><br>
-      <span style="font-style:italic;color:#7A6E54;display:block;line-height:1.9;">
-— 인스타그램 <a href="https://www.instagram.com/z1lize/" target="_blank" style="color:#5A4F3D;text-decoration:underline;text-underline-offset:3px;">@z1lize</a><br>
-— 이메일 <a href="mailto:jj1lize@gmail.com" style="color:#5A4F3D;text-decoration:underline;text-underline-offset:3px;">jj1lize@gmail.com</a><br>
-— WhatsApp · 카카오톡
-</span>
-    </div>
-    <div class="modal-buttons" style="margin-top:18px;">
-      <button class="btn" onclick="closeTrialNotice()">확인하고 시작하기</button>
-    </div>
-  </div>
-</div>
-
-<script>
-function closeTrialNotice(e){
-  if(e && e.target.id !== "trialNoticeModal" && !e.target.classList.contains("btn")) return;
-  document.getElementById("trialNoticeModal").classList.remove("show");
-}
-// Show the notice ~700ms after page load — gives intro a moment to settle
-window.addEventListener("load", function(){
-  setTimeout(function(){
-    var m = document.getElementById("trialNoticeModal");
-    if(m) m.classList.add("show");
-  }, 700);
-});
-</script>
-
 </body>
 </html>

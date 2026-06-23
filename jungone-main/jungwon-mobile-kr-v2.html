@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>JungWon — Cards</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=DM+Mono:wght@300;400&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Nanum Myeongjo',serif;overflow:hidden;}
+.page{position:fixed;inset:0;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .42s cubic-bezier(.4,0,.2,1);background:#f5f0e8;}
+.page.active{transform:translateX(0);}
+.page.exit{transform:translateX(-100%);}
+.ph{padding:48px 24px 16px;flex-shrink:0;}
+.step{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8a7e74;margin-bottom:8px;}
+.prog{width:100%;height:2px;background:#e0d8cc;margin-bottom:14px;}
+.prog-fill{height:100%;background:#0e0c09;transition:width .4s;}
+.title{font-size:clamp(26px,7vw,38px);font-weight:700;line-height:1.18;color:#0e0c09;}
+.sub{font-family:'DM Mono',monospace;font-size:11px;color:#8a7e74;margin-top:6px;}
+.pb{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px 16px;}
+.pf{padding:12px 18px 40px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.btn{width:100%;padding:16px;border:none;background:#0e0c09;color:#f5f0e8;font-family:'Nanum Myeongjo',serif;font-size:17px;font-weight:700;cursor:pointer;}
+.btn:active{opacity:.75;}
+.btn:disabled{opacity:.2;pointer-events:none;}
+.btn-back{width:100%;padding:10px;border:none;background:transparent;color:#8a7e74;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+
+/* Card grids */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sel-card{position:relative;aspect-ratio:5/7;overflow:hidden;border-radius:4px;border:3px solid transparent;cursor:pointer;transition:transform .12s,border-color .15s;background:#e8e0d0;}
+.sel-card:active{transform:scale(.92);}
+.sel-card.on{border-color:#0e0c09;transform:scale(.96);}
+.sel-card img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .18s;}
+.grid2.picked .sel-card:not(.on) img{filter:brightness(.4);}
+.chk{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;font-size:18px;color:#fff;z-index:5;}
+.sel-card.on .chk{display:flex;}
+
+/* Card overlays */
+.card-overlay{position:absolute;bottom:0;left:0;right:0;padding:10px 10px 12px;background:linear-gradient(transparent,rgba(0,0,0,.82));}
+.card-name{font-family:'Nanum Myeongjo',serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.card-desc{font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,.65);line-height:1.5;letter-spacing:.04em;}
+.q-num{position:absolute;top:8px;left:8px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;color:rgba(255,255,255,.7);background:rgba(0,0,0,.4);padding:2px 6px;border-radius:2px;}
+
+/* Question detail panel */
+.q-detail{display:none;background:#f5f0e8;border:1px solid #e0d8cc;padding:16px;margin-top:10px;border-radius:4px;}
+.q-detail.show{display:block;}
+.q-detail-text{font-size:15px;color:#0e0c09;line-height:1.75;margin-bottom:6px;}
+.q-detail-ex{font-family:'DM Mono',monospace;font-size:9px;color:#8a7e74;font-style:italic;margin-bottom:10px;line-height:1.6;}
+.q-detail-follow{font-family:'DM Mono',monospace;font-size:10px;color:#6a5e54;line-height:1.7;padding-top:10px;border-top:1px solid #e0d8cc;}
+
+/* Final card */
+.final-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:12px;}
+.card-box{width:min(268px,76vw);aspect-ratio:5/7;position:relative;border-radius:6px;overflow:hidden;cursor:pointer;}
+.card-front{position:absolute;inset:0;z-index:1;background:#0e0c09;}
+.card-front img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.img-topic{z-index:1;}
+.img-q{z-index:2;opacity:0.7;}
+.img-a{z-index:3;opacity:0.85;}
+.tap-hint{position:absolute;bottom:10px;right:12px;z-index:10;font-family:'DM Mono',monospace;font-size:8px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.35);padding:3px 7px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase;}
+.card-back{position:absolute;inset:0;z-index:0;background:#f5f0e8;border:2px solid #e0d8cc;display:flex;flex-direction:column;justify-content:space-between;padding:20px 18px;opacity:0;transition:opacity .4s;}
+.card-back.show{opacity:1;z-index:20;}
+.card-front.hide{opacity:0;transition:opacity .4s;}
+.back-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.back-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border:1.5px solid #c8bfb0;color:#6a5e54;border-radius:2px;}
+.back-q{font-size:clamp(14px,3.5vw,17px);color:#0e0c09;line-height:1.78;flex:1;display:flex;align-items:center;}
+.back-ex{font-family:'DM Mono',monospace;font-size:9px;color:#8a7e74;font-style:italic;margin-top:8px;line-height:1.6;}
+.back-follow{font-family:'DM Mono',monospace;font-size:10px;color:#6a5e54;line-height:1.7;padding-top:10px;border-top:1.5px solid #e0d8cc;margin-top:10px;}
+.back-action{font-family:'DM Mono',monospace;font-size:9px;color:#8a7e74;margin-top:8px;}
+.final-footer{padding:10px 18px 40px;border-top:2px solid #e0d8cc;flex-shrink:0;}
+.flip-note{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#8a7e74;text-align:center;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<!-- P1: Topic -->
+<div class="page active" id="p1">
+  <div class="ph">
+    <div class="step">JungWon · 1 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:33%"></div></div>
+    <div class="title">Choose<br>a topic</div>
+    <div class="sub">What do you want to talk about today?</div>
+  </div>
+  <div class="pb"><div class="grid2" id="tGrid"><div class="sel-card" onclick="pick('topic','space',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/t01.png" alt="Space & Home"/>
+        <div class="card-overlay">
+          <div class="card-name">Space & Home</div>
+          <div class="card-desc">home, objects, how you live,<br/>spaces you imagine</div>
+        </div>
+      </div>
+<div class="sel-card" onclick="pick('topic','body',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/t02.png" alt="Body & Senses"/>
+        <div class="card-overlay">
+          <div class="card-name">Body & Senses</div>
+          <div class="card-desc">fatigue, pain, health signals,<br/>how you rest</div>
+        </div>
+      </div>
+<div class="sel-card" onclick="pick('topic','taste',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/t03.png" alt="Taste & Color"/>
+        <div class="card-overlay">
+          <div class="card-name">Taste & Color</div>
+          <div class="card-desc">food you love, family flavors,<br/>habits of taste</div>
+        </div>
+      </div>
+<div class="sel-card" onclick="pick('topic','safety',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/t04.png" alt="Safety & Trust"/>
+        <div class="card-overlay">
+          <div class="card-name">Safety & Trust</div>
+          <div class="card-desc">who you lean on, burden,<br/>responsibility, what you don't say</div>
+        </div>
+      </div>
+</div></div>
+  <div class="pf"><button class="btn" id="btn1" onclick="goTo('p2')" disabled>Next — choose a question →</button></div>
+</div>
+
+<!-- P2: Question -->
+<div class="page" id="p2">
+  <div class="ph">
+    <div class="step">JungWon · 2 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:66%"></div></div>
+    <div class="title">Choose<br>a question</div>
+    <div class="sub">Pick the one that pulls you most</div>
+  </div>
+  <div class="pb">
+    <div class="grid2" id="qGrid"><div class="sel-card q-sel" onclick="pick('question','q01',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q01.png" alt="q01"/>
+        <div class="q-num">Q · 01</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q02',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q02.png" alt="q02"/>
+        <div class="q-num">Q · 02</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q03',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q03.png" alt="q03"/>
+        <div class="q-num">Q · 03</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q04',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q04.png" alt="q04"/>
+        <div class="q-num">Q · 04</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q05',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q05.png" alt="q05"/>
+        <div class="q-num">Q · 05</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q06',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q06.png" alt="q06"/>
+        <div class="q-num">Q · 06</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q07',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q07.png" alt="q07"/>
+        <div class="q-num">Q · 07</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q08',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q08.png" alt="q08"/>
+        <div class="q-num">Q · 08</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q09',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q09.png" alt="q09"/>
+        <div class="q-num">Q · 09</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q10',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q10.png" alt="q10"/>
+        <div class="q-num">Q · 10</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q11',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q11.png" alt="q11"/>
+        <div class="q-num">Q · 11</div>
+      </div>
+<div class="sel-card q-sel" onclick="pick('question','q12',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/q12.png" alt="q12"/>
+        <div class="q-num">Q · 12</div>
+      </div>
+</div>
+    <div class="q-detail" id="qDetail">
+      <div class="q-detail-text" id="qdText"></div>
+      <div class="q-detail-ex" id="qdEx"></div>
+      <div class="q-detail-follow" id="qdFollow"></div>
+    </div>
+  </div>
+  <div class="pf">
+    <button class="btn" id="btn2" onclick="goTo('p3')" disabled>Next — choose an action →</button>
+    <button class="btn-back" onclick="goBack('p1')">← Back</button>
+  </div>
+</div>
+
+<!-- P3: Action -->
+<div class="page" id="p3">
+  <div class="ph">
+    <div class="step">JungWon · 3 / 3</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">Choose<br>an action</div>
+    <div class="sub">What will you do after this conversation?</div>
+  </div>
+  <div class="pb"><div class="grid2" id="aGrid"><div class="sel-card" onclick="pick('action','a01',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/a01.png" alt="Shift"/>
+        <div class="card-overlay">
+          <div class="card-name">Shift</div>
+        </div>
+      </div>
+<div class="sel-card" onclick="pick('action','a02',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/a02.png" alt="Do it together"/>
+        <div class="card-overlay">
+          <div class="card-name">Do it together</div>
+        </div>
+      </div>
+<div class="sel-card" onclick="pick('action','a03',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/a03.png" alt="Make something"/>
+        <div class="card-overlay">
+          <div class="card-name">Make something</div>
+        </div>
+      </div>
+<div class="sel-card" onclick="pick('action','a04',this)">
+        <div class="chk">✓</div>
+        <img src="https://jj1lize-crypto.github.io/jungwon/a04.png" alt="Next"/>
+        <div class="card-overlay">
+          <div class="card-name">Next</div>
+        </div>
+      </div>
+</div></div>
+  <div class="pf">
+    <button class="btn" id="btn3" onclick="buildFinal()" disabled>Complete the card →</button>
+    <button class="btn-back" onclick="goBack('p2')">← Back</button>
+  </div>
+</div>
+
+<!-- P4: Final -->
+<div class="page" id="p4">
+  <div class="ph" style="padding-bottom:10px;">
+    <div class="step">JungWon · Today's card</div>
+    <div class="prog"><div class="prog-fill" style="width:100%"></div></div>
+    <div class="title">Today's<br>card</div>
+    <div class="sub">Tap to flip</div>
+  </div>
+  <div class="final-stage">
+    <div class="card-box" onclick="flipCard()">
+      <div class="card-front" id="cFront">
+        <img class="img-topic" id="imgT" src="" alt=""/>
+        <img class="img-q" id="imgQ" src="" alt=""/>
+        <img class="img-a" id="imgA" src="" alt=""/>
+        <div class="tap-hint">Tap to flip ↺</div>
+      </div>
+      <div class="card-back" id="cBack">
+        <div>
+          <div class="back-badges" id="bBadges"></div>
+          <div class="back-q" id="bQ"></div>
+          <div class="back-ex" id="bEx"></div>
+        </div>
+        <div>
+          <div class="back-follow" id="bF"></div>
+          <div class="back-action" id="bA"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="final-footer">
+    <div class="flip-note">front · today's combination &nbsp;/&nbsp; back · question</div>
+    <button class="btn" onclick="goTo('p1');resetAll()">Start again</button>
+  </div>
+</div>
+
+<script>
+const TSRCS={"space":"https://jj1lize-crypto.github.io/jungwon/t01.png","body":"https://jj1lize-crypto.github.io/jungwon/t02.png","taste":"https://jj1lize-crypto.github.io/jungwon/t03.png","safety":"https://jj1lize-crypto.github.io/jungwon/t04.png"};
+const QSRCS=["https://jj1lize-crypto.github.io/jungwon/q01.png","https://jj1lize-crypto.github.io/jungwon/q02.png","https://jj1lize-crypto.github.io/jungwon/q03.png","https://jj1lize-crypto.github.io/jungwon/q04.png","https://jj1lize-crypto.github.io/jungwon/q05.png","https://jj1lize-crypto.github.io/jungwon/q06.png","https://jj1lize-crypto.github.io/jungwon/q07.png","https://jj1lize-crypto.github.io/jungwon/q08.png","https://jj1lize-crypto.github.io/jungwon/q09.png","https://jj1lize-crypto.github.io/jungwon/q10.png","https://jj1lize-crypto.github.io/jungwon/q11.png","https://jj1lize-crypto.github.io/jungwon/q12.png"];
+const ASRCS={"a01":"https://jj1lize-crypto.github.io/jungwon/a01.png","a02":"https://jj1lize-crypto.github.io/jungwon/a02.png","a03":"https://jj1lize-crypto.github.io/jungwon/a03.png","a04":"https://jj1lize-crypto.github.io/jungwon/a04.png"};
+const TNAMES={"space":"Space & Home","body":"Body & Senses","taste":"Taste & Color","safety":"Safety & Trust"};
+const TDESC={"space":"home, objects, how you live, spaces you imagine","body":"fatigue, pain, health signals, how you rest","taste":"food you love, family flavors, habits of taste","safety":"who you lean on, burden, responsibility, what you don't say"};
+const ANAMES={"a01":"Shift","a02":"Do it together","a03":"Make something","a04":"Next"};
+const ATEXTS={"a01":"One thing I want to do differently after this conversation is ___","a02":"Let's do one thing together — cook, walk, call, or just be in the same silence.","a03":"Make something small together — a photo, a recipe, a voice message.","a04":"Let's do this again. When works for you?"};
+const QDATA={"q01":{q:"Something I never want to lose is ___",ex:"e.g. a habit, a person, a feeling, a place",f:"Is there something you've already lost that you wish you hadn't?"},"q02":{q:"A small habit I keep coming back to is ___",ex:"e.g. a morning routine, a way of eating, something you do without thinking",f:"Is there something you keep doing even when you tell yourself to stop?"},"q03":{q:"The moment I feel most like myself is ___",ex:"e.g. alone at home, cooking, talking with someone, doing nothing",f:"Is there a place or moment where you feel like you can breathe?"},"q04":{q:"What connects me to you is ___",ex:"e.g. a shared memory, something we both do, a feeling that's hard to name",f:"Is there something small I do that actually matters to you?"},"q05":{q:"I've recently noticed ___",ex:"e.g. something changing in my body, a new pattern, something I've been avoiding",f:"Is there something your body has been telling you that you've been ignoring?"},"q06":{q:"Right now I'm most worried about ___",ex:"e.g. health, money, someone I care about, something I can't control",f:"Is there something that keeps coming back to your mind even when you push it away?"},"q07":{q:"I find it hard to ask for help because ___",ex:"e.g. I don't want to be a burden, I'm not sure how to say it, I don't know what I need",f:"Is there a way I could make it easier for you to ask?"},"q08":{q:"Something I've pictured for myself but never said out loud is ___",ex:"e.g. a different way of living, a place, something I want to try",f:"Is there something you've kept only to yourself?"},"q09":{q:"Something I've been holding back is ___",ex:"e.g. a feeling, a question, something I've been waiting to say",f:"Is there something you've been waiting for the right moment to say?"},"q10":{q:"Something that feels like pressure to me is ___",ex:"e.g. expectations, unspoken roles, routines that no longer fit",f:"Is there something that used to feel like care but started feeling like control?"},"q11":{q:"What I'm most afraid of losing is ___",ex:"e.g. someone's health, a family habit, a feeling of safety, time",f:"Is there something you're already missing before it's gone?"},"q12":{q:"I need your support most when ___",ex:"e.g. I'm overwhelmed, I don't say anything, I seem fine but I'm not",f:"What's something I do when I'm trying to help that actually makes it harder?"}};
+
+let S={topic:null,question:null,action:null};
+let flipped=false;
+
+function pick(type,val,el){
+  const g=el.closest(".grid2");
+  g.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
+  el.classList.add("on");
+  g.classList.add("picked");
+  S[type]=val;
+  const b=document.getElementById({topic:"btn1",question:"btn2",action:"btn3"}[type]);
+  if(b) b.disabled=false;
+  // Show question detail panel
+  if(type==="question"){
+    const d=QDATA[val];
+    document.getElementById("qdText").textContent=d.q;
+    document.getElementById("qdEx").textContent=d.ex;
+    document.getElementById("qdFollow").textContent="→ "+d.f;
+    document.getElementById("qDetail").classList.add("show");
+  }
+}
+
+function goTo(id){
+  document.querySelectorAll(".page").forEach(p=>{
+    if(p.classList.contains("active")){p.classList.remove("active");p.classList.add("exit");setTimeout(()=>p.classList.remove("exit"),450);}
+  });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+function goBack(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+function buildFinal(){
+  const t=S.topic,q=S.question,a=S.action;
+  const qi=parseInt(q.replace("q",""))-1;
+  document.getElementById("imgT").src=TSRCS[t];
+  document.getElementById("imgQ").src=QSRCS[qi];
+  document.getElementById("imgA").src=ASRCS[a];
+  flipped=false;
+  document.getElementById("cFront").classList.remove("hide");
+  document.getElementById("cBack").classList.remove("show");
+  const d=QDATA[q];
+  document.getElementById("bBadges").innerHTML=
+    '<span class="back-badge">'+TNAMES[t]+'</span>'+
+    '<span class="back-badge">'+q.toUpperCase()+'</span>'+
+    '<span class="back-badge">'+ANAMES[a]+'</span>';
+  document.getElementById("bQ").textContent=d.q;
+  document.getElementById("bEx").textContent=d.ex;
+  document.getElementById("bF").textContent="→ "+d.f;
+  document.getElementById("bA").textContent="⚡ "+ATEXTS[a];
+  goTo("p4");
+}
+
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById("cFront").classList.toggle("hide",flipped);
+  document.getElementById("cBack").classList.toggle("show",flipped);
+}
+
+function resetAll(){
+  S={topic:null,question:null,action:null};flipped=false;
+  document.querySelectorAll(".sel-card").forEach(c=>c.classList.remove("on"));
+  document.querySelectorAll(".grid2").forEach(g=>g.classList.remove("picked"));
+  document.getElementById("qDetail").classList.remove("show");
+  ["btn1","btn2","btn3"].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
+}
+</script>
+</body>
+</html>

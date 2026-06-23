@@ -458,7 +458,10 @@ html,body{width:100%;height:100%;background:#f5f0e8;font-family:'Crimson Pro','N
 </div>
 
 <script>
-const BASE = "https://jj1lize-crypto.github.io/jungone/";
+const TOPIC_IMAGE_BASE = "assets/images/topics/";
+const QUESTION_IMAGE_BASE = "assets/images/questions/";
+const LISTENING_IMAGE_BASE = "assets/images/listening/";
+const MEDIA_BASE = "assets/media/";
 
 // 4 Topics — new names
 const TNAMES = {
@@ -480,14 +483,14 @@ const TCOLORS = {
   safety: '#6a5e7a'
 };
 const TSRCS = {
-  space:  BASE + "t01.png",
-  body:   BASE + "t02.png",
-  taste:  BASE + "t03.png",
-  safety: BASE + "t04.png"
+  space:  TOPIC_IMAGE_BASE + "t01.webp",
+  body:   TOPIC_IMAGE_BASE + "t02.webp",
+  taste:  TOPIC_IMAGE_BASE + "t03.webp",
+  safety: TOPIC_IMAGE_BASE + "t04.webp"
 };
 
 // 12 question images — recycled across topics
-const QSRCS = Array.from({length:12}, (_,i)=> BASE + "q" + String(i+1).padStart(2,'0') + ".png");
+const QSRCS = Array.from({length:12}, (_,i)=> QUESTION_IMAGE_BASE + "q" + String(i+1).padStart(2,'0') + ".webp");
 
 // 6 Actions — "How to listen"
 const ANAMES = {
@@ -506,15 +509,13 @@ const ADESC = {
   a05: "Before comparing or correcting, just hear it as it is.",
   a06: "I'd like to stop here for today. We can come back to it when I'm ready."
 };
-// a05, a06 borrow random images from a01-a04
-const _aPool = ['a01','a02','a03','a04'].sort(()=>Math.random()-0.5);
 const ASRCS = {
-  a01: BASE + "a01.png",
-  a02: BASE + "a02.png",
-  a03: BASE + "a03.png",
-  a04: BASE + "a04.png",
-  a05: BASE + _aPool[0] + ".png",
-  a06: BASE + _aPool[1] + ".png"
+  a01: LISTENING_IMAGE_BASE + "listencard1.png",
+  a02: LISTENING_IMAGE_BASE + "listencard2.png",
+  a03: LISTENING_IMAGE_BASE + "listencard3.png",
+  a04: LISTENING_IMAGE_BASE + "listencard4.png",
+  a05: LISTENING_IMAGE_BASE + "listencard5.png",
+  a06: LISTENING_IMAGE_BASE + "listencard6.png"
 };
 
 // 4 topics × 9 questions = 36, each with main q + sub q (English)
@@ -569,8 +570,8 @@ const QDATA = {
 const DEMO = [
   {name:"Mom",      topic:"space",  q:"space-1",  a:"a02", answer:"Sitting on the window sofa catching morning light is most comfortable.",       date:"2026.05.18", color:TCOLORS.space},
   {name:"Dad",      topic:"body",   q:"body-1",   a:"a01", answer:"My back isn't great, but quietly knowing is enough.",                          date:"2026.05.19", color:TCOLORS.body},
-  {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: BASE+"trace-photo.jpg",                                              date:"2026.05.20", color:TCOLORS.safety},
-  {name:"Brother",  topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: BASE+"trace-voice.mp3",                                              date:"2026.05.21", color:TCOLORS.taste},
+  {name:"Jiwon",    topic:"safety", q:"safety-3", a:"a03", answer:"", photo: MEDIA_BASE+"trace-photo.jpg",                                         date:"2026.05.20", color:TCOLORS.safety},
+  {name:"Brother",  topic:"taste",  q:"taste-9",  a:null,  answer:"", voice: MEDIA_BASE+"trace-voice.mp3",                                         date:"2026.05.21", color:TCOLORS.taste},
   {name:"Hyun",     topic:"taste",  q:"taste-1",  a:"a04", answer:"A cup of barley tea is enough. Before bed.",                                  date:"2026.05.21", color:TCOLORS.taste},
   {name:"Daughter", topic:"safety", q:"safety-1", a:"a02", answer:"Sometimes I can't bring it up because I don't want to be a burden when tired.", date:"2026.05.22", color:TCOLORS.safety}
 ];
