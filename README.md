@@ -14,9 +14,6 @@ Then open http://127.0.0.1:8000/.
 
 - `index.html` - Korean version
 - `en.html` - English version
-- `assets/images/topics/` - compressed WebP topic cards
-- `assets/images/questions/` - compressed WebP question cards
-- `assets/images/listening/` - listening/action cards
-- `assets/media/` - demo photo and voice assets
-- `assets/jungone-main/` - compressed local GIF copy used by `archive/index-re.html`
-- `archive/` - previous HTML iterations
+- `assets/jungone-main/` - optimized PNG image assets
+- `assets/media/` - non-image demo media, such as voice and video
+- `archive/index-re.html` - extended prototype page
