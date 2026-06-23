@@ -7459,31 +7459,29 @@ function buildExhibitionGardenShell(){
   idle.style.display = "flex";
 }
 
-// Display garden seed list: the real DEMO conversations (coherent question+trace,
-// so the auto-cycling bubbles read correctly) plus a handful of random extra
-// plants so the garden fills out differently on every load. Returns a shuffled mix.
-function buildDisplayEntries(){
-  const topics = ["space","body","taste","safety"];
-  const real = (DEMO_BY_LANG[CURRENT_LANG] || DEMO || []).map((e, i) =>
-    Object.assign({ _key: "demo-" + i + "-" + (e.q || "") }, e));
-  const EXTRA = 4;   // extra random plants for a fuller garden
-  const extra = [];
-  for(let i = 0; i < EXTRA; i++){
-    const topic = topics[(Math.random() * topics.length) | 0];
-    const qn = 1 + ((Math.random() * 9) | 0);   // onplant 1..9 exists per color
-    extra.push({ name: "", topic: topic, q: topic + "-" + qn,
-      color: TCOLORS[topic], _key: "rnd-" + i + "-" + topic + qn });
-  }
-  const all = real.concat(extra);
-  for(let i = all.length - 1; i > 0; i--){      // Fisher–Yates shuffle
-    const j = (Math.random() * (i + 1)) | 0;
-    const tmp = all[i]; all[i] = all[j]; all[j] = tmp;
-  }
-  return all;
+// Convert the curated exhibitionTraces into public-garden entries, so the display
+// reuses the EXACT index-re garden + conversation-bubble design (showBubbleAuto →
+// organic answer bubble), while the plants stay the curated offplant PNGs at their
+// designed positions (plantUrlForEntry → offPlantImg(cardId)).
+function exhibitionEntriesForDisplay(){
+  const lang = CURRENT_LANG;
+  return exVisiblePlants().map((e, i) => ({
+    name: "",
+    source: "faceToFace",
+    f2fCard: e.cardId,
+    color: (TCOLORS_BY_CODE[e.color] || "#9aab9e"),
+    questionText: (lang === "en" ? e.questionEn : e.questionKo) || "",
+    answer: (lang === "en" ? e.traceEn : e.traceKo) || "",
+    date: e.date || "",
+    video: e.video || null,
+    photo: e.photo || null,
+    voice: e.voice || null,
+    _key: "ex-" + i + "-" + e.plantId
+  }));
 }
 
 function initExhibitionDisplay(){
-  // Exhibition shell (keep ex-display classes so the TV background layers stay)
+  // Exhibition shell — keep ex-display classes so the TV background layers stay
   document.body.classList.add("display-mode");
   document.body.classList.add("ex-display");
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -7500,10 +7498,9 @@ function initExhibitionDisplay(){
     logo.alt = "JUNG ONE";
     header.insertBefore(logo, header.firstChild);
   }
-  // Populate with random plants + real conversations, then run the public garden
-  // renderer — this gives the plant placement AND the auto-cycling trace bubbles,
-  // layered on top of the exhibition background. No iPad controller needed.
-  entries = buildDisplayEntries();
+  // Reuse the public garden: curated plants at their positions + the index-re
+  // conversation-bubble design auto-cycling. No iPad controller needed.
+  entries = exhibitionEntriesForDisplay();
   buildGarden();
   setTimeout(fitGardenStage, 50);
 }
@@ -8043,7 +8040,9 @@ function showBubbleAt(e, x, y, isAuto){
 
   // Build header: Question + Date (NO name)
   let qText = "";
-  if(e.q && e.q.includes('-')){
+  if(e.questionText){
+    qText = e.questionText;
+  } else if(e.q && e.q.includes('-')){
     const idx = parseInt(e.q.split('-')[1])-1;
     const obj = QDATA[e.topic] ? QDATA[e.topic][idx] : null;
     qText = obj ? obj.q : "";
