@@ -5539,19 +5539,20 @@ body.ex-controller .answer-bubble.ex-qcard-mode .bubble-inner{ pointer-events:au
 /* ============================================================
    Exhibition — original design restored (logo, count, guide bg, BGtv-night)
    ============================================================ */
-/* BGtv-night as the base background of the exhibition garden */
-body.ex-display #s9.dark-bg{
+/* Garden background — applies to BOTH the public garden and the exhibition TV.
+   BGtv-night as the base, garden-guide-hd as the overlay. */
+#s9.dark-bg{
   background:#000 !important;
 }
-body.ex-display #s9 .garden-body::before{
+#s9 .garden-body::before{
   content:"";
   position:absolute; inset:0; z-index:0;
   background:url("../assets/jungone-main/BGtv-night.png?v=png-mobile-2") center/cover no-repeat;
   opacity:1;
   pointer-events:none;
 }
-/* guide image overlay — shows how the FULL garden would look (faint reference) */
-body.ex-display #s9 .garden-body::after{
+/* guide image overlay — shows how the FULL garden would look */
+#s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
   background:url("../assets/jungone-main/garden-guide-hd.webp?v=hd1") center/contain no-repeat;
@@ -5559,7 +5560,7 @@ body.ex-display #s9 .garden-body::after{
   pointer-events:none;
 }
 /* keep the real plant layers above the guide */
-body.ex-display #seedsContainer{ z-index:3 !important; }
+#seedsContainer{ z-index:3 !important; }
 
 /* Header: logo + count, restored */
 body.ex-display .garden-header{
@@ -5609,9 +5610,9 @@ body.ex-controller .seed-layer.selected .seed-layer-img{
 }
 
 
-/* Display (B): show only the guide garden art; hide the real plant layers.
-   The iPad drives selection; the TV just shows the trace popup. */
-body.ex-display:not(.ex-controller) #seedsContainer{ display:none !important; }
+/* Display: show the real plant layers, laid out like the index-re garden,
+   on top of the guide garden art. */
+body.ex-display:not(.ex-controller) #seedsContainer{ display:block !important; }
 
 
 /* Controller: dim the guide background so tappable plants pop */
@@ -7313,7 +7314,11 @@ function startFirebaseListener(){
 
     // If we're on the garden screen, redraw (preserves existing positions)
     const gardenActive = document.getElementById("s9").classList.contains("active");
-    if(gardenActive) buildGarden();
+    if(gardenActive){
+      // Exhibition display renders synchronously (no rAF) so it never blanks out.
+      if(document.body.classList.contains("ex-display")) renderDisplayGarden();
+      else buildGarden();
+    }
   });
 }
 
@@ -7459,29 +7464,8 @@ function buildExhibitionGardenShell(){
   idle.style.display = "flex";
 }
 
-// Convert the curated exhibitionTraces into public-garden entries, so the display
-// reuses the EXACT index-re garden + conversation-bubble design (showBubbleAuto →
-// organic answer bubble), while the plants stay the curated offplant PNGs at their
-// designed positions (plantUrlForEntry → offPlantImg(cardId)).
-function exhibitionEntriesForDisplay(){
-  const lang = CURRENT_LANG;
-  return exVisiblePlants().map((e, i) => ({
-    name: "",
-    source: "faceToFace",
-    f2fCard: e.cardId,
-    color: (TCOLORS_BY_CODE[e.color] || "#9aab9e"),
-    questionText: (lang === "en" ? e.questionEn : e.questionKo) || "",
-    answer: (lang === "en" ? e.traceEn : e.traceKo) || "",
-    date: e.date || "",
-    video: e.video || null,
-    photo: e.photo || null,
-    voice: e.voice || null,
-    _key: "ex-" + i + "-" + e.plantId
-  }));
-}
-
 function initExhibitionDisplay(){
-  // Exhibition shell — keep ex-display classes so the TV background layers stay
+  // Exhibition chrome — ex-display gives the TV background + sizing; hide controls.
   document.body.classList.add("display-mode");
   document.body.classList.add("ex-display");
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -7498,11 +7482,42 @@ function initExhibitionDisplay(){
     logo.alt = "JUNG ONE";
     header.insertBefore(logo, header.firstChild);
   }
-  // Reuse the public garden: curated plants at their positions + the index-re
-  // conversation-bubble design auto-cycling. No iPad controller needed.
-  entries = exhibitionEntriesForDisplay();
-  buildGarden();
-  setTimeout(fitGardenStage, 50);
+  // Show the REAL room garden — same as the public/index-re garden: DEMO anchor +
+  // live Firebase submissions, full plant layout, auto-cycling conversation bubbles,
+  // on the exhibition background. Rendered SYNCHRONOUSLY (no requestAnimationFrame)
+  // so it draws immediately regardless of tab focus/timing. initFirebase() →
+  // startFirebaseListener() reloads entries from the room and re-renders on data.
+  renderDisplayGarden();
+  initFirebase();
+}
+
+// Synchronous render for the exhibition display (no rAF): stacks the current
+// `entries` as full-canvas plant layers and starts the auto-cycling trace bubbles.
+function renderDisplayGarden(){
+  buildSparkles();
+  const container = document.getElementById("seedsContainer");
+  if(!container) return;
+  fitGardenStage();
+  container.innerHTML = "";
+  const sub = document.getElementById("gardenSub");
+  if(sub) sub.textContent = t("garden_sub_tpl", {n: Math.min(entries.length, 10)});
+  const limit = 10;
+  const visibleEntries = entries.length > limit ? entries.slice(-limit) : entries;
+  visibleEntries.forEach((e, i) => {
+    const plantSrc = plantUrlForEntry(e) || qcardSrc(e.topic, 0);
+    const seed = document.createElement("div");
+    seed.className = "seed-layer";
+    seed.style.zIndex = String(10 + i);
+    seed.innerHTML = '<img class="seed-layer-img" src="' + plantSrc + '" alt=""/>';
+    seed.onclick = (ev) => showBubbleForEntry(e, false, ev);
+    container.appendChild(seed);
+  });
+  if(bubbleTimer) clearInterval(bubbleTimer);
+  bubbleIdx = 0;
+  if(entries.length){
+    showBubbleAuto();
+    bubbleTimer = setInterval(() => { bubbleIdx = bubbleIdx + 1; showBubbleAuto(); }, 5000);
+  }
 }
 
 function updateExIdleText(){
