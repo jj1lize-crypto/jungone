@@ -2190,9 +2190,12 @@ function showBubbleAt(e, x, y, isAuto){
 
   inner.innerHTML = headerHtml + bodyHtml;
 
-  const bw = 240;
+  // Measure the actual rendered width so the bubble stays centered & on-screen
+  // at any size (normal phone OR enlarged 4K display bubble).
+  const gbW = document.getElementById("gardenBody").clientWidth;
+  const bw = Math.min(bub.getBoundingClientRect().width || 240, gbW - 20);
   let lx = x - bw/2;
-  lx = Math.max(10, Math.min(lx, document.getElementById("gardenBody").clientWidth - bw - 10));
+  lx = Math.max(10, Math.min(lx, gbW - bw - 10));
   bub.style.left = lx + "px";
   bub.style.top  = Math.max(10, y - 20) + "px";
   bub.classList.add("show");
