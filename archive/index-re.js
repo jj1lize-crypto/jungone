@@ -1353,8 +1353,8 @@ function downloadInvitation(){
   html2canvas(card, {
     backgroundColor: "#0e0c09",
     scale: scale,
-    useCORS: true,
-    allowTaint: false,        /* avoid tainting canvas */
+    useCORS: false,           /* card images are SAME-ORIGIN — CORS mode made them drop out */
+    allowTaint: false,        /* same-origin images don't taint, so toDataURL still works */
     logging: false,
     imageTimeout: 15000,
     foreignObjectRendering: false,
@@ -1383,20 +1383,54 @@ function downloadInvitation(){
           div.style.backgroundOrigin = "content-box";
           div.style.backgroundClip = "content-box";
         }
-        img.parentNode.replaceChild(div, img);
+        if(img.parentNode) img.parentNode.replaceChild(div, img);
       });
     }
   }).then(canvas => {
-    const link = document.createElement("a");
-    link.download = t("download_filename");
-    link.href = canvas.toDataURL("image/png");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTip(t("s7b_saved_ok"));
-  }).catch(() => {
+    const filename = t("download_filename");
+    const dataUrl = canvas.toDataURL("image/png");
+    canvas.toBlob(function(blob){
+      const file = blob ? new File([blob], filename, { type: "image/png" }) : null;
+      // Best on mobile: native share sheet → "Save Image" / "Save to Photos".
+      if(file && navigator.canShare && navigator.canShare({ files: [file] })){
+        navigator.share({ files: [file] })
+          .then(() => setTip(t("s7b_saved_ok")))
+          .catch(() => showSaveFallback(blob, dataUrl, filename));
+        return;
+      }
+      showSaveFallback(blob, dataUrl, filename);
+    }, "image/png");
+  }).catch((err) => {
+    console.error("Invitation save failed:", err);
     setTip(t("s7b_save_fail"));
   });
+}
+
+// The <a download> click trick does NOT trigger a download on most phone
+// browsers (they just ignored it — hence "saved" with no file). Fallback:
+// desktop → real download; mobile → show the image so the user can press-and-
+// hold it and pick "Save Image" (data URL is the most reliable for that).
+function showSaveFallback(blob, dataUrl, filename){
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || ('ontouchstart' in window);
+  if(!isMobile){
+    const url = blob ? URL.createObjectURL(blob) : dataUrl;
+    const link = document.createElement("a");
+    link.download = filename; link.href = url;
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    if(blob) setTimeout(() => URL.revokeObjectURL(url), 15000);
+    setTip(t("s7b_saved_ok"));
+    return;
+  }
+  const en = (CURRENT_LANG === "en");
+  const ov = document.createElement("div");
+  ov.id = "saveOverlay";
+  ov.innerHTML =
+    '<div class="save-ov-hint">' + (en ? "Press &amp; hold the image, then “Save Image”" : "이미지를 길게 눌러 “사진에 저장”을 선택하세요") + '</div>' +
+    '<img class="save-ov-img" src="' + dataUrl + '" alt=""/>' +
+    '<button class="save-ov-close" type="button">' + (en ? "Done" : "닫기") + '</button>';
+  ov.querySelector(".save-ov-close").addEventListener("click", function(){ ov.remove(); });
+  document.body.appendChild(ov);
+  setTip(t("s7b_saved_ok"));
 }
 function setTip(msg){
   const el = document.getElementById("inviteTip");
@@ -1635,7 +1669,9 @@ function renderDisplayGarden(){
     seed.className = "seed-layer";
     seed.style.zIndex = String(10 + i);
     seed.innerHTML = '<img class="seed-layer-img" src="' + plantSrc + '" alt=""/>';
-    seed.onclick = (ev) => showBubbleForEntry(e, false, ev);
+    // Display interaction: tapping a flower pops a RANDOM trace bubble at a
+    // random spot (and restarts the idle cycle), so it feels playful/alive.
+    seed.onclick = () => { showBubbleAuto(); restartDisplayCycle(); };
     container.appendChild(seed);
   });
   if(bubbleTimer) clearInterval(bubbleTimer);
@@ -1644,6 +1680,13 @@ function renderDisplayGarden(){
     showBubbleAuto();
     bubbleTimer = setInterval(() => { bubbleIdx = bubbleIdx + 1; showBubbleAuto(); }, 5000);
   }
+}
+
+// Restart the display's idle auto-cycle (used after a tap so the tapped bubble
+// isn't replaced for a few seconds).
+function restartDisplayCycle(){
+  if(bubbleTimer) clearInterval(bubbleTimer);
+  bubbleTimer = setInterval(() => { bubbleIdx = bubbleIdx + 1; showBubbleAuto(); }, 5000);
 }
 
 function updateExIdleText(){

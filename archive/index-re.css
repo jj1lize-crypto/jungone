@@ -5688,6 +5688,28 @@ body.display-mode .answer-bubble:not(.ex-answer-big) .bubble-inner svg{
   height:auto !important;
 }
 
+/* Mobile save overlay — long-press the image to save it to Photos */
+#saveOverlay{
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(8,8,6,0.96);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; padding:20px;
+}
+#saveOverlay .save-ov-hint{
+  color:#f5f0e8; font-family:'Noto Serif KR','Crimson Pro',serif;
+  font-size:15px; line-height:1.5; text-align:center; opacity:0.92;
+}
+#saveOverlay .save-ov-img{
+  max-width:92%; max-height:72vh; object-fit:contain;
+  border-radius:8px; box-shadow:0 10px 40px rgba(0,0,0,0.6);
+  -webkit-touch-callout:default;   /* allow iOS long-press "Save Image" */
+}
+#saveOverlay .save-ov-close{
+  margin-top:6px; padding:10px 30px; border-radius:999px;
+  border:1px solid rgba(245,240,232,0.4); background:transparent;
+  color:#f5f0e8; font-size:15px; cursor:pointer;
+}
+
 /* Spotlight the plant the user JUST planted: glow its silhouette + gentle pulse.
    (drop-shadow on a transparent PNG traces the plant shape, not a box.) */
 .seed-layer.just-planted{ z-index:60 !important; }
