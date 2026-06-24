@@ -1613,25 +1613,9 @@ function initExhibitionDisplay(){
   unlockDisplayAudio();
 }
 
-// The display is untouchable, so there is NO visible "tap to start" prompt.
-// Voice plays automatically when its bubble appears (see showBubbleAt). For
-// sound to actually come out without any interaction, the host browser must be
-// allowed to autoplay audio (e.g. Chrome launched with
-// --autoplay-policy=no-user-gesture-required, or the site's media autoplay
-// allowed). As a bonus, if any interaction ever happens it unlocks audio too.
-function unlockDisplayAudio(){
-  if(window._audioGateBound) return;
-  window._audioGateBound = true;
-  function unlock(){
-    window._displayAudioReady = true;
-    document.removeEventListener("click", unlock);
-    document.removeEventListener("touchstart", unlock);
-    document.removeEventListener("keydown", unlock);
-  }
-  document.addEventListener("click", unlock);
-  document.addEventListener("touchstart", unlock);
-  document.addEventListener("keydown", unlock);
-}
+// Voice never autoplays. Each voice bubble is tappable to play (see showBubbleAt),
+// so there is no sound button. Kept as a no-op so existing callers stay valid.
+function unlockDisplayAudio(){ /* no-op: voice plays only on bubble tap */ }
 
 // Synchronous render for the exhibition display (no rAF): stacks the current
 // `entries` as full-canvas plant layers and starts the auto-cycling trace bubbles.
@@ -2275,20 +2259,9 @@ function showBubbleAt(e, x, y, isAuto){
       const h = 8 + Math.abs(Math.sin(i*0.7+1)*20 + Math.cos(i*0.4)*14);
       bars += '<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
     }
-    const label = isAuto ? t("bubble_voicetrace") : t("bubble_playing");
-    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">'+label+'</div></div>';
-    // Play on direct click, AND during the auto-cycle on a passive display
-    // (so the touchless TV plays voice traces too). Browsers block autoplay
-    // until the page has had one interaction — unlockDisplayAudio() handles that.
-    const isDisplay = (IS_DISPLAY_MODE || document.body.classList.contains("ex-display"));
-    if(!isAuto || isDisplay){
-      const audio = new Audio(e.voice);
-      audio.onended = function(){
-        if(window._curAudio === audio){ window._curAudio = null; }
-      };
-      audio.play().catch(function(){});
-      window._curAudio = audio;
-    }
+    // Voice NEVER plays on its own — only when the user taps this bubble.
+    const label = (CURRENT_LANG === "en") ? "▶ tap to play" : "▶ 눌러서 듣기";
+    bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.7;margin-top:3px;">'+label+'</div></div>';
   } else if(e.answer && e.answer.trim()){
     bodyHtml = '<div class="b-answer">' + e.answer + '</div>';
   }
@@ -2320,6 +2293,27 @@ function showBubbleAt(e, x, y, isAuto){
   bub.style.left = lx + "px";
   bub.style.top  = ty + "px";
   bub.classList.add("show");
+
+  // Voice trace → the bubble itself is tappable to play/replay. Nothing plays
+  // automatically; sound only happens on this tap (which is also the gesture
+  // that satisfies the browser's autoplay rule).
+  if(e.voice){
+    bub.style.pointerEvents = "auto";
+    bub.style.cursor = "pointer";
+    bub.onclick = function(){
+      try{
+        if(window._curAudio){ window._curAudio.pause(); window._curAudio.currentTime = 0; }
+        const a = new Audio(e.voice);
+        a.onended = function(){ if(window._curAudio === a) window._curAudio = null; };
+        a.play().catch(function(){});
+        window._curAudio = a;
+      }catch(err){}
+    };
+  } else {
+    bub.style.pointerEvents = "";
+    bub.style.cursor = "";
+    bub.onclick = null;
+  }
 }
 
 
