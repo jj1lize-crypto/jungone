@@ -5688,6 +5688,25 @@ body.display-mode .answer-bubble:not(.ex-answer-big) .bubble-inner svg{
   height:auto !important;
 }
 
+/* Spotlight the plant the user JUST planted: glow its silhouette + gentle pulse.
+   (drop-shadow on a transparent PNG traces the plant shape, not a box.) */
+.seed-layer.just-planted{ z-index:60 !important; }
+.seed-layer.just-planted .seed-layer-img{
+  animation:justPlantedGlow 1.4s ease-in-out infinite;
+}
+@keyframes justPlantedGlow{
+  0%,100%{ filter:drop-shadow(0 0 6px rgba(255,238,170,0.55)) drop-shadow(0 0 14px rgba(255,224,130,0.35)); }
+  50%    { filter:drop-shadow(0 0 14px rgba(255,244,200,0.95)) drop-shadow(0 0 30px rgba(255,224,130,0.7)); }
+}
+/* "you just planted this" label inside the bubble */
+.bubble-inner .b-planted{
+  font-size:11px; letter-spacing:.08em;
+  color:#ffe9a8; margin-bottom:7px; font-weight:600;
+}
+body.display-mode .answer-bubble:not(.ex-answer-big) .b-planted{
+  font-size:clamp(15px,1.5vw,24px) !important; margin-bottom:clamp(8px,1vw,14px) !important;
+}
+
 /* (Reverted the full-width .app override — it broke centring on iPad and
    pushed the phone layout left. The app stays a centred max-width column.) */
 

@@ -1213,7 +1213,10 @@ function pushToFirebase(entry){
     if(document.getElementById("s9").classList.contains("active")) buildGarden();
     return;
   }
-  ENTRIES_REF.push(entry).catch(err => {
+  const ref = ENTRIES_REF.push(entry);
+  // Remember which plant the user just planted so the garden can spotlight it.
+  window._justPlantedKey = (ref && ref.key) || null;
+  ref.catch(err => {
     console.error("DB push failed:", err);
     entries.push(entry);
     if(document.getElementById("s9").classList.contains("active")) buildGarden();
@@ -2070,9 +2073,27 @@ function buildGarden(){
 
     if(bubbleTimer) clearInterval(bubbleTimer);
     bubbleIdx = 0;
-    if(entries.length){
+    const cycle = IS_DISPLAY_MODE ? 4000 : 5000;
+    // If the user just planted a trace, SPOTLIGHT it: glow its plant + open its
+    // bubble with a "you just planted this" label, then start the normal cycle.
+    const jpk = window._justPlantedKey;
+    const justEntry = jpk ? visibleEntries.find(e => e._key === jpk) : null;
+    if(justEntry){
+      window._justPlantedKey = null;
+      const idx = visibleEntries.indexOf(justEntry);
+      const layers = container.querySelectorAll(".seed-layer");
+      const layer = layers[idx];
+      if(layer){
+        layer.classList.add("just-planted");
+        setTimeout(() => layer.classList.remove("just-planted"), 8000);
+      }
+      window._plantedLabel = true;
+      showBubbleForEntry(justEntry, false);   // anchored, readable, with the label
+      window._plantedLabel = false;
+      // Give the user a few seconds to find their plant before cycling resumes.
+      bubbleTimer = setInterval(() => { bubbleIdx = bubbleIdx + 1; showBubbleAuto(); }, cycle);
+    } else if(entries.length){
       showBubbleAuto();
-      const cycle = IS_DISPLAY_MODE ? 4000 : 5000;
       bubbleTimer = setInterval(() => {
         bubbleIdx = bubbleIdx + 1;
         showBubbleAuto();
@@ -2235,6 +2256,10 @@ function showBubbleAt(e, x, y, isAuto){
   }
   const dateStr = e.date || "";
   let headerHtml = "";
+  if(window._plantedLabel){
+    headerHtml += '<div class="b-planted">🌱 ' +
+      (CURRENT_LANG === "en" ? "You just planted this" : "방금 여기에 심었어요") + '</div>';
+  }
   if(qText) headerHtml += '<div class="b-question">"' + qText + '"</div>';
   if(dateStr) headerHtml += '<div class="b-date">' + dateStr + '</div>';
 
@@ -2270,21 +2295,25 @@ function showBubbleAt(e, x, y, isAuto){
 
   inner.innerHTML = headerHtml + bodyHtml;
 
-  // Measure the actual rendered size so the bubble stays fully on-screen at any
-  // size (phone OR enlarged 4K display bubble) and any position.
-  const gb = document.getElementById("gardenBody");
-  const gbW = gb.clientWidth, gbH = gb.clientHeight;
   const r = bub.getBoundingClientRect();
-  const bw = Math.min(r.width  || 240, gbW - 20);
-  const bh = Math.min(r.height || 120, gbH - 20);
   let lx, ty;
   if(isAuto){
-    // Any auto-cycle (public garden OR display) → place the bubble anywhere in
-    // the FULL free area (measured AFTER sizing it, so even a big bubble scatters
-    // instead of clamping back to the centre).
-    lx = 10 + Math.random() * Math.max(0, gbW - bw - 20);
-    ty = 10 + Math.random() * Math.max(0, gbH - bh - 20);
+    // Auto-cycle → float over the WHOLE screen (position:fixed + viewport size),
+    // NOT just the centred 430px garden column, so bubbles truly scatter
+    // edge-to-edge instead of piling up in the middle.
+    bub.style.position = "fixed";
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const bw = Math.min(r.width  || 240, vw - 20);
+    const bh = Math.min(r.height || 120, vh - 20);
+    lx = 10 + Math.random() * Math.max(0, vw - bw - 20);
+    ty = 10 + Math.random() * Math.max(0, vh - bh - 20);
   } else {
+    // Direct click → anchor to the tapped spot inside the garden body.
+    bub.style.position = "";   // back to CSS default (absolute)
+    const gb = document.getElementById("gardenBody");
+    const gbW = gb.clientWidth, gbH = gb.clientHeight;
+    const bw = Math.min(r.width  || 240, gbW - 20);
+    const bh = Math.min(r.height || 120, gbH - 20);
     lx = Math.max(10, Math.min(x - bw/2, gbW - bw - 10));
     ty = Math.max(10, Math.min(y - 20,   gbH - bh - 10));
   }
