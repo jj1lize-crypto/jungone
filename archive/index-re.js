@@ -1610,20 +1610,17 @@ function initExhibitionDisplay(){
   unlockDisplayAudio();
 }
 
-// Browsers block audio autoplay until the page receives ONE user interaction.
-// A passive display can't tap, so show a one-time "tap to start" gate; a single
-// click / touch / key press (e.g. at setup) unlocks sound for the whole session.
+// The display is untouchable, so there is NO visible "tap to start" prompt.
+// Voice plays automatically when its bubble appears (see showBubbleAt). For
+// sound to actually come out without any interaction, the host browser must be
+// allowed to autoplay audio (e.g. Chrome launched with
+// --autoplay-policy=no-user-gesture-required, or the site's media autoplay
+// allowed). As a bonus, if any interaction ever happens it unlocks audio too.
 function unlockDisplayAudio(){
   if(window._audioGateBound) return;
   window._audioGateBound = true;
-  const gate = document.createElement("div");
-  gate.id = "audioGate";
-  gate.innerHTML = '<div class="audio-gate-inner"><div class="audio-gate-play">🔊</div><div class="audio-gate-text">Click anywhere to enable sound</div></div>';
-  document.body.appendChild(gate);
   function unlock(){
-    try{ const a = new Audio(); a.muted = true; a.play().catch(function(){}); }catch(e){}
     window._displayAudioReady = true;
-    if(gate && gate.parentNode) gate.parentNode.removeChild(gate);
     document.removeEventListener("click", unlock);
     document.removeEventListener("touchstart", unlock);
     document.removeEventListener("keydown", unlock);
@@ -2147,7 +2144,16 @@ function getPositions(n, W, H){
 let _lastAutoEntry = null;
 function showBubbleAuto(){
   // Only cycle entries that actually have a trace (media or text)
-  const withTrace = entries.filter(e => !!(e.video || e.photo || e.voice || (e.answer && e.answer.trim())));
+  let withTrace = entries.filter(e => !!(e.video || e.photo || e.voice || (e.answer && e.answer.trim())));
+  // De-duplicate by content so the same image / voice / video / text never
+  // appears twice in the cycle (no copy-paste repeats).
+  const _seen = new Set();
+  withTrace = withTrace.filter(e => {
+    const key = e.video || e.photo || e.voice || (e.answer || "").trim();
+    if(_seen.has(key)) return false;
+    _seen.add(key);
+    return true;
+  });
   if(!withTrace.length) return;
   let e;
   if(IS_DISPLAY_MODE || document.body.classList.contains("ex-display")){
