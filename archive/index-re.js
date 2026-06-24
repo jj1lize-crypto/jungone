@@ -1356,9 +1356,32 @@ function downloadInvitation(){
     imageTimeout: 15000,
     foreignObjectRendering: false,
     onclone: (clonedDoc) => {
-      // Force images to load fresh in clone
-      const imgs = clonedDoc.querySelectorAll("#inviteCardPreview img");
-      imgs.forEach(img => { img.crossOrigin = "anonymous"; });
+      // html2canvas (1.4.1) does NOT support object-fit, so the card's
+      // object-fit:cover/contain <img>s render wrong (or drop out) → the saved
+      // PNG ends up black with only text. Convert each one to a plain div with a
+      // background-image, which html2canvas renders correctly.
+      const card = clonedDoc.getElementById("inviteCardPreview");
+      if(!card) return;
+      card.querySelectorAll("img").forEach(img => {
+        if(!img.src) return;
+        const isContain = img.classList.contains("icp-img-q");
+        const div = clonedDoc.createElement("div");
+        div.style.position = "absolute";
+        div.style.top = "0"; div.style.left = "0";
+        div.style.width = "100%"; div.style.height = "100%";
+        div.style.zIndex = isContain ? "2" : "1";
+        div.style.backgroundImage = "url('" + img.src + "')";
+        div.style.backgroundRepeat = "no-repeat";
+        div.style.backgroundPosition = "center";
+        div.style.backgroundSize = isContain ? "contain" : "cover";
+        if(isContain){
+          div.style.boxSizing = "border-box";
+          div.style.padding = "6%";
+          div.style.backgroundOrigin = "content-box";
+          div.style.backgroundClip = "content-box";
+        }
+        img.parentNode.replaceChild(div, img);
+      });
     }
   }).then(canvas => {
     const link = document.createElement("a");
