@@ -2278,10 +2278,10 @@ function showBubbleAt(e, x, y, isAuto){
   const bw = Math.min(r.width  || 240, gbW - 20);
   const bh = Math.min(r.height || 120, gbH - 20);
   let lx, ty;
-  if(isAuto && (IS_DISPLAY_MODE || document.body.classList.contains("ex-display"))){
-    // Passive display auto-cycle → place anywhere in the FULL free area (measured
-    // AFTER sizing the bubble, so a big bubble still scatters instead of clamping
-    // back to the centre).
+  if(isAuto){
+    // Any auto-cycle (public garden OR display) → place the bubble anywhere in
+    // the FULL free area (measured AFTER sizing it, so even a big bubble scatters
+    // instead of clamping back to the centre).
     lx = 10 + Math.random() * Math.max(0, gbW - bw - 20);
     ty = 10 + Math.random() * Math.max(0, gbH - bh - 20);
   } else {
