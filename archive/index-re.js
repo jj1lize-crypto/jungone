@@ -1422,6 +1422,7 @@ function enterDisplayMode(){
   hint.textContent = t("garden_hint");
   document.getElementById("s9").appendChild(hint);
   buildGarden();
+  unlockDisplayAudio();
 }
 
 
@@ -1583,6 +1584,30 @@ function initExhibitionDisplay(){
   // startFirebaseListener() reloads entries from the room and re-renders on data.
   renderDisplayGarden();
   initFirebase();
+  unlockDisplayAudio();
+}
+
+// Browsers block audio autoplay until the page receives ONE user interaction.
+// A passive display can't tap, so show a one-time "tap to start" gate; a single
+// click / touch / key press (e.g. at setup) unlocks sound for the whole session.
+function unlockDisplayAudio(){
+  if(window._audioGateBound) return;
+  window._audioGateBound = true;
+  const gate = document.createElement("div");
+  gate.id = "audioGate";
+  gate.innerHTML = '<div class="audio-gate-inner"><div class="audio-gate-play">🔊</div><div class="audio-gate-text">Click anywhere to enable sound</div></div>';
+  document.body.appendChild(gate);
+  function unlock(){
+    try{ const a = new Audio(); a.muted = true; a.play().catch(function(){}); }catch(e){}
+    window._displayAudioReady = true;
+    if(gate && gate.parentNode) gate.parentNode.removeChild(gate);
+    document.removeEventListener("click", unlock);
+    document.removeEventListener("touchstart", unlock);
+    document.removeEventListener("keydown", unlock);
+  }
+  document.addEventListener("click", unlock);
+  document.addEventListener("touchstart", unlock);
+  document.addEventListener("keydown", unlock);
 }
 
 // Synchronous render for the exhibition display (no rAF): stacks the current
@@ -2127,12 +2152,8 @@ function showBubbleForEntry(e, isAuto, ev){
     // Direct click → open the trace right where the plant was tapped
     x = ev.clientX - rect.left;
     y = ev.clientY - rect.top;
-  } else if(isAuto && (IS_DISPLAY_MODE || document.body.classList.contains("ex-display"))){
-    // Passive display auto-cycle → scatter bubbles to random spots (not just center).
-    // showBubbleAt() clamps to keep the bubble fully on-screen at any size.
-    x = body.clientWidth  * (0.22 + Math.random() * 0.56);
-    y = body.clientHeight * (0.18 + Math.random() * 0.54);
   } else {
+    // (Passive display auto-cycle is randomly positioned inside showBubbleAt.)
     // Auto-cycle → use the matching plant layer's center (so it appears at that plant)
     let px = body.clientWidth/2, py = body.clientHeight*0.3;
     try{
@@ -2202,8 +2223,11 @@ function showBubbleAt(e, x, y, isAuto){
     }
     const label = isAuto ? t("bubble_voicetrace") : t("bubble_playing");
     bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">'+label+'</div></div>';
-    // Only play sound on direct user click — NOT during the silent auto-cycle
-    if(!isAuto){
+    // Play on direct click, AND during the auto-cycle on a passive display
+    // (so the touchless TV plays voice traces too). Browsers block autoplay
+    // until the page has had one interaction — unlockDisplayAudio() handles that.
+    const isDisplay = (IS_DISPLAY_MODE || document.body.classList.contains("ex-display"));
+    if(!isAuto || isDisplay){
       const audio = new Audio(e.voice);
       audio.onended = function(){
         if(window._curAudio === audio){ window._curAudio = null; }
@@ -2218,14 +2242,23 @@ function showBubbleAt(e, x, y, isAuto){
   inner.innerHTML = headerHtml + bodyHtml;
 
   // Measure the actual rendered size so the bubble stays fully on-screen at any
-  // size (phone OR enlarged 4K display bubble) and any random position.
+  // size (phone OR enlarged 4K display bubble) and any position.
   const gb = document.getElementById("gardenBody");
   const gbW = gb.clientWidth, gbH = gb.clientHeight;
   const r = bub.getBoundingClientRect();
   const bw = Math.min(r.width  || 240, gbW - 20);
   const bh = Math.min(r.height || 120, gbH - 20);
-  const lx = Math.max(10, Math.min(x - bw/2, gbW - bw - 10));
-  const ty = Math.max(10, Math.min(y - 20,   gbH - bh - 10));
+  let lx, ty;
+  if(isAuto && (IS_DISPLAY_MODE || document.body.classList.contains("ex-display"))){
+    // Passive display auto-cycle → place anywhere in the FULL free area (measured
+    // AFTER sizing the bubble, so a big bubble still scatters instead of clamping
+    // back to the centre).
+    lx = 10 + Math.random() * Math.max(0, gbW - bw - 20);
+    ty = 10 + Math.random() * Math.max(0, gbH - bh - 20);
+  } else {
+    lx = Math.max(10, Math.min(x - bw/2, gbW - bw - 10));
+    ty = Math.max(10, Math.min(y - 20,   gbH - bh - 10));
+  }
   bub.style.left = lx + "px";
   bub.style.top  = ty + "px";
   bub.classList.add("show");

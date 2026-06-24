@@ -5688,3 +5688,39 @@ body.display-mode .answer-bubble:not(.ex-answer-big) .bubble-inner svg{
   height:auto !important;
 }
 
+/* Non-blocking hint: one click/touch/key anywhere unlocks audio autoplay.
+   Garden stays fully visible behind it; pointer-events:none lets the click
+   pass straight through to the document listener that does the unlock. */
+#audioGate{
+  position:fixed; left:50%; bottom:clamp(24px,4vh,60px);
+  transform:translateX(-50%); z-index:9999;
+  pointer-events:none;
+  background:rgba(10,12,9,0.72); color:#f5f0e8;
+  border:1px solid rgba(245,240,232,0.25); border-radius:999px;
+  padding:clamp(10px,1.4vh,16px) clamp(18px,2.4vw,30px);
+  font-family:'Crimson Pro','Noto Serif KR',serif;
+  backdrop-filter:blur(6px);
+  animation:audioGatePulse 1.8s ease-in-out infinite;
+}
+#audioGate .audio-gate-inner{ display:flex; align-items:center; gap:10px; }
+#audioGate .audio-gate-play{ font-size:clamp(15px,1.6vw,24px); line-height:1; opacity:0.95; }
+#audioGate .audio-gate-text{
+  font-size:clamp(13px,1.3vw,20px); letter-spacing:.1em;
+  opacity:0.85; text-transform:uppercase;
+}
+@keyframes audioGatePulse{ 0%,100%{opacity:0.65;} 50%{opacity:1;} }
+
+
+/* ============================================================
+   Full-bleed background on every device. The app was capped at
+   --content-max (430px) and centred, so its background only filled
+   a narrow middle column — leaving empty sides on iPad / laptop / TV.
+   Let the app span the full viewport so the background fills the
+   whole screen; each screen's own max-width still centres the content.
+   ============================================================ */
+.app{
+  max-width:none !important;
+  margin:0 !important;
+  box-shadow:none !important;
+}
+
