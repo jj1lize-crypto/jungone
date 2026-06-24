@@ -1550,6 +1550,15 @@ function buildExhibitionGardenShell(){
 }
 
 function initExhibitionDisplay(){
+  // Display link is English-only (no toggle, no touch). DEMO/QDATA are frozen at
+  // load time in the load-time language, so re-derive them (and the seeded
+  // entries) in EN so every label, question and demo trace shows in English.
+  CURRENT_LANG = "en";
+  if(typeof QDATA_BY_LANG !== "undefined" && QDATA_BY_LANG["en"]) QDATA = QDATA_BY_LANG["en"];
+  if(typeof DEMO_BY_LANG !== "undefined" && DEMO_BY_LANG["en"]){
+    DEMO = DEMO_BY_LANG["en"];
+    entries = [...DEMO];
+  }
   // Exhibition chrome — ex-display gives the TV background + sizing; hide controls.
   document.body.classList.add("display-mode");
   document.body.classList.add("ex-display");
@@ -2087,11 +2096,24 @@ function getPositions(n, W, H){
   return positions;
 }
 
+let _lastAutoEntry = null;
 function showBubbleAuto(){
   // Only cycle entries that actually have a trace (media or text)
   const withTrace = entries.filter(e => !!(e.video || e.photo || e.voice || (e.answer && e.answer.trim())));
   if(!withTrace.length) return;
-  const e = withTrace[bubbleIdx % withTrace.length];
+  let e;
+  if(IS_DISPLAY_MODE || document.body.classList.contains("ex-display")){
+    // Passive display → random order (avoid repeating the same trace twice in a row)
+    if(withTrace.length === 1){
+      e = withTrace[0];
+    } else {
+      do { e = withTrace[Math.floor(Math.random() * withTrace.length)]; }
+      while(e === _lastAutoEntry);
+    }
+    _lastAutoEntry = e;
+  } else {
+    e = withTrace[bubbleIdx % withTrace.length];
+  }
   showBubbleForEntry(e, true);
 }
 
@@ -2105,6 +2127,11 @@ function showBubbleForEntry(e, isAuto, ev){
     // Direct click → open the trace right where the plant was tapped
     x = ev.clientX - rect.left;
     y = ev.clientY - rect.top;
+  } else if(isAuto && (IS_DISPLAY_MODE || document.body.classList.contains("ex-display"))){
+    // Passive display auto-cycle → scatter bubbles to random spots (not just center).
+    // showBubbleAt() clamps to keep the bubble fully on-screen at any size.
+    x = body.clientWidth  * (0.22 + Math.random() * 0.56);
+    y = body.clientHeight * (0.18 + Math.random() * 0.54);
   } else {
     // Auto-cycle → use the matching plant layer's center (so it appears at that plant)
     let px = body.clientWidth/2, py = body.clientHeight*0.3;
@@ -2190,14 +2217,17 @@ function showBubbleAt(e, x, y, isAuto){
 
   inner.innerHTML = headerHtml + bodyHtml;
 
-  // Measure the actual rendered width so the bubble stays centered & on-screen
-  // at any size (normal phone OR enlarged 4K display bubble).
-  const gbW = document.getElementById("gardenBody").clientWidth;
-  const bw = Math.min(bub.getBoundingClientRect().width || 240, gbW - 20);
-  let lx = x - bw/2;
-  lx = Math.max(10, Math.min(lx, gbW - bw - 10));
+  // Measure the actual rendered size so the bubble stays fully on-screen at any
+  // size (phone OR enlarged 4K display bubble) and any random position.
+  const gb = document.getElementById("gardenBody");
+  const gbW = gb.clientWidth, gbH = gb.clientHeight;
+  const r = bub.getBoundingClientRect();
+  const bw = Math.min(r.width  || 240, gbW - 20);
+  const bh = Math.min(r.height || 120, gbH - 20);
+  const lx = Math.max(10, Math.min(x - bw/2, gbW - bw - 10));
+  const ty = Math.max(10, Math.min(y - 20,   gbH - bh - 10));
   bub.style.left = lx + "px";
-  bub.style.top  = Math.max(10, y - 20) + "px";
+  bub.style.top  = ty + "px";
   bub.classList.add("show");
 }
 
