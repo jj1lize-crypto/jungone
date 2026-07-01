@@ -2297,7 +2297,7 @@ body.display-mode #s9 .garden-body{
   content:"";
   position:fixed;
   inset:0;
-  background-image:url("../assets/jungone-main/cover-back-empty.png?v=png-mobile-2");
+  background-image:url("assets/jungone-main/cover-back-empty.png?v=png-mobile-2");
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
@@ -2320,7 +2320,7 @@ body.display-mode #s9 .garden-body{
 .cover-bg{
   position:absolute;
   inset:0;
-  background-image:url("../assets/jungone-main/cover-1920.png?v=png-mobile-2");
+  background-image:url("assets/jungone-main/cover-1920.png?v=png-mobile-2");
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
@@ -2572,7 +2572,7 @@ body {
   flex-direction: column !important;
   background:
     linear-gradient(rgba(243,238,228,.94), rgba(243,238,228,.94)),
-    url("../assets/jungone-main/cover-back-empty.png?v=png-mobile-2");
+    url("assets/jungone-main/cover-back-empty.png?v=png-mobile-2");
   background-size: cover;
   background-position: center;
   background-blend-mode: normal;
@@ -2740,7 +2740,7 @@ body {
   inset: 0 !important;
   z-index: 1 !important;
   background-image: linear-gradient(rgba(0,0,0,.18), rgba(0,0,0,.35)),
-                    url("../assets/jungone-main/cover-1920.png?v=png-mobile-2") !important;
+                    url("assets/jungone-main/cover-1920.png?v=png-mobile-2") !important;
   background-size: cover !important;
   background-position: center !important;
 }
@@ -3048,7 +3048,7 @@ body {
   max-width: 340px !important;
   aspect-ratio: 0.73 !important;
   padding: 0 !important;
-  background: url("../assets/jungone-main/listencard-back-empty.png?v=png-mobile-2") center / cover no-repeat !important;
+  background: url("assets/jungone-main/listencard-back-empty.png?v=png-mobile-2") center / cover no-repeat !important;
   color: #fff !important;
   position: relative !important;
   border: 0 !important;
@@ -3556,7 +3556,7 @@ body.display-mode .app {
   justify-content:center !important;
   text-align:center !important;
   margin:0 auto !important;
-  background:url("../assets/jungone-main/cover-logo-wh.png?v=png-mobile-2") center/contain no-repeat !important;
+  background:url("assets/jungone-main/cover-logo-wh.png?v=png-mobile-2") center/contain no-repeat !important;
   width:140px !important;
   height:48px !important;
   font-size:0 !important;
@@ -4096,7 +4096,7 @@ body.display-mode .app {
   height:auto !important;
   aspect-ratio:1/1.05 !important;
   flex:0 0 auto !important;
-  background:#0e0c09 url("../assets/jungone-main/listencard-back-empty.png?v=png-mobile-2") center/cover no-repeat !important;
+  background:#0e0c09 url("assets/jungone-main/listencard-back-empty.png?v=png-mobile-2") center/cover no-repeat !important;
   overflow:hidden;
 }
 .lm-img-wrap .lm-back{display:none !important;}
@@ -4287,7 +4287,7 @@ body.display-mode .app {
 .app{
   background:
     linear-gradient(rgba(243,238,228,.90), rgba(243,238,228,.90)),
-    url("../assets/jungone-main/cover-back-empty.png?v=png-mobile-2") !important;
+    url("assets/jungone-main/cover-back-empty.png?v=png-mobile-2") !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
@@ -4485,7 +4485,7 @@ body:has(#s0.active) .lang-toggle{
 .intro-logo{
   display:block !important;
   margin:24px auto 8px !important;       /* same top spacing as garden header */
-  background:url("../assets/jungone-main/cover-logo-bk.png?v=png-mobile-2") center/contain no-repeat !important;
+  background:url("assets/jungone-main/cover-logo-bk.png?v=png-mobile-2") center/contain no-repeat !important;
   width:140px !important;                /* same as garden logo */
   height:48px !important;                /* same as garden logo */
   flex:0 0 auto !important;
@@ -5488,7 +5488,7 @@ body.ex-controller .answer-bubble.ex-qcard-mode .bubble-inner{ pointer-events:au
 #s9 .garden-body::before{
   content:"";
   position:absolute; inset:0; z-index:0;
-  background:url("../assets/jungone-main/BGtv-night.png?v=png-mobile-2") center/cover no-repeat;
+  background:url("assets/jungone-main/BGtv-night.png?v=png-mobile-2") center/cover no-repeat;
   opacity:1;
   pointer-events:none;
 }
@@ -5496,7 +5496,7 @@ body.ex-controller .answer-bubble.ex-qcard-mode .bubble-inner{ pointer-events:au
 #s9 .garden-body::after{
   content:"";
   position:absolute; inset:0; z-index:1;
-  background:url("../assets/jungone-main/garden-guide-hd.webp?v=hd1") center/contain no-repeat;
+  background:url("assets/jungone-main/garden-guide-hd.webp?v=hd1") center/contain no-repeat;
   opacity:1;
   pointer-events:none;
 }

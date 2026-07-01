@@ -1,5 +1,5 @@
-const BASE = "../assets/jungone-main/";
-const MEDIA_BASE = "../assets/media/";
+const BASE = "assets/jungone-main/";
+const MEDIA_BASE = "assets/media/";
 
 // ===== Image system (4-color mapping: bl/gn/pk/yw) =====
 // space → bl (blue), body → gn (green), taste → pk (pink), safety → yw (yellow)
