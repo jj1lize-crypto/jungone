@@ -6112,7 +6112,7 @@ const EX_F2F_CARDS = {
   pk: ["pk2-9", "pk2-10"],
   yw: ["yw1-10", "yw2-2"]
 };
-const EX_TV_CYCLE_MS = 6000;
+const EX_TV_CYCLE_MS = 9000;
 const MEDIA_BASE = "https://jj1lize-crypto.github.io/jungone/assets/media/";
 
 // ===== Image system (4-color mapping: bl/gn/pk/yw) =====
@@ -6671,6 +6671,13 @@ const DEMO_BY_LANG = {
   f2fDemo("Daughter", "yw2-2", {answer:"Sometimes I can't bring it up because I don't want to be a burden when tired."}, "2026.05.22")
 ]
 };
+// Family traces kept from Firebase (2026.06) — built in so the family garden always shows them
+const FAMILY_TRACES = [
+  f2fDemo("You", "yw3-6", {"answer": "The anxiety that comes with presenting for the final project and the uncertainty of passing.", "_key": "-OvjI1e67Upsxc72F3g8"}, "2026.06.22"),
+  f2fDemo("You", "bl3-5", {"answer": "The feeling of family loving each other", "_key": "-OvjIymc8vOdE-a50kHJ"}, "2026.06.22"),
+  f2fDemo("You", "bl1-7", {"answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/trace-photo2.jpg", "_key": "-Ovrs2P034TfnwWpT3hh"}, "2026.06.24"),
+  f2fDemo("You", "yw1-10", {"answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/trace-photo3.jpg", "_key": "-Ovrs2_BJtWSB4JObJul"}, "2026.06.24")
+];
 const INVITE_MSG_BY_LANG = {
   ko: {
     a01: "의견을 존중하며 들어주세요.",
@@ -7899,7 +7906,9 @@ function startFirebaseListener(){
       });
     }
     // Merge: DEMO seeds first (anchor garden), then live entries
-    entries = [...DEMO, ...fbEntries];
+    // (skip Firebase records that are already built in, e.g. FAMILY_TRACES)
+    const builtIn = new Set(DEMO.map(d => d._key).filter(Boolean));
+    entries = [...DEMO, ...fbEntries.filter(e => !builtIn.has(e._key))];
 
     // If we're on the garden screen, redraw (preserves existing positions)
     const gardenActive = document.getElementById("s9").classList.contains("active");
@@ -8757,6 +8766,7 @@ function revealBubble(render, crossfade){
     });
   };
   if(crossfade && bub.classList.contains("show")){
+    if(SAMPLE_LOOP && window._curAudio){ fadeAudioOut(window._curAudio); window._curAudio = null; }
     fadeGhostOf(bub);                         // old one fades out on its own
     bub.classList.add("bub-instant");
     bub.classList.remove("show");
@@ -8782,6 +8792,24 @@ function whenBubbleMediaReady(bub, limit){
     m.addEventListener("error", res, {once:true});
   }));
   return Promise.race([Promise.all(waits), new Promise(r => setTimeout(r, limit))]);
+}
+
+// TV: voice volume follows the bubble (same 1.8s fade as the bubble)
+const VOICE_FADE_MS = 1800;
+function rampAudio(audio, to, ms, done){
+  if(!audio) return;
+  clearInterval(audio._ramp);
+  const from = audio.volume, t0 = performance.now();
+  audio._ramp = setInterval(() => {
+    const k = Math.min(1, (performance.now() - t0) / ms);
+    const e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2) / 2;    // ease in-out
+    try{ audio.volume = Math.max(0, Math.min(1, from + (to - from) * e)); }catch(err){}
+    if(k >= 1){ clearInterval(audio._ramp); if(done) done(); }
+  }, 30);
+}
+function fadeAudioOut(audio){
+  if(!audio) return;
+  rampAudio(audio, 0, VOICE_FADE_MS, () => { try{ audio.pause(); }catch(e){} });
 }
 
 // Leave a copy of the current bubble on top and fade it away
@@ -8928,10 +8956,10 @@ function showBubbleForEntry(e, isAuto, ev){
 }
 
 function showBubbleAt(e, x, y, isAuto){
-  // Stop any previously playing audio (always — switching plants stops sound)
+  // Stop any previously playing audio (TV: fade it out with the bubble)
   if(window._curAudio){
-    window._curAudio.pause();
-    window._curAudio.currentTime = 0;
+    if(SAMPLE_LOOP){ fadeAudioOut(window._curAudio); }
+    else { window._curAudio.pause(); window._curAudio.currentTime = 0; }
     window._curAudio = null;
   }
   const bub = document.getElementById("answerBubble");
@@ -8970,15 +8998,16 @@ function showBubbleAt(e, x, y, isAuto){
       const h = 8 + Math.abs(Math.sin(i*0.7+1)*20 + Math.cos(i*0.4)*14);
       bars += '<rect x="'+(i*6)+'" y="'+((30-h)/2)+'" width="4" height="'+h+'" rx="2" fill="'+col+'" opacity="0.75"/>';
     }
-    const label = isAuto ? t("bubble_voicetrace") : t("bubble_playing");
+    const label = (isAuto && !SAMPLE_LOOP) ? t("bubble_voicetrace") : t("bubble_playing");
     bodyHtml = '<div style="margin-top:8px;"><svg width="168" height="30" viewBox="0 0 168 30">'+bars+'</svg><div style="font-family:monospace;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:'+col+';opacity:.6;margin-top:3px;">'+label+'</div></div>';
-    // Only play sound on direct user click — NOT during the silent auto-cycle
-    if(!isAuto){
+    // Sound on a direct tap; on the TV loop also during the auto-cycle (fading with the bubble)
+    if(!isAuto || SAMPLE_LOOP){
       const audio = new Audio(e.voice);
       audio.onended = function(){
         if(window._curAudio === audio){ window._curAudio = null; }
       };
-      audio.play().catch(function(){});
+      if(SAMPLE_LOOP){ audio.volume = 0; }
+      audio.play().then(() => { if(SAMPLE_LOOP) rampAudio(audio, 1, VOICE_FADE_MS); }).catch(function(){});
       window._curAudio = audio;
     }
   } else if(e.answer && e.answer.trim()){
