@@ -5705,6 +5705,58 @@ body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer
 /* Bubble sits above the glow */
 #answerBubble{ z-index:60 !important; }
 
+/* ============================================================
+   1015 실생활용 r2 — recency fading + visible glow
+   Filters go on .seed-layer (the div): the img carries an upstream
+   `filter:none !important` that silently cancelled img-level effects.
+   ============================================================ */
+#seedsContainer .seed-layer{
+  --age:0;
+  opacity:calc(1 - var(--age) * 0.5);                       /* newest 1 → oldest .5 */
+  filter:brightness(calc(1.08 - var(--age) * 0.48)) saturate(calc(1.05 - var(--age) * 0.4));
+  transition:opacity .5s ease, filter .5s ease;
+}
+/* Newest plant: brightest, with a faint standing glow */
+#seedsContainer .seed-layer.is-newest{
+  filter:drop-shadow(0 0 8px rgba(255,246,214,.35)) brightness(1.12) saturate(1.08);
+}
+/* While a plant is tapped, everything else steps back */
+#seedsContainer.has-selection .seed-layer:not(.is-selected){
+  opacity:calc((1 - var(--age) * 0.5) * 0.45);
+}
+/* Tapped plant: full strength + breathing glow */
+#seedsContainer .seed-layer.is-selected{
+  opacity:1 !important;
+  animation:plantGlowLayer 2.2s ease-in-out infinite !important;
+}
+@keyframes plantGlowLayer{
+  0%,100%{ filter:drop-shadow(0 0 10px rgba(255,248,220,.95)) drop-shadow(0 0 30px rgba(255,236,170,.6)) brightness(1.3); }
+  50%    { filter:drop-shadow(0 0 18px rgba(255,250,230,1))   drop-shadow(0 0 56px rgba(255,236,170,.8)) brightness(1.5); }
+}
+/* Auto-cycle: soft glow on the plant being shown */
+#seedsContainer .seed-layer.is-cycling{
+  opacity:1;
+  filter:drop-shadow(0 0 10px rgba(255,246,214,.7)) drop-shadow(0 0 26px rgba(255,236,170,.35)) brightness(1.2);
+}
+/* r1 img-level effects are replaced by the layer-level ones above */
+#seedsContainer .seed-layer .seed-layer-img{ animation:none !important; }
+#seedsContainer.has-selection .seed-layer:not(.is-selected) .seed-layer-img{ opacity:1; }
+/* Bubble slides to its new spot instead of jumping */
+#answerBubble{ transition:opacity .6s, left .35s ease, top .35s ease; }
+
+/* ============================================================
+   1015 실생활용 r3 — new plant intro
+   ============================================================ */
+#gardenBody.has-intro #seedsContainer .seed-layer:not(.is-intro){ opacity:.18 !important; }
+#gardenBody.has-intro .garden-map{ opacity:.45; transition:opacity .6s; }
+#gardenBody .garden-map{ transition:opacity .8s; }
+#gardenBody.has-intro #answerBubble{ opacity:0 !important; }
+#seedsContainer .seed-layer.is-intro{
+  z-index:200 !important;
+  filter:drop-shadow(0 0 16px rgba(255,248,220,.8)) drop-shadow(0 0 48px rgba(255,236,170,.45)) brightness(1.25);
+  will-change:transform, opacity;
+}
+
 </style>
 </head>
 <body>
@@ -7168,6 +7220,7 @@ function setFlashText(msg){
 }
 
 function pushToFirebase(entry){
+  gardenIntroSrc = plantUrlForEntry(entry) || null;   // garden will introduce this plant
   if(!ENTRIES_REF){
     // No Firebase available — just add locally
     entries.push(entry);
@@ -7967,6 +8020,11 @@ function buildSparkles(){
 let bubbleTimer = null;
 let bubbleIdx = 0;
 let gardenPlants = [];          // [{src, entry}] in z-order (bottom → top)
+let gardenIntroSrc = null;       // plant to introduce on the next garden build
+let gardenIntroRunning = false;  // true while the intro animation plays
+let gardenRebuildPending = false;
+let gardenLastAutoSrc = null;
+const GARDEN_CYCLE_MS = 8000;    // slow random cycle (family)
 let gardenSelectedSrc = null;
 let gardenAutoPausedUntil = 0;
 const GARDEN_MAP_SRC = BASE + "garden-guide-hd.webp";
@@ -7982,8 +8040,9 @@ function collectGardenPlants(){
   entries.forEach((e, i) => {
     const src = plantUrlForEntry(e);
     if(!src) return;
-    if(!bySrc[src]){ bySrc[src] = {src, entry:e, firstIdx:i}; order.push(src); }
+    if(!bySrc[src]){ bySrc[src] = {src, entry:e, firstIdx:i, lastIdx:i}; order.push(src); }
     const cur = bySrc[src];
+    cur.lastIdx = i;                       // most recent planting of this plant
     // later entries replace earlier ones; an entry WITH a trace is never
     // replaced by a later entry WITHOUT one
     if(entryHasTrace(e) || !entryHasTrace(cur.entry)) cur.entry = e;
@@ -7992,6 +8051,9 @@ function collectGardenPlants(){
 }
 
 function buildGarden(){
+  // Don't tear the garden down while a new plant is flying to its spot
+  if(gardenIntroRunning){ gardenRebuildPending = true; return; }
+  if(gardenIntroSrc) gardenIntroRunning = true;
   buildSparkles();
   const container = document.getElementById("seedsContainer");
   container.innerHTML = "";
@@ -8013,10 +8075,17 @@ function buildGarden(){
   requestAnimationFrame(() => {
     fitGardenStage();
 
+    // Recency rank: newest planting → age 0 (brightest), oldest → age 1 (dimmest)
+    const byRecency = gardenPlants.slice().sort((a, b) => b.lastIdx - a.lastIdx);
+    const ageOf = {};
+    byRecency.forEach((p, r) => { ageOf[p.src] = byRecency.length > 1 ? r / (byRecency.length - 1) : 0; });
+
     gardenPlants.forEach((p, i) => {
       const e = p.entry;
       const seed = document.createElement("div");
+      seed.style.setProperty("--age", ageOf[p.src].toFixed(3));
       seed.className = "seed-layer";
+      if(ageOf[p.src] === 0) seed.classList.add("is-newest");
       seed.style.zIndex = String(10 + i);
       seed.dataset.src = p.src;
       seed.dataset.plantId = p.src;   // attachGardenHitTest reports this
@@ -8035,6 +8104,7 @@ function buildGarden(){
     // One click handler for the whole garden: find the plant actually under the tap
     attachGardenHitTest(container,
       (src) => {
+        if(gardenIntroRunning) return;
         const p = gardenPlants.find(x => x.src === src);
         if(p) openPlantTrace(p, false);
       },
@@ -8042,16 +8112,98 @@ function buildGarden(){
 
     if(bubbleTimer) clearInterval(bubbleTimer);
     bubbleIdx = 0;
+    const introSrc = gardenIntroSrc;
+    gardenIntroSrc = null;
+    if(introSrc && gardenPlants.some(p => p.src === introSrc)){
+      runPlantIntro(introSrc);
+    } else {
+      gardenIntroRunning = false;
+    }
     if(gardenPlants.length){
-      if(!gardenSelectedSrc) showBubbleAuto();
-      const cycle = IS_DISPLAY_MODE ? 4000 : 5000;
+      if(!gardenSelectedSrc && !gardenIntroRunning) showBubbleAuto();
+      const cycle = IS_DISPLAY_MODE ? 4000 : GARDEN_CYCLE_MS;
       bubbleTimer = setInterval(() => {
+        if(gardenIntroRunning) return;                   // new plant is arriving
         if(Date.now() < gardenAutoPausedUntil) return;   // user is looking at a plant
         bubbleIdx = bubbleIdx + 1;
         showBubbleAuto();
       }, cycle);
     }
   });
+}
+
+// New plant: rises big in the centre, then shrinks and flies to its own spot,
+// then glows and opens its trace bubble.
+function runPlantIntro(src){
+  const body = document.getElementById("gardenBody");
+  const container = document.getElementById("seedsContainer");
+  const layer = container && container.querySelector('.seed-layer[data-src="' + src + '"]');
+  if(!body || !layer){ gardenIntroRunning = false; return; }
+  gardenIntroRunning = true;
+  gardenSelectedSrc = null;
+  setGardenHighlight(null, null);
+  const bub = document.getElementById("answerBubble");
+  if(bub) bub.classList.remove("show");
+  if(window._curAudio){ window._curAudio.pause(); window._curAudio = null; }
+
+  layer.classList.remove("new-arrival");
+  layer.classList.add("is-intro");
+  layer.style.opacity = "0";
+  body.classList.add("has-intro");
+
+  let done = false;
+  const finish = () => {
+    if(done) return; done = true;
+    layer.style.transformOrigin = "";
+    layer.style.opacity = "";
+    layer.classList.remove("is-intro");
+    body.classList.remove("has-intro");
+    gardenIntroRunning = false;
+    const p = gardenPlants.find(x => x.src === src);
+    if(p){
+      openPlantTrace(p, false);                       // glow + its bubble
+      gardenAutoPausedUntil = Date.now() + 10000;     // then the slow random cycle
+    }
+    if(gardenRebuildPending){ gardenRebuildPending = false; buildGarden(); }
+  };
+
+  const img = layer.querySelector("img");
+  const ready = (img && img.complete && img.naturalWidth) ? Promise.resolve() :
+    new Promise(r => {
+      if(!img){ r(); return; }
+      img.addEventListener("load", r, {once:true});
+      img.addEventListener("error", r, {once:true});
+      setTimeout(r, 8000);
+    });
+
+  ready.then(() => requestAnimationFrame(() => {
+    const b = plantBounds(src);
+    if(!b || !layer.animate){
+      // can't measure the plant: just fade it in
+      layer.style.opacity = "";
+      setTimeout(finish, 600);
+      return;
+    }
+    const W = body.clientWidth, H = body.clientHeight;
+    const bw = Math.max(1, b.right - b.left), bh = Math.max(1, b.bottom - b.top);
+    const cx = (b.left + b.right) / 2, cy = (b.top + b.bottom) / 2;
+    const k = Math.max(1.15, Math.min(3.2, (H * 0.55) / bh, (W * 0.8) / bw));
+    const br = body.getBoundingClientRect(), lr = layer.getBoundingClientRect();
+    // scale around the plant's own centre
+    layer.style.transformOrigin = (cx - (lr.left - br.left)) + "px " + (cy - (lr.top - br.top)) + "px";
+    const dx = W / 2 - cx, dy = H * 0.46 - cy;
+    const big = "translate(" + dx + "px," + dy + "px) scale(" + k + ")";
+    layer.style.opacity = "";
+    const anim = layer.animate([
+      { transform: big + " translateY(18px)", opacity: 0, offset: 0 },
+      { transform: big,                       opacity: 1, offset: 0.25 },
+      { transform: big,                       opacity: 1, offset: 0.52 },
+      { transform: "translate(0px,0px) scale(1)", opacity: 1, offset: 1 }
+    ], { duration: 4200, easing: "cubic-bezier(.45,0,.2,1)" });
+    anim.onfinish = finish;
+    anim.oncancel = finish;
+    setTimeout(finish, 6000);   // safety net
+  }));
 }
 
 function setGardenHighlight(src, mode){
@@ -8100,7 +8252,9 @@ function plantAnchor(src){
   return {x, y};
 }
 
+let gardenLastBubbleSrc = null;
 function openPlantTrace(p, isAuto, ev){
+  gardenLastBubbleSrc = p.src;
   const body = document.getElementById("gardenBody");
   const rect = body.getBoundingClientRect();
   let x, y;
@@ -8118,6 +8272,56 @@ function openPlantTrace(p, isAuto, ev){
     setGardenHighlight(p.src, "cycling");
   }
   showBubbleAt(p.entry, x, y, !!isAuto);
+  placeBubbleBesidePlant(p.src);
+}
+
+// Opaque bounds of a plant layer in gardenBody coordinates (or null)
+function plantBounds(src){
+  try{
+    const body = document.getElementById("gardenBody");
+    const rect = body.getBoundingClientRect();
+    const layer = document.querySelector('#seedsContainer .seed-layer[data-src="' + src + '"]');
+    const img = layer && layer.querySelector("img");
+    if(!img || !img.complete || !img.naturalWidth) return null;
+    const bb = getImgBBox(img);
+    if(!bb) return null;
+    const r = img.getBoundingClientRect();
+    const nat = img.naturalWidth / img.naturalHeight, box = r.width / r.height;
+    let dw, dh, ox, oy;
+    if(nat > box){ dw = r.width; dh = r.width / nat; ox = 0; oy = (r.height - dh)/2; }
+    else { dh = r.height; dw = r.height * nat; oy = 0; ox = (r.width - dw)/2; }
+    const sx = dw / img.naturalWidth, sy = dh / img.naturalHeight;
+    // getImgBBox pads by 6%; trim that back so "beside" hugs the real plant
+    const padX = img.naturalWidth * 0.06, padY = img.naturalHeight * 0.06;
+    return {
+      left:   r.left - rect.left + ox + (bb.x0 + padX) * sx,
+      right:  r.left - rect.left + ox + (bb.x1 - padX) * sx,
+      top:    r.top  - rect.top  + oy + (bb.y0 + padY) * sy,
+      bottom: r.top  - rect.top  + oy + (bb.y1 - padY) * sy
+    };
+  }catch(err){ return null; }
+}
+
+function placeBubbleBesidePlant(src){
+  const bub = document.getElementById("answerBubble");
+  const body = document.getElementById("gardenBody");
+  const b = plantBounds(src);
+  if(!bub || !body || !b) return;
+  const W = body.clientWidth, H = body.clientHeight;
+  const bw = bub.offsetWidth || 240, bh = bub.offsetHeight || 120;
+  const gap = 14, m = 10;
+  const cx = (b.left + b.right) / 2;
+  let left = Math.max(m, Math.min(cx - bw/2, W - bw - m));
+  let top;
+  if(b.top - gap - bh >= m)            top = b.top - gap - bh;        // above
+  else if(b.bottom + gap + bh <= H - m) top = b.bottom + gap;          // below
+  else {                                                              // beside
+    top = Math.max(m, Math.min((b.top + b.bottom)/2 - bh/2, H - bh - m));
+    if(b.right + gap + bw <= W - m) left = b.right + gap;
+    else if(b.left - gap - bw >= m) left = b.left - gap - bw;
+  }
+  bub.style.left = left + "px";
+  bub.style.top = top + "px";
 }
 
 // Organic clustering — NOT a grid.
@@ -8184,7 +8388,10 @@ function showBubbleAuto(){
   // Cycle only plants whose fixed trace has content
   const withTrace = gardenPlants.filter(p => entryHasTrace(p.entry));
   if(!withTrace.length) return;
-  const p = withTrace[bubbleIdx % withTrace.length];
+  let pool = withTrace.filter(p => p.src !== gardenLastAutoSrc);
+  if(!pool.length) pool = withTrace;
+  const p = pool[Math.floor(Math.random() * pool.length)];
+  gardenLastAutoSrc = p.src;
   openPlantTrace(p, true);
 }
 
@@ -8256,6 +8463,11 @@ function showBubbleAt(e, x, y, isAuto){
   }
 
   inner.innerHTML = headerHtml + bodyHtml;
+  inner.querySelectorAll("img,video").forEach(m => {
+    const again = () => { if(gardenLastBubbleSrc) placeBubbleBesidePlant(gardenLastBubbleSrc); };
+    m.addEventListener("load", again, {once:true});
+    m.addEventListener("loadedmetadata", again, {once:true});
+  });
   if(!isAuto){
     const v = inner.querySelector("video");
     if(v){
