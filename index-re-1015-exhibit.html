@@ -24,48 +24,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-<script>
-(function(){
-  function loadScript(src){
-    return new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = () => reject(new Error("Failed: " + src));
-      document.head.appendChild(s);
-    });
-  }
-  // After all gstatic scripts run, check if firebase is loaded.
-  // If NOT, try jsdelivr fallback CDN.
-  window._fbReady = new Promise((resolve) => {
-    if(typeof firebase !== "undefined"){
-      console.log("✓ Firebase loaded via gstatic");
-      resolve(true);
-      return;
-    }
-    console.warn("Firebase not on gstatic — trying jsdelivr fallback...");
-    loadScript("https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-app.js")
-      .then(() => loadScript("https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-database.js"))
-      .then(() => loadScript("https://cdn.jsdelivr.net/npm/firebase@8.10.1/firebase-storage.js"))
-      .then(() => {
-        if(typeof firebase !== "undefined"){
-          console.log("✓ Firebase loaded via jsdelivr");
-          resolve(true);
-        } else {
-          console.error("Firebase failed to load from both CDNs");
-          resolve(false);
-        }
-      })
-      .catch(err => {
-        console.error("Fallback failed:", err);
-        resolve(false);
-      });
-  });
-})();
-</script>
+<script>window._fbReady = Promise.resolve(false); /* 전시용: Firebase 사용 안 함 */</script>
 
 
 <style>
@@ -5706,6 +5665,89 @@ body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer
 #answerBubble{ z-index:60 !important; }
 
 /* ============================================================
+   1015 실생활용 r2 — recency fading + visible glow
+   Filters go on .seed-layer (the div): the img carries an upstream
+   `filter:none !important` that silently cancelled img-level effects.
+   ============================================================ */
+#seedsContainer .seed-layer{
+  --age:0;
+  opacity:calc(1 - var(--age) * 0.5);                       /* newest 1 → oldest .5 */
+  filter:brightness(calc(1.08 - var(--age) * 0.48)) saturate(calc(1.05 - var(--age) * 0.4));
+  transition:opacity .5s ease, filter .5s ease;
+}
+/* Newest plant: brightest, with a faint standing glow */
+#seedsContainer .seed-layer.is-newest{
+  filter:drop-shadow(0 0 8px rgba(255,246,214,.35)) brightness(1.12) saturate(1.08);
+}
+/* While a plant is tapped, everything else steps back */
+#seedsContainer.has-selection .seed-layer:not(.is-selected){
+  opacity:calc((1 - var(--age) * 0.5) * 0.45);
+}
+/* Tapped plant: full strength + breathing glow */
+#seedsContainer .seed-layer.is-selected{
+  opacity:1 !important;
+  animation:plantGlowLayer 2.2s ease-in-out infinite !important;
+}
+@keyframes plantGlowLayer{
+  0%,100%{ filter:drop-shadow(0 0 10px rgba(255,248,220,.95)) drop-shadow(0 0 30px rgba(255,236,170,.6)) brightness(1.3); }
+  50%    { filter:drop-shadow(0 0 18px rgba(255,250,230,1))   drop-shadow(0 0 56px rgba(255,236,170,.8)) brightness(1.5); }
+}
+/* Auto-cycle: soft glow on the plant being shown */
+#seedsContainer .seed-layer.is-cycling{
+  opacity:1;
+  filter:drop-shadow(0 0 10px rgba(255,246,214,.7)) drop-shadow(0 0 26px rgba(255,236,170,.35)) brightness(1.2);
+}
+/* r1 img-level effects are replaced by the layer-level ones above */
+#seedsContainer .seed-layer .seed-layer-img{ animation:none !important; }
+#seedsContainer.has-selection .seed-layer:not(.is-selected) .seed-layer-img{ opacity:1; }
+/* Bubble slides to its new spot instead of jumping */
+#answerBubble{ transition:opacity .6s, left .35s ease, top .35s ease; }
+
+/* ============================================================
+   1015 실생활용 r3 — new plant intro
+   ============================================================ */
+#gardenBody.has-intro #seedsContainer .seed-layer:not(.is-intro){ opacity:.18 !important; }
+#gardenBody.has-intro .garden-map{ opacity:.45; transition:opacity .6s; }
+#gardenBody .garden-map{ transition:opacity .8s; }
+#gardenBody.has-intro #answerBubble{ opacity:0 !important; }
+#seedsContainer .seed-layer.is-intro{
+  z-index:200 !important;
+  filter:drop-shadow(0 0 16px rgba(255,248,220,.8)) drop-shadow(0 0 48px rgba(255,236,170,.45)) brightness(1.25);
+  will-change:transform, opacity;
+}
+
+/* ============================================================
+   1015 실생활용 r4 — soft bubble + edge-only glow
+   ============================================================ */
+/* Bubble: slow fade + slight rise, no sliding between plants */
+#answerBubble:not(.ex-answer-big){
+  transition:opacity .7s ease, transform .9s cubic-bezier(.2,.7,.2,1) !important;
+  transform:translateY(10px) scale(.97);
+  transform-origin:50% 100%;
+}
+#answerBubble:not(.ex-answer-big).show{ transform:none; }
+#answerBubble.bub-instant{ transition:none !important; }
+
+/* Glow = thin light along the plant's own lines (no overall brightening) */
+#seedsContainer .seed-layer.is-newest{
+  filter:brightness(1.05) drop-shadow(0 0 1.5px rgba(255,250,235,.55));
+}
+#seedsContainer .seed-layer.is-selected{
+  animation:plantEdgeGlow 2.6s ease-in-out infinite !important;
+}
+@keyframes plantEdgeGlow{
+  0%,100%{ filter:drop-shadow(0 0 1px rgba(255,255,255,.95)) drop-shadow(0 0 4px rgba(255,244,205,.55)); }
+  50%    { filter:drop-shadow(0 0 1.5px rgba(255,255,255,1)) drop-shadow(0 0 8px rgba(255,244,205,.75)); }
+}
+#seedsContainer .seed-layer.is-cycling{
+  filter:drop-shadow(0 0 1px rgba(255,252,240,.85)) drop-shadow(0 0 4px rgba(255,240,200,.4));
+}
+#seedsContainer .seed-layer.is-intro{
+  filter:drop-shadow(0 0 1.5px rgba(255,255,255,.9)) drop-shadow(0 0 6px rgba(255,240,200,.45));
+  will-change:auto;   /* let the browser re-raster while scaling (sharper) */
+}
+
+/* ============================================================
    1015 전시용 — text-only trace + TV sample loop
    ============================================================ */
 #s8 .divider, #s8 .upload-box, #s8 .upload-preview, #fileInput{ display:none !important; }
@@ -5984,7 +6026,7 @@ const BASE = "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/";
        space = 파랑(bl) · body = 초록(gn) · taste = 분홍(pk) · safety = 노랑(yw)
    EX_F2F_CARDS      : '가까이서' 색별로 보여줄 실물 카드 2장
        (가능한 코드: OFFCARD_FILES 목록 참고, 예: "gn3-10")
-   EX_DB_PATH        : 관람객 기록이 저장되는 곳 (가족용 "entries"와 분리)
+   (관람객 흔적은 Firebase 없이 각자 폰(localStorage)에만 저장돼요)
    EX_TV_CYCLE_MS    : TV 자동순환 간격 (밀리초)
    ================================================================ */
 const EX_AFAR_QUESTIONS = {
@@ -5999,7 +6041,6 @@ const EX_F2F_CARDS = {
   pk: ["pk2-9", "pk2-10"],
   yw: ["yw1-10", "yw2-2"]
 };
-const EX_DB_PATH = "exhibition/jungone/web_entries";
 const EX_TV_CYCLE_MS = 6000;
 const MEDIA_BASE = "https://jj1lize-crypto.github.io/jungone/assets/media/";
 
@@ -6369,6 +6410,7 @@ const I18N = {
     bubble_playing: "▶ 재생 중",
     bubble_voicetrace: "음성 흔적",
     bubble_empty_trace: "저장된 흔적이 없어요",
+    bubble_media_fail: "저장된 사진·영상을 불러올 수 없어요",
     ex_ctrl_heading: "정원에서 만나고 싶은 식물을 골라주세요.",
     ex_ctrl_reset: "초기화",
     modal_pick: "이 카드 선택하기",
@@ -6437,6 +6479,7 @@ const I18N = {
     bubble_playing: "▶ playing",
     bubble_voicetrace: "voice trace",
     bubble_empty_trace: "No trace saved yet",
+    bubble_media_fail: "This photo or video can't be loaded",
     ex_ctrl_heading: "Choose a plant you would like to meet in the garden.",
     ex_ctrl_reset: "Reset",
     modal_pick: "Pick this card",
@@ -6622,7 +6665,24 @@ const firebaseConfig = {
   appId: "1:841576869762:web:78496fdfbc0bd2f523699b"
 };
 let fdb = null, fst = null, ENTRIES_REF = null;
+// ===== 전시용: visitor traces stay on this phone =====
+const EX_LOCAL_KEY = "jungone_exhibit_traces_v1";
+function loadLocalVisitorEntries(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(EX_LOCAL_KEY) || "[]");
+    if(Array.isArray(arr)){
+      arr.forEach(e => { if(e && e._key) seenKeys.add(e._key); });   // no bloom-in on reload
+      entries = [...DEMO, ...arr];
+    }
+  }catch(e){}
+}
+function saveLocalVisitorEntries(){
+  try{ localStorage.setItem(EX_LOCAL_KEY, JSON.stringify(entries.slice(DEMO.length))); }catch(e){}
+}
 async function initFirebase(){
+  loadLocalVisitorEntries();
+}
+async function _unusedFirebaseInit(){
   // Wait for SDK loader (handles gstatic OR jsdelivr fallback)
   const ready = await (window._fbReady || Promise.resolve(false));
   if(!ready || typeof firebase === "undefined"){
@@ -6633,7 +6693,7 @@ async function initFirebase(){
     firebase.initializeApp(firebaseConfig);
     fdb = firebase.database();
     fst = firebase.storage();
-    ENTRIES_REF = fdb.ref(EX_DB_PATH);
+    ENTRIES_REF = null;
     console.log("✓ Firebase connected");
     // Now safe to start listener
     startFirebaseListener();
@@ -7217,9 +7277,12 @@ function setFlashText(msg){
 }
 
 function pushToFirebase(entry){
+  gardenIntroSrc = plantUrlForEntry(entry) || null;   // garden will introduce this plant
   if(!ENTRIES_REF){
-    // No Firebase available — just add locally
+    // 전시용: save on this phone only
+    entry._key = "local-" + Date.now() + "-" + Math.random().toString(36).slice(2,6);
     entries.push(entry);
+    saveLocalVisitorEntries();
     if(document.getElementById("s9").classList.contains("active")) buildGarden();
     return;
   }
@@ -7902,7 +7965,6 @@ function exControllerReset(){
 // ===== 전시용 TV — sample loop =====
 // Shows the sample garden (DEMO traces) with the auto-cycle running forever.
 // ?mode=display            → samples only
-// ?mode=display&live=1     → samples + visitors' text traces from the web
 // &lang=ko / &lang=en      → TV language
 let SAMPLE_LOOP = false;
 function initSampleLoop(){
@@ -7926,7 +7988,6 @@ function initSampleLoop(){
   entries = [...DEMO];
   buildGarden();
   setTimeout(fitGardenStage, 50);
-  if(new URLSearchParams(location.search).get("live") === "1") initFirebase();
   // One tap/click/key → fullscreen (browsers need a gesture)
   const fs = () => {
     const el = document.documentElement;
@@ -8051,6 +8112,11 @@ function buildSparkles(){
 let bubbleTimer = null;
 let bubbleIdx = 0;
 let gardenPlants = [];          // [{src, entry}] in z-order (bottom → top)
+let gardenIntroSrc = null;       // plant to introduce on the next garden build
+let gardenIntroRunning = false;  // true while the intro animation plays
+let gardenRebuildPending = false;
+let gardenLastAutoSrc = null;
+const GARDEN_CYCLE_MS = 8000;    // slow random cycle (family)
 let gardenSelectedSrc = null;
 let gardenAutoPausedUntil = 0;
 const GARDEN_MAP_SRC = BASE + "garden-guide-hd.webp";
@@ -8066,8 +8132,9 @@ function collectGardenPlants(){
   entries.forEach((e, i) => {
     const src = plantUrlForEntry(e);
     if(!src) return;
-    if(!bySrc[src]){ bySrc[src] = {src, entry:e, firstIdx:i}; order.push(src); }
+    if(!bySrc[src]){ bySrc[src] = {src, entry:e, firstIdx:i, lastIdx:i}; order.push(src); }
     const cur = bySrc[src];
+    cur.lastIdx = i;                       // most recent planting of this plant
     // later entries replace earlier ones; an entry WITH a trace is never
     // replaced by a later entry WITHOUT one
     if(entryHasTrace(e) || !entryHasTrace(cur.entry)) cur.entry = e;
@@ -8076,6 +8143,9 @@ function collectGardenPlants(){
 }
 
 function buildGarden(){
+  // Don't tear the garden down while a new plant is flying to its spot
+  if(gardenIntroRunning){ gardenRebuildPending = true; return; }
+  if(gardenIntroSrc) gardenIntroRunning = true;
   buildSparkles();
   const container = document.getElementById("seedsContainer");
   container.innerHTML = "";
@@ -8097,10 +8167,17 @@ function buildGarden(){
   requestAnimationFrame(() => {
     fitGardenStage();
 
+    // Recency rank: newest planting → age 0 (brightest), oldest → age 1 (dimmest)
+    const byRecency = gardenPlants.slice().sort((a, b) => b.lastIdx - a.lastIdx);
+    const ageOf = {};
+    byRecency.forEach((p, r) => { ageOf[p.src] = byRecency.length > 1 ? r / (byRecency.length - 1) : 0; });
+
     gardenPlants.forEach((p, i) => {
       const e = p.entry;
       const seed = document.createElement("div");
+      seed.style.setProperty("--age", ageOf[p.src].toFixed(3));
       seed.className = "seed-layer";
+      if(ageOf[p.src] === 0) seed.classList.add("is-newest");
       seed.style.zIndex = String(10 + i);
       seed.dataset.src = p.src;
       seed.dataset.plantId = p.src;   // attachGardenHitTest reports this
@@ -8119,6 +8196,7 @@ function buildGarden(){
     // One click handler for the whole garden: find the plant actually under the tap
     if(!SAMPLE_LOOP) attachGardenHitTest(container,
       (src) => {
+        if(gardenIntroRunning) return;
         const p = gardenPlants.find(x => x.src === src);
         if(p) openPlantTrace(p, false);
       },
@@ -8126,16 +8204,98 @@ function buildGarden(){
 
     if(bubbleTimer) clearInterval(bubbleTimer);
     bubbleIdx = 0;
+    const introSrc = gardenIntroSrc;
+    gardenIntroSrc = null;
+    if(introSrc && gardenPlants.some(p => p.src === introSrc)){
+      runPlantIntro(introSrc);
+    } else {
+      gardenIntroRunning = false;
+    }
     if(gardenPlants.length){
-      if(!gardenSelectedSrc) showBubbleAuto();
-      const cycle = SAMPLE_LOOP ? EX_TV_CYCLE_MS : (IS_DISPLAY_MODE ? 4000 : 5000);
+      if(!gardenSelectedSrc && !gardenIntroRunning) showBubbleAuto();
+      const cycle = SAMPLE_LOOP ? EX_TV_CYCLE_MS : (IS_DISPLAY_MODE ? 4000 : GARDEN_CYCLE_MS);
       bubbleTimer = setInterval(() => {
+        if(gardenIntroRunning) return;                   // new plant is arriving
         if(Date.now() < gardenAutoPausedUntil) return;   // user is looking at a plant
         bubbleIdx = bubbleIdx + 1;
         showBubbleAuto();
       }, cycle);
     }
   });
+}
+
+// New plant: rises big in the centre, then shrinks and flies to its own spot,
+// then glows and opens its trace bubble.
+function runPlantIntro(src){
+  const body = document.getElementById("gardenBody");
+  const container = document.getElementById("seedsContainer");
+  const layer = container && container.querySelector('.seed-layer[data-src="' + src + '"]');
+  if(!body || !layer){ gardenIntroRunning = false; return; }
+  gardenIntroRunning = true;
+  gardenSelectedSrc = null;
+  setGardenHighlight(null, null);
+  const bub = document.getElementById("answerBubble");
+  if(bub) bub.classList.remove("show");
+  if(window._curAudio){ window._curAudio.pause(); window._curAudio = null; }
+
+  layer.classList.remove("new-arrival");
+  layer.classList.add("is-intro");
+  layer.style.opacity = "0";
+  body.classList.add("has-intro");
+
+  let done = false;
+  const finish = () => {
+    if(done) return; done = true;
+    layer.style.transformOrigin = "";
+    layer.style.opacity = "";
+    layer.classList.remove("is-intro");
+    body.classList.remove("has-intro");
+    gardenIntroRunning = false;
+    const p = gardenPlants.find(x => x.src === src);
+    if(p){
+      openPlantTrace(p, false);                       // glow + its bubble
+      gardenAutoPausedUntil = Date.now() + 10000;     // then the slow random cycle
+    }
+    if(gardenRebuildPending){ gardenRebuildPending = false; buildGarden(); }
+  };
+
+  const img = layer.querySelector("img");
+  const ready = (img && img.complete && img.naturalWidth) ? Promise.resolve() :
+    new Promise(r => {
+      if(!img){ r(); return; }
+      img.addEventListener("load", r, {once:true});
+      img.addEventListener("error", r, {once:true});
+      setTimeout(r, 8000);
+    });
+
+  ready.then(() => requestAnimationFrame(() => {
+    const b = plantBounds(src);
+    if(!b || !layer.animate){
+      // can't measure the plant: just fade it in
+      layer.style.opacity = "";
+      setTimeout(finish, 600);
+      return;
+    }
+    const W = body.clientWidth, H = body.clientHeight;
+    const bw = Math.max(1, b.right - b.left), bh = Math.max(1, b.bottom - b.top);
+    const cx = (b.left + b.right) / 2, cy = (b.top + b.bottom) / 2;
+    const k = Math.max(1.15, Math.min(2.4, (H * 0.5) / bh, (W * 0.75) / bw));
+    const br = body.getBoundingClientRect(), lr = layer.getBoundingClientRect();
+    // scale around the plant's own centre
+    layer.style.transformOrigin = (cx - (lr.left - br.left)) + "px " + (cy - (lr.top - br.top)) + "px";
+    const dx = W / 2 - cx, dy = H * 0.46 - cy;
+    const big = "translate(" + dx + "px," + dy + "px) scale(" + k + ")";
+    layer.style.opacity = "";
+    const anim = layer.animate([
+      { transform: big + " translateY(18px)", opacity: 0, offset: 0 },
+      { transform: big,                       opacity: 1, offset: 0.25 },
+      { transform: big,                       opacity: 1, offset: 0.52 },
+      { transform: "translate(0px,0px) scale(1)", opacity: 1, offset: 1 }
+    ], { duration: 4200, easing: "cubic-bezier(.45,0,.2,1)" });
+    anim.onfinish = finish;
+    anim.oncancel = finish;
+    setTimeout(finish, 6000);   // safety net
+  }));
 }
 
 function setGardenHighlight(src, mode){
@@ -8184,7 +8344,9 @@ function plantAnchor(src){
   return {x, y};
 }
 
+let gardenLastBubbleSrc = null;
 function openPlantTrace(p, isAuto, ev){
+  gardenLastBubbleSrc = p.src;
   const body = document.getElementById("gardenBody");
   const rect = body.getBoundingClientRect();
   let x, y;
@@ -8201,7 +8363,83 @@ function openPlantTrace(p, isAuto, ev){
     gardenSelectedSrc = null;
     setGardenHighlight(p.src, "cycling");
   }
-  showBubbleAt(p.entry, x, y, !!isAuto);
+  revealBubble(() => {
+    showBubbleAt(p.entry, x, y, !!isAuto);
+    placeBubbleBesidePlant(p.src);
+  }, !!isAuto);
+}
+
+// Fade the bubble in gently. Auto-cycle: fade the old one out first.
+// Taps render immediately (iOS only allows sound inside the tap), then fade in.
+let bubbleSwapTimer = null;
+function revealBubble(render, crossfade){
+  const bub = document.getElementById("answerBubble");
+  if(!bub){ render(); return; }
+  clearTimeout(bubbleSwapTimer);
+  const show = () => {
+    bub.classList.add("bub-instant");        // jump to hidden without a transition
+    bub.classList.remove("show");
+    render();
+    bub.classList.remove("show");            // render() adds it; we reveal it ourselves
+    void bub.offsetWidth;
+    bub.classList.remove("bub-instant");
+    requestAnimationFrame(() => requestAnimationFrame(() => bub.classList.add("show")));
+  };
+  if(crossfade && bub.classList.contains("show")){
+    bub.classList.remove("show");            // fade out (.7s), then the next one
+    bubbleSwapTimer = setTimeout(show, 750);
+  } else {
+    show();
+  }
+}
+
+// Opaque bounds of a plant layer in gardenBody coordinates (or null)
+function plantBounds(src){
+  try{
+    const body = document.getElementById("gardenBody");
+    const rect = body.getBoundingClientRect();
+    const layer = document.querySelector('#seedsContainer .seed-layer[data-src="' + src + '"]');
+    const img = layer && layer.querySelector("img");
+    if(!img || !img.complete || !img.naturalWidth) return null;
+    const bb = getImgBBox(img);
+    if(!bb) return null;
+    const r = img.getBoundingClientRect();
+    const nat = img.naturalWidth / img.naturalHeight, box = r.width / r.height;
+    let dw, dh, ox, oy;
+    if(nat > box){ dw = r.width; dh = r.width / nat; ox = 0; oy = (r.height - dh)/2; }
+    else { dh = r.height; dw = r.height * nat; oy = 0; ox = (r.width - dw)/2; }
+    const sx = dw / img.naturalWidth, sy = dh / img.naturalHeight;
+    // getImgBBox pads by 6%; trim that back so "beside" hugs the real plant
+    const padX = img.naturalWidth * 0.06, padY = img.naturalHeight * 0.06;
+    return {
+      left:   r.left - rect.left + ox + (bb.x0 + padX) * sx,
+      right:  r.left - rect.left + ox + (bb.x1 - padX) * sx,
+      top:    r.top  - rect.top  + oy + (bb.y0 + padY) * sy,
+      bottom: r.top  - rect.top  + oy + (bb.y1 - padY) * sy
+    };
+  }catch(err){ return null; }
+}
+
+function placeBubbleBesidePlant(src){
+  const bub = document.getElementById("answerBubble");
+  const body = document.getElementById("gardenBody");
+  const b = plantBounds(src);
+  if(!bub || !body || !b) return;
+  const W = body.clientWidth, H = body.clientHeight;
+  const bw = bub.offsetWidth || 240, bh = bub.offsetHeight || 120;
+  const gap = 14, m = 10;
+  const cx = (b.left + b.right) / 2;
+  let left = Math.max(m, Math.min(cx - bw/2, W - bw - m));
+  let top;
+  if(b.top - gap - bh >= m)            top = b.top - gap - bh;        // above
+  else if(b.bottom + gap + bh <= H - m) top = b.bottom + gap;          // below
+  else {                                                              // beside
+    top = Math.max(m, Math.min((b.top + b.bottom)/2 - bh/2, H - bh - m));
+    if(b.right + gap + bw <= W - m) left = b.right + gap;
+    else if(b.left - gap - bw >= m) left = b.left - gap - bw;
+  }
+  bub.style.left = left + "px";
+  bub.style.top = top + "px";
 }
 
 // Organic clustering — NOT a grid.
@@ -8268,7 +8506,10 @@ function showBubbleAuto(){
   // Cycle only plants whose fixed trace has content
   const withTrace = gardenPlants.filter(p => entryHasTrace(p.entry));
   if(!withTrace.length) return;
-  const p = withTrace[bubbleIdx % withTrace.length];
+  let pool = withTrace.filter(p => p.src !== gardenLastAutoSrc);
+  if(!pool.length) pool = withTrace;
+  const p = pool[Math.floor(Math.random() * pool.length)];
+  gardenLastAutoSrc = p.src;
   openPlantTrace(p, true);
 }
 
@@ -8340,6 +8581,18 @@ function showBubbleAt(e, x, y, isAuto){
   }
 
   inner.innerHTML = headerHtml + bodyHtml;
+  inner.querySelectorAll("img,video").forEach(m => {
+    m.addEventListener("error", () => {
+      const note = document.createElement("div");
+      note.className = "b-empty";
+      note.textContent = t("bubble_media_fail");
+      m.replaceWith(note);
+      if(gardenLastBubbleSrc) placeBubbleBesidePlant(gardenLastBubbleSrc);
+    }, {once:true});
+    const again = () => { if(gardenLastBubbleSrc) placeBubbleBesidePlant(gardenLastBubbleSrc); };
+    m.addEventListener("load", again, {once:true});
+    m.addEventListener("loadedmetadata", again, {once:true});
+  });
   if(!isAuto){
     const v = inner.querySelector("video");
     if(v){
