@@ -5829,6 +5829,19 @@ body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer
 #answerBubble.bub-instant:not(.ex-answer-big){ transition:none !important; }
 .bubble-ghost:not(.show){ opacity:0 !important; transform:translateY(-6px) scale(.98); }
 
+/* ============================================================
+   1015 실생활용 r6 — slower, softer bubble + media fade
+   ============================================================ */
+#answerBubble:not(.ex-answer-big), .bubble-ghost{
+  transition:opacity 1.8s cubic-bezier(.4,0,.2,1), transform 2s cubic-bezier(.2,.7,.2,1) !important;
+}
+#answerBubble.bub-instant:not(.ex-answer-big){ transition:none !important; }
+#bubbleInner img, #bubbleInner video{
+  opacity:0;
+  transition:opacity 1.8s cubic-bezier(.4,0,.2,1);
+}
+#bubbleInner img.media-ready, #bubbleInner video.media-ready{ opacity:1; }
+
 </style>
 </head>
 <body>
@@ -8366,16 +8379,39 @@ function revealBubble(render, crossfade){
     bub.classList.remove("show");            // render() adds it; we reveal it ourselves
     void bub.offsetWidth;
     bub.classList.remove("bub-instant");
-    requestAnimationFrame(() => requestAnimationFrame(() => bub.classList.add("show")));
+    whenBubbleMediaReady(bub, 2500).then(() => {
+      if(gardenLastBubbleSrc) placeBubbleBesidePlant(gardenLastBubbleSrc);   // final size known
+      requestAnimationFrame(() => requestAnimationFrame(() => bub.classList.add("show")));
+    });
   };
   if(crossfade && bub.classList.contains("show")){
-    bub.classList.remove("show");            // fade out, then the next one
-    bubbleSwapTimer = setTimeout(show, 1000);
+    fadeGhostOf(bub);                         // old one fades out on its own
+    bub.classList.add("bub-instant");
+    bub.classList.remove("show");
+    bubbleSwapTimer = setTimeout(show, 1100); // new one starts fading in a bit later
   } else {
     if(bub.classList.contains("show")) fadeGhostOf(bub);
     show();
   }
 }
+// Resolve when every photo/video in the bubble can be shown (or after `limit` ms).
+// Each medium also fades itself in, in case it arrives after the bubble.
+function whenBubbleMediaReady(bub, limit){
+  const media = Array.from(bub.querySelectorAll("#bubbleInner img, #bubbleInner video"));
+  const waits = media.map(m => new Promise(res => {
+    const ready = () => { m.classList.add("media-ready"); res(); };
+    if(m.tagName === "IMG"){
+      if(m.complete && m.naturalWidth) return ready();
+      m.addEventListener("load", ready, {once:true});
+    } else {
+      if(m.readyState >= 2) return ready();
+      m.addEventListener("loadeddata", ready, {once:true});
+    }
+    m.addEventListener("error", res, {once:true});
+  }));
+  return Promise.race([Promise.all(waits), new Promise(r => setTimeout(r, limit))]);
+}
+
 // Leave a copy of the current bubble on top and fade it away
 function fadeGhostOf(bub){
   try{
@@ -8386,8 +8422,9 @@ function fadeGhostOf(bub){
     ghost.classList.add("bubble-ghost");
     ghost.style.pointerEvents = "none";
     bub.parentNode.appendChild(ghost);
+    void getComputedStyle(ghost).opacity;      // commit the visible state first
     requestAnimationFrame(() => ghost.classList.remove("show"));
-    setTimeout(() => ghost.remove(), 1200);
+    setTimeout(() => ghost.remove(), 2200);
   }catch(e){}
 }
 
