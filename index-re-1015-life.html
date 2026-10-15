@@ -6670,6 +6670,15 @@ const DEMO_BY_LANG = {
   f2fDemo("Daughter", "yw2-2", {answer:"Sometimes I can't bring it up because I don't want to be a burden when tired."}, "2026.05.22")
 ]
 };
+// Family traces kept from Firebase (2026.06) — built in so the family garden always shows them
+const FAMILY_TRACES = [
+  f2fDemo("You", "yw3-6", {"answer": "The anxiety that comes with presenting for the final project and the uncertainty of passing.", "_key": "-OvjI1e67Upsxc72F3g8"}, "2026.06.22"),
+  f2fDemo("You", "bl3-5", {"answer": "The feeling of family loving each other", "_key": "-OvjIymc8vOdE-a50kHJ"}, "2026.06.22"),
+  f2fDemo("You", "bl1-7", {"answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/trace-photo2.jpg", "_key": "-Ovrs2P034TfnwWpT3hh"}, "2026.06.24"),
+  f2fDemo("You", "yw1-10", {"answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/trace-photo3.jpg", "_key": "-Ovrs2_BJtWSB4JObJul"}, "2026.06.24")
+];
+DEMO_BY_LANG.ko.push(...FAMILY_TRACES);
+DEMO_BY_LANG.en.push(...FAMILY_TRACES);   // FAMILY_TRACES_FOR_LIFE_ONLY
 const INVITE_MSG_BY_LANG = {
   ko: {
     a01: "의견을 존중하며 들어주세요.",
@@ -7873,7 +7882,9 @@ function startFirebaseListener(){
       });
     }
     // Merge: DEMO seeds first (anchor garden), then live entries
-    entries = [...DEMO, ...fbEntries];
+    // (skip Firebase records that are already built in, e.g. FAMILY_TRACES)
+    const builtIn = new Set(DEMO.map(d => d._key).filter(Boolean));
+    entries = [...DEMO, ...fbEntries.filter(e => !builtIn.has(e._key))];
 
     // If we're on the garden screen, redraw (preserves existing positions)
     const gardenActive = document.getElementById("s9").classList.contains("active");
