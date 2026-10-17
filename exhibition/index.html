@@ -5817,6 +5817,16 @@ body.ex-controller #answerBubble *, body.ex-controller .answer-bubble *{ pointer
 .lm-name-big, .icp-listen-name{ word-break:keep-all; }
 #s8 .trace-card-q .tcq-f{ margin:6px 0 0; font-size:13px; line-height:1.55; color:var(--muted); }
 
+/* Invitation save sheet (phones) */
+#inviteSheet{ position:fixed; inset:0; z-index:2147483000; background:#0b0a08;
+  display:flex; align-items:center; justify-content:center; padding:20px; }
+#inviteSheet .is-box{ width:min(92vw,420px); max-height:92vh; display:flex; flex-direction:column; align-items:center; gap:12px; }
+#inviteSheet .is-img{ width:100%; max-height:62vh; object-fit:contain; border-radius:8px;
+  -webkit-touch-callout:default; user-select:auto; }
+#inviteSheet .is-hint{ margin:0; color:#efe8da; font-size:14px; text-align:center; line-height:1.5; word-break:keep-all; }
+#inviteSheet .btn{ width:100%; }
+#inviteSheet .is-close{ background:#14120f !important; color:#efe8da !important; border-color:rgba(239,232,218,.5) !important; }
+
 /* ============================================================
    1015 전시용 — text-only trace + TV sample loop
    ============================================================ */
@@ -7251,7 +7261,7 @@ function setLanguage(lang){
     if(id === "s2") rebuildTopicCards();
     else if(id === "s3") rebuildQuestionCards();
     else if(id === "s6") rebuildConvScreen();
-    else if(id === "s7b") rebuildInvitePreview();
+    else if(id === "s7b"){ rebuildInvitePreview(); setTimeout(prerenderInvitation, 500); }
     else if(id === "s9"){
       // Exhibition modes: refresh count + idle + open card in new language
       if(document.body.classList.contains("ex-display") || document.body.classList.contains("ex-controller")){
@@ -8138,6 +8148,7 @@ function createInvitation(){
   const catEl = document.getElementById("icpMarkCat");
   if(catEl) catEl.textContent = CONV_CAT[color] || (TNAMES[t] || "").toUpperCase();
   go("s7b");
+  setTimeout(prerenderInvitation, 500);
 }
 
 // Load an image in a CORS-clean way (fetch → blob → objectURL), with fallbacks
@@ -8168,16 +8179,13 @@ function drawContain(ctx, img, x, y, w, h){
   ctx.drawImage(img, x + (w - dw)/2, y + (h - dh)/2, dw, dh);
 }
 
-async function downloadInvitation(){
+// ---- Invitation image: render once in the background, save on tap ----
+async function renderInvitationBlob(){
   const card = document.getElementById("inviteCardPreview");
-  if(typeof html2canvas === "undefined"){
-    setTip(t("s7b_save_screenshot"));
-    return;
-  }
-  setTip(t("s7b_saving"));
-  try{
+  if(typeof html2canvas === "undefined" || !card) throw new Error("no renderer");
+  try{ await document.fonts.ready; }catch(e){}
     const rect = card.getBoundingClientRect();
-    const scale = Math.max(3, (window.devicePixelRatio || 1) * 2);
+    const scale = 3;   // ~1000×1400 px: sharp, and light enough to send
     const W = Math.round(rect.width * scale), H = Math.round(rect.height * scale);
 
     // 1) Images (card back + plant) — drawn by us, so object-fit & CORS are exact
@@ -8224,17 +8232,89 @@ async function downloadInvitation(){
     ctx.drawImage(textCanvas, 0, 0, W, H);
     ctx.restore();
 
-    const link = document.createElement("a");
-    link.download = t("download_filename");
-    link.href = out.toDataURL("image/png");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTip(plantImg ? t("s7b_saved_ok") : t("s7b_save_fail"));
-  } catch(err){
-    console.error("[invite] save failed:", err);
-    setTip(t("s7b_save_fail"));
+    return await new Promise((res, rej) => out.toBlob(b => b ? res(b) : rej(new Error("toBlob")), "image/png"));
+}
+let _inviteBlob = null, _inviteKey = "", _inviteJob = null;
+function inviteStateKey(){ return [CURRENT_LANG, S.topic, S.questionIdx, S.listenCard].join("|"); }
+function prerenderInvitation(){
+  const k = inviteStateKey();
+  if(_inviteKey === k && (_inviteBlob || _inviteJob)) return _inviteJob || Promise.resolve(_inviteBlob);
+  _inviteKey = k; _inviteBlob = null;
+  _inviteJob = renderInvitationBlob()
+    .then(b => { if(_inviteKey === k) _inviteBlob = b; return b; })
+    .catch(err => { console.warn("[invite] render failed", err); return null; })
+    .finally(() => { _inviteJob = null; });
+  return _inviteJob;
+}
+function isPhone(){
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+         (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || ""));
+}
+function inviteFile(blob){
+  try{ return new File([blob], t("download_filename"), {type:"image/png"}); }catch(e){ return null; }
+}
+function canShareFile(file){
+  try{ return !!(file && navigator.canShare && navigator.share && navigator.canShare({files:[file]})); }catch(e){ return false; }
+}
+function shareInvite(file){
+  return navigator.share({files:[file]}).then(() => {
+    setTip(CURRENT_LANG === "en" ? "✓ Saved. Send the image to your family." : "✓ 저장되었어요. 가족에게 이미지를 보내주세요.");
+    closeInviteSheet();
+  });
+}
+// Fallback sheet: the image itself (long-press → "Save to Photos") + a share button (fresh tap)
+function showInviteSheet(blob){
+  closeInviteSheet();
+  const en = CURRENT_LANG === "en";
+  const url = URL.createObjectURL(blob);
+  const file = inviteFile(blob);
+  const sheet = document.createElement("div");
+  sheet.id = "inviteSheet";
+  sheet.innerHTML =
+    '<div class="is-box">' +
+      '<img class="is-img" alt="" src="' + url + '"/>' +
+      '<p class="is-hint">' + (en ? 'Press and hold the image, then choose “Save to Photos”.' : '이미지를 길게 눌러 ‘사진 앱에 저장’을 선택하세요.') + '</p>' +
+      (canShareFile(file) ? '<button class="btn is-share">' + (en ? 'Save to Photos' : '사진첩에 저장하기') + '</button>' : '') +
+      '<button class="btn btn-outline is-close">' + (en ? 'Close' : '닫기') + '</button>' +
+    '</div>';
+  document.body.appendChild(sheet);
+  const sb = sheet.querySelector(".is-share");
+  if(sb) sb.onclick = () => shareInvite(file).catch(() => {});
+  sheet.querySelector(".is-close").onclick = closeInviteSheet;
+  sheet.addEventListener("click", ev => { if(ev.target === sheet) closeInviteSheet(); });
+  setTip("");
+}
+function closeInviteSheet(){
+  const s = document.getElementById("inviteSheet");
+  if(s){ const im = s.querySelector("img"); if(im) URL.revokeObjectURL(im.src); s.remove(); }
+}
+async function downloadInvitation(){
+  const k = inviteStateKey();
+  let blob = (_inviteKey === k) ? _inviteBlob : null;
+  const ready = !!blob;                       // ready → still inside the tap, so the share sheet may open
+  if(!blob){
+    setTip(t("s7b_saving"));
+    blob = await prerenderInvitation();
+    if(!blob){ setTip(t("s7b_save_fail")); return; }
   }
+  if(isPhone()){
+    const file = inviteFile(blob);
+    if(ready && canShareFile(file)){
+      shareInvite(file).catch(err => { if(!err || err.name !== "AbortError") showInviteSheet(blob); });
+    } else {
+      showInviteSheet(blob);
+    }
+    return;
+  }
+  // computer: normal download
+  const link = document.createElement("a");
+  link.download = t("download_filename");
+  link.href = URL.createObjectURL(blob);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+  setTip(t("s7b_saved_ok"));
 }
 function setTip(msg){
   const el = document.getElementById("inviteTip");
