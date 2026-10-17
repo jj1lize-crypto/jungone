@@ -5835,12 +5835,11 @@ body.sample-loop .bubble-inner .b-question{ font-size:clamp(12px,1.1vw,16px) !im
 body.sample-loop .bubble-inner .b-answer{ font-size:clamp(18px,2vw,30px) !important; }
 body.sample-loop .display-hint{ display:none; }
 
-/* TV (?mode=display): gentle recency fading so the full garden stays bright */
-body.sample-loop #seedsContainer .seed-layer{
-  opacity:calc(1 - var(--age) * 0.22);
-  --b:calc(1.06 - var(--age) * 0.2);
-  --s:calc(1.04 - var(--age) * 0.14);
-}
+/* TV (?mode=display): three steps by age
+   1 = newest third: bright · 2 = middle: softer · 3 = oldest: faint like the unplanted map */
+body.sample-loop #seedsContainer .seed-layer[data-tier="1"]:not(.is-cycling){ opacity:1;   --b:1.06; --s:1.04; }
+body.sample-loop #seedsContainer .seed-layer[data-tier="2"]:not(.is-cycling){ opacity:.62; --b:.82;  --s:.8; }
+body.sample-loop #seedsContainer .seed-layer[data-tier="3"]:not(.is-cycling){ opacity:.2;  --b:.85;  --s:.35; }
 
 </style>
 </head>
@@ -6106,11 +6105,11 @@ const BASE = "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/";
    (관람객 흔적은 Firebase 없이 각자 폰(localStorage)에만 저장돼요)
    EX_TV_CYCLE_MS    : TV 자동순환 간격 (밀리초)
    ================================================================ */
-const EX_AFAR_QUESTIONS = {
-  space:  [1, 2],
-  body:   [1, 2],
-  taste:  [1, 2],
-  safety: [1, 2]
+const EX_AFAR_QUESTIONS = {      // [일반, 정원만의 질문]
+  space:  [9, 6],   // 하루 중 가장 좋아하는 순간 / "예전보다 조금 힘드네" 싶었던 순간
+  body:   [3, 2],   // 몸이 가장 편한 시간대 / 건강과 관련해 새로 신경 쓰이기 시작한 일
+  taste:  [1, 4],   // 자주 찾는 음식·음료·노래 / 남들은 몰라도 은근히 고집하는 방식
+  safety: [5, 7]    // 가족에게 고마웠던 말이나 행동 / 챙김이 간섭처럼 느껴진 적
 };
 const EX_TV_CYCLE_MS = 9000;
 
@@ -6454,7 +6453,17 @@ function tvEntries(){
   });
   return all;
 }
-let tvLangFlip = false;   // false → next bubble is Korean
+// TV order: 자료(사진·영상·음성) → 영어 텍스트 → 한국어 텍스트 → 자료 → …
+let tvStep = 0, tvForcedLang = null, tvMediaLang = "ko";
+const tvLast = {media:null, text:null};
+function tvIsMedia(p){ return !!(p.entry.photo || p.entry.video || p.entry.voice); }
+function tvPick(list, lastKey){
+  let pool = list.filter(p => p.src !== tvLast[lastKey]);
+  if(!pool.length) pool = list;
+  const p = pool[Math.floor(Math.random() * pool.length)];
+  tvLast[lastKey] = p.src;
+  return p;
+}
 const MEDIA_BASE = "https://jj1lize-crypto.github.io/jungone/assets/media/";
 
 // ===== Image system (4-color mapping: bl/gn/pk/yw) =====
@@ -7020,6 +7029,8 @@ const FAMILY_TRACES = [
   f2fDemo("You", "bl1-7", {"answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/trace-photo2.jpg", "_key": "-Ovrs2P034TfnwWpT3hh"}, "2026.06.24"),
   f2fDemo("You", "yw1-10", {"answer": "", "photo": "https://jj1lize-crypto.github.io/jungone/assets/jungone-main/trace-photo3.jpg", "_key": "-Ovrs2_BJtWSB4JObJul"}, "2026.06.24")
 ];
+// Old test / empty records still in Firebase (until 2026.10.15) — never shown
+const HIDDEN_FB_KEYS = new Set(["-OvrvBYJ-luutlQ8k5LP", "-OvryWiTiUESyPMUIViZ", "-Ovs-MYPRUbpcpbTSpp9", "-Ovse52QauWTWspOEW0X", "-Ovt6iZao8keMwZZTuuE", "-OvtBuG1U9chVjgcvqit", "-OvtG6iBhV3Ve5uy7I3p", "-OvtGWK85qTepZ--ssWb", "-OvtMIWWZyrsj6hAp6QQ", "-OvteSAZ_VxiTuW7iYq4", "-OvtrWp3tSAn4i85-QDU", "-Ovty5Wv_o-a1ox_00Cp", "-OvuAKydY4-18iKvtePT", "-OvuALuzsEQwqOwcucAY", "-OwSvuL3jDUnnJeQYT4J", "-OwT4alAvDmpFCKnVt0V", "-OwbxRFd08HejbVh0V7E", "-Ox1WbHdBek2jLz48Cuk", "-Ox1X42OjNflJbrBHWuN", "-P3xdP-Y6qfKLJ26ZbZ-", "-P3xdUTQJVQymRS_4Vkv", "-P3xfps_pAyJp08FjYzU", "-P3xfxi5t7HPu9zmzBA2", "-P3xlrWAhT2eRM6Mrk_8", "-P3xn5koQgdN3LqebSLh", "-P3xnFAHpWzPC67J0ehg", "-P3xnOAQisg8bnFhKvTE"]);
 const INVITE_MSG_BY_LANG = {
   ko: {
     a01: "의견을 존중하며 들어주세요.",
@@ -8250,7 +8261,7 @@ function startFirebaseListener(){
     // Merge: DEMO seeds first (anchor garden), then live entries
     // (skip Firebase records that are already built in, e.g. FAMILY_TRACES)
     const builtIn = new Set(DEMO.map(d => d._key).filter(Boolean));
-    entries = [...DEMO, ...fbEntries.filter(e => !builtIn.has(e._key))];
+    entries = [...DEMO, ...fbEntries.filter(e => !builtIn.has(e._key) && !HIDDEN_FB_KEYS.has(e._key))];
 
     // If we're on the garden screen, redraw (preserves existing positions)
     const gardenActive = document.getElementById("s9").classList.contains("active");
@@ -8896,6 +8907,7 @@ function buildGarden(){
       const e = p.entry;
       const seed = document.createElement("div");
       seed.style.setProperty("--age", ageOf[p.src].toFixed(3));
+      seed.dataset.tier = ageOf[p.src] < 1/3 ? "1" : (ageOf[p.src] < 2/3 ? "2" : "3");
       seed.className = "seed-layer";
       if(ageOf[p.src] === 0) seed.classList.add("is-newest");
       seed.style.zIndex = String(10 + i);
@@ -9162,7 +9174,26 @@ function fadeGhostOf(bub){
     const ghost = bub.cloneNode(true);
     ghost.removeAttribute("id");
     ghost.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
-    ghost.querySelectorAll("video").forEach(v => { v.muted = true; });
+    // Freeze the exact size (id-based width rules don't reach the copy → it used to re-flow)
+    const r = bub.getBoundingClientRect();
+    ghost.style.setProperty("width", r.width + "px", "important");
+    ghost.style.setProperty("max-width", "none", "important");
+    ghost.style.setProperty("min-width", "0", "important");
+    // Photos/videos: keep what is on screen right now (a cloned video restarts from 0)
+    const srcVids = bub.querySelectorAll("video"), ghostVids = ghost.querySelectorAll("video");
+    ghostVids.forEach((v, i) => {
+      const sv = srcVids[i];
+      const vr = sv ? sv.getBoundingClientRect() : null;
+      try{
+        const c = document.createElement("canvas");
+        c.width = sv.videoWidth || 320; c.height = sv.videoHeight || 180;
+        c.getContext("2d").drawImage(sv, 0, 0, c.width, c.height);
+        c.style.cssText = v.style.cssText;
+        if(vr){ c.style.width = vr.width + "px"; c.style.height = vr.height + "px"; }
+        v.replaceWith(c);
+      }catch(err){ v.muted = true; v.pause(); }
+    });
+    ghost.querySelectorAll("img").forEach(im => { im.style.opacity = "1"; });
     ghost.classList.add("bubble-ghost");
     ghost.style.pointerEvents = "none";
     bub.parentNode.appendChild(ghost);
@@ -9282,6 +9313,20 @@ function getPositions(n, W, H){
 }
 
 function showBubbleAuto(){
+  if(SAMPLE_LOOP){
+    const media = gardenPlants.filter(p => tvIsMedia(p));
+    const text  = gardenPlants.filter(p => !tvIsMedia(p) && entryHasTrace(p.entry));
+    const phase = tvStep % 3; tvStep++;
+    let p = null;
+    if(phase === 0 && media.length){
+      p = tvPick(media, "media");
+      tvForcedLang = tvMediaLang; tvMediaLang = (tvMediaLang === "ko") ? "en" : "ko";
+    } else if(text.length){
+      p = tvPick(text, "text");
+      tvForcedLang = (phase === 1) ? "en" : "ko";
+    }
+    if(p){ gardenLastAutoSrc = p.src; openPlantTrace(p, true); return; }
+  }
   // Cycle only plants whose fixed trace has content
   const withTrace = gardenPlants.filter(p => entryHasTrace(p.entry));
   if(!withTrace.length) return;
@@ -9300,10 +9345,9 @@ function showBubbleForEntry(e, isAuto, ev){
 }
 
 function showBubbleAt(e, x, y, isAuto){
-  if(SAMPLE_LOOP && e && e.i18n){
-    const L = tvLangFlip ? "en" : "ko";
-    tvLangFlip = !tvLangFlip;
-    e = Object.assign({}, e, {answer: e.i18n[L] || e.answer, _lang: L});
+  if(SAMPLE_LOOP && e && tvForcedLang){
+    const L = tvForcedLang;
+    e = Object.assign({}, e, {answer: (e.i18n && e.i18n[L]) || e.answer, _lang: L});
   }
   // Stop any previously playing audio (TV: fade it out with the bubble)
   if(window._curAudio){
