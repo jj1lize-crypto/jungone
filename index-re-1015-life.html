@@ -6679,6 +6679,8 @@ const FAMILY_TRACES = [
 ];
 DEMO_BY_LANG.ko.push(...FAMILY_TRACES);
 DEMO_BY_LANG.en.push(...FAMILY_TRACES);   // FAMILY_TRACES_FOR_LIFE_ONLY
+// Old test / empty records still in Firebase (until 2026.10.15) — never shown
+const HIDDEN_FB_KEYS = new Set(["-OvrvBYJ-luutlQ8k5LP", "-OvryWiTiUESyPMUIViZ", "-Ovs-MYPRUbpcpbTSpp9", "-Ovse52QauWTWspOEW0X", "-Ovt6iZao8keMwZZTuuE", "-OvtBuG1U9chVjgcvqit", "-OvtG6iBhV3Ve5uy7I3p", "-OvtGWK85qTepZ--ssWb", "-OvtMIWWZyrsj6hAp6QQ", "-OvteSAZ_VxiTuW7iYq4", "-OvtrWp3tSAn4i85-QDU", "-Ovty5Wv_o-a1ox_00Cp", "-OvuAKydY4-18iKvtePT", "-OvuALuzsEQwqOwcucAY", "-OwSvuL3jDUnnJeQYT4J", "-OwT4alAvDmpFCKnVt0V", "-OwbxRFd08HejbVh0V7E", "-Ox1WbHdBek2jLz48Cuk", "-Ox1X42OjNflJbrBHWuN", "-P3xdP-Y6qfKLJ26ZbZ-", "-P3xdUTQJVQymRS_4Vkv", "-P3xfps_pAyJp08FjYzU", "-P3xfxi5t7HPu9zmzBA2", "-P3xlrWAhT2eRM6Mrk_8", "-P3xn5koQgdN3LqebSLh", "-P3xnFAHpWzPC67J0ehg", "-P3xnOAQisg8bnFhKvTE"]);
 const INVITE_MSG_BY_LANG = {
   ko: {
     a01: "의견을 존중하며 들어주세요.",
@@ -7884,7 +7886,7 @@ function startFirebaseListener(){
     // Merge: DEMO seeds first (anchor garden), then live entries
     // (skip Firebase records that are already built in, e.g. FAMILY_TRACES)
     const builtIn = new Set(DEMO.map(d => d._key).filter(Boolean));
-    entries = [...DEMO, ...fbEntries.filter(e => !builtIn.has(e._key))];
+    entries = [...DEMO, ...fbEntries.filter(e => !builtIn.has(e._key) && !HIDDEN_FB_KEYS.has(e._key))];
 
     // If we're on the garden screen, redraw (preserves existing positions)
     const gardenActive = document.getElementById("s9").classList.contains("active");
