@@ -9110,22 +9110,21 @@ function revealBubble(render, crossfade){
   if(!bub){ render(); return; }
   clearTimeout(bubbleSwapTimer);
   const show = () => {
-    bub.classList.add("bub-instant");        // jump to hidden without a transition
-    bub.classList.remove("show");
+    const b = document.getElementById("answerBubble");
+    b.classList.add("bub-instant");          // jump to hidden without a transition
+    b.classList.remove("show");
     render();
-    bub.classList.remove("show");            // render() adds it; we reveal it ourselves
-    void bub.offsetWidth;
-    bub.classList.remove("bub-instant");
-    whenBubbleMediaReady(bub, 2500).then(() => {
+    b.classList.remove("show");              // render() adds it; we reveal it ourselves
+    void b.offsetWidth;
+    b.classList.remove("bub-instant");
+    whenBubbleMediaReady(b, 2500).then(() => {
       if(gardenLastBubbleSrc) placeBubbleBesidePlant(gardenLastBubbleSrc);   // final size known
-      requestAnimationFrame(() => requestAnimationFrame(() => bub.classList.add("show")));
+      requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add("show")));
     });
   };
   if(crossfade && bub.classList.contains("show")){
     if(SAMPLE_LOOP && window._curAudio){ fadeAudioOut(window._curAudio); window._curAudio = null; }
     fadeGhostOf(bub);                         // old one fades out on its own
-    bub.classList.add("bub-instant");
-    bub.classList.remove("show");
     bubbleSwapTimer = setTimeout(show, 1100); // new one starts fading in a bit later
   } else {
     if(bub.classList.contains("show")) fadeGhostOf(bub);
@@ -9137,7 +9136,8 @@ function revealBubble(render, crossfade){
 function whenBubbleMediaReady(bub, limit){
   const media = Array.from(bub.querySelectorAll("#bubbleInner img, #bubbleInner video"));
   const waits = media.map(m => new Promise(res => {
-    const ready = () => { m.classList.add("media-ready"); res(); };
+    // no separate media fade while the bubble itself is still fading in (double fade looked like a pop)
+    const ready = () => { if(!bub.classList.contains("show")) m.style.transition = "none"; m.classList.add("media-ready"); res(); };
     if(m.tagName === "IMG"){
       if(m.complete && m.naturalWidth) return ready();
       m.addEventListener("load", ready, {once:true});
@@ -9169,38 +9169,43 @@ function fadeAudioOut(audio){
 }
 
 // Leave a copy of the current bubble on top and fade it away
+// (now: the visible bubble itself becomes the fading "ghost" — nothing is copied or re-loaded;
+// an empty bubble with the same ids replaces it for the next trace.
 function fadeGhostOf(bub){
   try{
-    const ghost = bub.cloneNode(true);
-    ghost.removeAttribute("id");
-    ghost.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
-    // Freeze the exact size (id-based width rules don't reach the copy → it used to re-flow)
     const r = bub.getBoundingClientRect();
-    ghost.style.setProperty("width", r.width + "px", "important");
-    ghost.style.setProperty("max-width", "none", "important");
-    ghost.style.setProperty("min-width", "0", "important");
-    // Photos/videos: keep what is on screen right now (a cloned video restarts from 0)
-    const srcVids = bub.querySelectorAll("video"), ghostVids = ghost.querySelectorAll("video");
-    ghostVids.forEach((v, i) => {
-      const sv = srcVids[i];
-      const vr = sv ? sv.getBoundingClientRect() : null;
-      try{
-        const c = document.createElement("canvas");
-        c.width = sv.videoWidth || 320; c.height = sv.videoHeight || 180;
-        c.getContext("2d").drawImage(sv, 0, 0, c.width, c.height);
-        c.style.cssText = v.style.cssText;
-        if(vr){ c.style.width = vr.width + "px"; c.style.height = vr.height + "px"; }
-        v.replaceWith(c);
-      }catch(err){ v.muted = true; v.pause(); }
+    const oldInner = bub.querySelector("#bubbleInner");
+    // keep media exactly as they look now (their opacity came from #bubbleInner rules)
+    bub.querySelectorAll("img,video").forEach(m => {
+      m.style.transition = "none";
+      m.style.opacity = getComputedStyle(m).opacity;
     });
-    ghost.querySelectorAll("img").forEach(im => { im.style.opacity = "1"; });
-    ghost.classList.add("bubble-ghost");
-    ghost.style.pointerEvents = "none";
-    bub.parentNode.appendChild(ghost);
+    const fresh = bub.cloneNode(false);
+    const inner = document.createElement("div");
+    inner.className = oldInner ? oldInner.className : "bubble-inner";
+    inner.id = "bubbleInner";
+    if(oldInner) inner.style.cssText = oldInner.style.cssText;
+    fresh.appendChild(inner);
+    fresh.classList.remove("show", "bubble-ghost");
+    fresh.classList.add("bub-instant");
+    // old bubble → ghost, frozen at its current size
+    bub.removeAttribute("id");
+    bub.querySelectorAll("[id]").forEach(n => n.removeAttribute("id"));
+    bub.style.setProperty("width", r.width + "px", "important");
+    bub.style.setProperty("max-width", "none", "important");
+    bub.style.setProperty("min-width", "0", "important");
+    bub.style.pointerEvents = "none";
+    bub.classList.add("bubble-ghost");
+    bub.parentNode.insertBefore(fresh, bub);
+    const ghost = bub;
     void getComputedStyle(ghost).opacity;      // commit the visible state first
     requestAnimationFrame(() => ghost.classList.remove("show"));
-    setTimeout(() => ghost.remove(), 2200);
-  }catch(e){}
+    setTimeout(() => {
+      ghost.querySelectorAll("video").forEach(v => { try{ v.pause(); }catch(e){} });
+      ghost.remove();
+    }, 2300);
+    return fresh;
+  }catch(e){ return bub; }
 }
 
 // Opaque bounds of a plant layer in gardenBody coordinates (or null)
